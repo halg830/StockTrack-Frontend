@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import {router} from './router/routes.js'
+import {router} from './routes/routes.js'
 import {createPinia} from 'pinia'
 import axios from 'axios'
 import { Quasar, Dialog, Notify } from 'quasar'
