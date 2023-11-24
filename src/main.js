@@ -5,7 +5,7 @@ import axios from 'axios'
 import { Quasar, Dialog, Notify } from 'quasar'
 import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/src/css/index.sass'
-import App from './App.vue'
+import App from './app.vue'
 
 axios.defaults.baseURL = ''
 
@@ -20,6 +20,6 @@ myApp.use(Quasar, {
 })
 
 myApp.use(pinia)
-myApp.use(router)
+// myApp.use(router)
 
 myApp.mount('#app')
