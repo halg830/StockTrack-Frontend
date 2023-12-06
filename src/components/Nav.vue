@@ -16,6 +16,16 @@ const logout = () => {
 const closeProfileDialog = () => {
   profileDialog.value = false;
 };
+
+const opciones = [
+  {label: 'Prueba', o:['form', 'nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido']},
+  {label: 'Administración General', o: ['fichas', 'lotes', 'presupuestos', 'cuentas']},
+  {label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución'},
+  {label: 'Productos', o: ['listado', 'reportes']},
+]
+
+const primeraMayus = (cadena) => cadena.charAt(0).toUpperCase() + cadena.slice(1);
+
 </script>
 <template>
   <div class="stocktrackHome">
@@ -26,29 +36,15 @@ const closeProfileDialog = () => {
 
       <div class="spacer"></div>
 
-      <q-btn-dropdown class="menuDesplegable" label="Administración General"  flat
-        style="color: black; background: transparent;">
-        <q-item @click="nav('fichas')">Fichas</q-item>
-        <q-item @click="nav('lotes')">Lotes</q-item>
-        <q-item @click="nav('presupuestos')">Presupuestos</q-item>
-        <q-item @click="nav('cuentas')">Cuentas</q-item>
-      </q-btn-dropdown>
-
-      <q-btn-dropdown class="menuDesplegable" label="Devoluciones"  flat
-        style="color: black; background: transparent;">
-        <q-item @click="nav('formato-devolucion')">Formato de devolución</q-item>
-        <q-item @click="nav('historial')">Historial</q-item>
-      </q-btn-dropdown>
-
-      <q-btn-dropdown class="menuDesplegable" label="Productos" flat
-        style="color: black; background: transparent;">
-        <q-item @click="navigateTo('listado')">Listado</q-item>
-        <q-item @click="navigateTo('reportes')">Reportes</q-item>
+      <q-btn-dropdown v-for="(opcion, index) in opciones" :key="index" class="menuDesplegable" :label="opcion.label" flat style="color: black; background: transparent;">
+        <router-link v-for="(o,i) in opcion.o" :key="i" :to="'/' + o" class="items">
+          <q-item>{{ opcion.e && i==0 ? opcion.e : primeraMayus(o) }}</q-item>
+        </router-link>
       </q-btn-dropdown>
 
       <q-btn class="usuarioMenu" icon="person" style="color: black; background: #39A900;" @click="showProfileDialog" />
       
-      <q-dialog v-model="profileDialog" persistent>
+      <q-dialog v-model="profileDialog">
         <q-card>
           <q-card-section>
             <p>Correo del usuario: usuario@ejemplo.com</p>
@@ -59,6 +55,10 @@ const closeProfileDialog = () => {
         </q-card>
       </q-dialog>
     </nav>
+
+    <section>
+      <router-view></router-view>
+    </section>
   </div>
 </template>
 
@@ -86,5 +86,10 @@ const closeProfileDialog = () => {
 }
 .q-btn {
   margin-right: 10px;
+}
+
+.items{
+  text-decoration: none;
+  color: black
 }
 </style>

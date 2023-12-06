@@ -23,7 +23,7 @@ const correoValido = () => {
 
     <section>
       <article id="image">
-        <img src="./assets/Stocktrack.jpg" alt="">
+        <img src="src/assets/Stocktrack.jpg" alt="">
       </article>
       <article id="text">
         <div id="text1">

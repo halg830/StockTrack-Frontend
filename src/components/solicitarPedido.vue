@@ -35,7 +35,7 @@ function filterFn(val, update) {
 
 </script>
 <template>
-  <main>
+ <!--  <main>
     <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
       <section>
         <article>
@@ -64,7 +64,7 @@ function filterFn(val, update) {
         <article></article>
       </section>
     </q-form>
-  </main>
+  </main> -->
 </template>
 
 <style scoped></style>
