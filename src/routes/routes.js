@@ -7,6 +7,7 @@ import Form from '../components/form.vue'
 import NuevaContra from '../components/nuevaContraseña.vue'
 import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
+import GestionProductos from '../components/GestionProductos.vue'
 
 const routes = [
   {path: '/', component: Nav, children:[
@@ -17,7 +18,8 @@ const routes = [
     {path: '/form', component: Form},
     {path: '/nueva-contraseña', component: NuevaContra},
     {path: '/recuperar-contraseña', component: recuperarContra},
-    {path: '/solicitar', component: solicitar},
+    {path: '/solicitar-pedido', component: solicitar},
+    {path: '/listado', component: GestionProductos}
   ]}
 ]
 
