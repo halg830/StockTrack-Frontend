@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import helpersGenerales from '../helpers/generales.js'
 
 const profileDialog = ref(false);
 
@@ -18,14 +19,11 @@ const closeProfileDialog = () => {
 };
 
 const opciones = [
-  {label: 'Prueba', o:['form', 'nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido']},
+  {label: 'Prueba', o:['nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido']},
   {label: 'Administración General', o: ['fichas', 'lotes', 'presupuestos', 'cuentas']},
   {label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución'},
   {label: 'Productos', o: ['listado', 'reportes']},
 ]
-
-const primeraMayus = (cadena) => cadena.charAt(0).toUpperCase() + cadena.slice(1);
-
 </script>
 <template>
   <div class="stocktrackHome">
@@ -38,7 +36,7 @@ const primeraMayus = (cadena) => cadena.charAt(0).toUpperCase() + cadena.slice(1
 
       <q-btn-dropdown v-for="(opcion, index) in opciones" :key="index" class="menuDesplegable" :label="opcion.label" flat style="color: black; background: transparent;">
         <router-link v-for="(o,i) in opcion.o" :key="i" :to="'/' + o" class="items">
-          <q-item>{{ opcion.e && i==0 ? opcion.e : primeraMayus(o) }}</q-item>
+          <q-item>{{ opcion.e && i==0 ? opcion.e : helpersGenerales.primeraMayus(o) }}</q-item>
         </router-link>
       </q-btn-dropdown>
 
