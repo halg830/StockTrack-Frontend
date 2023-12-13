@@ -14,7 +14,7 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     } catch (error) {
       console.log(error);
       if (error.message === "Network Error") {
-        helpersGenerales.notificar("Sin conexión, por favor intente recargar");
+        helpersGenerales.notificar('negative',"Sin conexión, por favor intente recargar");
         return null;
       }
       return error.response.data;
