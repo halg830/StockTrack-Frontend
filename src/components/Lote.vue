@@ -5,35 +5,33 @@ import { ref } from 'vue';
 
 const $q = useQuasar();
 
-let numeroFicha = ref(null);
-let nombreFicha = ref(null);
-let nivelFormacion = ref(null);
-let fechaInicio = ref(null);
-let fechaFin = ref(null);
+let presupuesto = ref(null);
+let nombreLote = ref(null);
 
 let pagination = ref({rowsPerPage: 0});
+
 let text = ref('');
 let dense =  ref(false);
 
-let textAgregarEditar = ref("Agregar Fichas")
+let textAgregarEditar = ref("Agregar Lote")
 
-let niveles = ref([
-    "Técnico", "Tecnólogo"
-])
+// let niveles = ref([
+//     "Técnico", "Tecnólogo"
+// ])
 
-let rows = ref([
-    {nombre: "Ficha 1", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-])
+// let rows = ref([
+//     {nombre: "Ficha 1", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
+// ])
 
 function agregarFicha() {
 
@@ -48,16 +46,13 @@ function agregarFicha() {
 };
 
 function buscarFicha(){
-    console.log("Buscando Ficha");
+    console.log("Buscando Lote");
 };
 
 
 function onReset() {
-    numeroFicha.value = "";
-    nombreFicha.value = "";
-    nivelFormacion.value = "";
-    fechaInicio.value = "";
-    fechaFin.value = "";
+    nombreLote.value = "";
+    presupuesto.value = "";
 };
 </script>
 
@@ -68,20 +63,12 @@ function onReset() {
             <article>
                 <div class="q-pa-md" style="width: 400px">
                     <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
-                        <q-input filled v-model="numeroFicha" type="number" label="N° Ficha" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el numero de ficha']" />
+                        
+                        <q-input filled v-model="nombreFicha" label="Nombre Lote" lazy-rules
+                            :rules="[val => val && val.length > 0 || 'Digite el Nombre del Lote']" />
 
-                        <q-input filled v-model="nombreFicha" label="Nombre Programa" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el Nombre del Programa']" />
-
-                        <q-select filled v-model="nivelFormacion" label="Nivel de Formación" lazy-rules :options=niveles
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
-
-                        <q-input filled v-model="fechaInicio" type="date" label="Fecha Inicio" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio']" />
-
-                        <q-input filled v-model="fechaFin" type="date" label="Fecha Fin" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización']" />
+                        <q-input filled v-model="numeroFicha" type="number" label="Presupuesto" lazy-rules
+                            :rules="[val => val && val.length > 0 || 'Digite el presupuesto']" />
                         <div>
                             <q-btn label="Submit" type="submit" color="primary" />
                             <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
@@ -94,8 +81,8 @@ function onReset() {
         <section class="container-fichas-existentes">
             <article>
                 <div class="busquedas">
-                    <h2>Fichas</h2>
-                    <q-input filled bottom-slots v-model="text" label="Buscar Ficha" :dense="dense" style="width: 400px; color: white" bg-color="white">
+                    <h2>Lotes</h2>
+                    <q-input filled bottom-slots v-model="text" label="Buscar Lote" :dense="dense" style="width: 400px; color: white" bg-color="white">
                         <template v-slot:append>
                           <q-icon v-if="text !== ''" name="delete" @click="text = ''" class="cursor-pointer" />
                           <q-icon name="search" @click="buscarFicha()" />

@@ -8,6 +8,8 @@ import NuevaContra from '../components/nuevaContraseña.vue'
 import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
 import GestionProductos from '../components/gestionProductos.vue'
+import Lote from '../components/Lote.vue'
+
 
 const routes = [
   {path: '/', component: Login},
@@ -19,7 +21,11 @@ const routes = [
     {path: '/nueva-contraseña', component: NuevaContra},
     {path: '/recuperar-contraseña', component: recuperarContra},
     {path: '/solicitar-pedido', component: solicitar},
-    {path: '/listado', component: GestionProductos}
+    {path: '/listado', component: GestionProductos},
+    {path: '/lotes', component: Lote},
+    {path: '/programas', component: Lote},
+
+ 
   ]}
 ]
 
