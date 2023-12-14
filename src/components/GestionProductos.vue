@@ -1,17 +1,28 @@
 <script setup>
 import { ref } from 'vue'
+import { useQuasar } from 'quasar';
 import { useStoreProductos } from '../Stores/productos.js'
 import helpersGenerales from '../helpers/generales';
 const useProductos = useStoreProductos()
 const loadingTable = ref(false);
 const loadingModal = ref(false)
+const loadIn_activar = ref(false)
 const filter = ref("");
 const modal = ref(false)
+const $q = useQuasar()
+
+function notificar(tipo, msg) {
+    $q.notify({
+        type: tipo,
+        message: msg,
+        position: "top",
+    });
+}
 
 const estado = ref('agregar')
 const data = ref({})
 
-const unidadesMedida = ['lb', 'kg', 'cm', 'm', 'ml', 'L', 'no aplica']
+const unidadesMedida = ['lb', 'kg', 'cm', 'm', 'ml', 'L', 'No aplica']
 
 const columns = ref([
     {
@@ -80,11 +91,11 @@ async function getInfo() {
 
         if (!response) return;
         if (response.error) {
-            helpersGenerales.notificar('negative', response.error)
+            notificar('negative', response.error)
             return
         }
 
-        rows.value = response.data
+        rows.value = response
 
     } catch (error) {
         console.log(error);
@@ -118,20 +129,39 @@ const enviarInfo = {
 
             if (!response) return
             if (response.error) {
-                helpersGenerales.notificar('negative', response.error)
+                notificar('negative', response.error)
                 return
             }
 
             rows.value.unshift(response)
             modal.value = false
-            helpersGenerales.notificar('positive', 'Guardado exitosamente')
+            notificar('positive', 'Guardado exitosamente')
         } catch (error) {
             console.log(error);
         } finally {
             loadingModal.value = false
         }
     },
-    editar: async () => { }
+    editar: async () => {
+        loadingModal.value = true
+        try {
+            console.log(data.value);
+            const response = await useProductos.editar(data.value._id, data.value);
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response);
+            modal.value = false
+            notificar('positive', 'Editado exitosamente')
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingModal.value = false;
+        }
+    }
 }
 
 function validarCampos() {
@@ -152,6 +182,49 @@ function validarCampos() {
         }
     }
     enviarInfo[estado.value]()
+}
+
+const in_activar = {
+    activar: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useProductos.activar(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    },
+    inactivar: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useProductos.inactivar(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    }
+}
+
+function buscarIndexLocal(id) {
+    return rows.value.findIndex((r) => r._id === id);
 }
 
 </script>
@@ -213,6 +286,22 @@ function validarCampos() {
                         <q-icon name="search" />
                     </template>
                 </q-input>
+            </template>
+            <template v-slot:body-cell-estado="props">
+                <q-td :props="props" class="botones">
+                    <q-btn class="botonv1" text-size="1px" padding="10px" :loading="loadIn_activar" :label="props.row.estado
+                        ? 'Activo'
+                        : !props.row.estado
+                            ? 'Inactivo'
+                            : '‎  ‎   ‎   ‎   ‎ '
+                        " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+                        @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id);" />
+                </q-td>
+            </template>
+            <template v-slot:body-cell-opciones="props">
+                <q-td :props="props" class="botones">
+                    <q-btn color="warning" icon="edit" class="botonv1" @click="opciones.editar(props.row)" />
+                </q-td>
             </template>
         </q-table>
     </main>
