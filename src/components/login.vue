@@ -63,19 +63,152 @@ function limitarLongitud(input, maxLength) {
 </script>
 
 <template>
-  <div class="q-pa-md" style="max-width: 400px">
+  
+  <main class="container">
+        <section class="left-panel">
+            <h1 class="registro">Ingresa tu cuentas</h1>
+            <q-form  @submit="validarCampos" class="form">
+                <div class="q-pa-md" style="max-width: 500px">
+                    <q-input filled v-model="data.identificacion" label="Numero de documento" lazy-rules type="number"
+        :rules="[val => val && val.length > 0 || 'Por favor ingrese su documento']" :oninput="limitarLongitud('identificacion', 10)" >
+                        <template v-slot:error>
+                            Please use maximum 3 characters.
+                        </template>
+                    </q-input>
+                </div>
+                <div class="q-pa-md" style="max-width: 500px">
+                    <q-input filled v-model="data.password" label="Contraseña" lazy-rules type="password"
+        :rules="[val => val && val.length > 0 || 'Por favor ingrese su contraseña']"  >
+                        <template v-slot:error>
+                            Please use maximum 3 characters.
+                        </template>
+                    </q-input>
+            
+                </div>
+            </q-form> 
+            <div class="boton">
+                <button class="ingresa">Ingresar</button>  
+            </div> 
 
-    <q-form @submit="validarCampos" class="q-gutter-md">
-      <q-input filled v-model="data.identificacion" label="Numero de documento" lazy-rules type="number"
-        :rules="[val => val && val.length > 0 || 'Por favor ingrese su documento']" :oninput="limitarLongitud('identificacion', 10)" />
+        </section>
+        <section class="right-panel">
 
-      <q-input filled v-model="data.password" label="Contraseña" lazy-rules type="password"
-        :rules="[val => val && val.length > 0 || 'Por favor ingrese su contraseña']" />
-
-      <div>
-        <q-btn label="Ingresar" type="submit" color="primary" />
-      </div>
-    </q-form>
-
-  </div>
+            <div class="texto">
+                <h1 class="txt1">Bienvenido</h1>
+                <h3 class="txt2">Si no tienes cuenta aqui puedes crearla</h3>
+                <div class="boton">
+                <button class="registrate">Registrate</button>  
+            </div>
+            </div>
+           
+        </section>
+    </main>
 </template>
+
+<style scoped>
+.texto{
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    
+}
+.txt1{
+  font-size: 50px;
+}
+.txt2{
+  font-size: 25px;
+  margin-top: -20px;
+}
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Dos columnas del 50% cada una */
+    height: 100vh;
+    /* 100% del viewport height */
+}
+
+
+.right-panel {
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.left-panel {
+    background-color: white;
+    margin-top: 200px;
+}
+
+.right-panel {
+    margin: 0 auto;
+    background-color: #39A900;
+    width: 100%;
+
+}
+
+.ingresa {
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    background-color: #39A900;
+    border: none;
+}
+.registrate {
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    background-color:white  ;
+    border: none;
+}
+
+.nombre {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.boton {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+
+.boton2 {
+    justify-content: center;
+    display: flex;
+}
+
+.ingresar {
+    width: 250px;
+    background-color: white;
+    border: none;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.input{
+    width: 500px;
+}
+.registro{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 50px;
+}
+.q-pa-md{
+    margin: 0 auto;
+}</style>
