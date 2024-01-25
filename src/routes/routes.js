@@ -1,7 +1,7 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import Nav from '../components/nav.vue'
 import Home from '../components/home.vue'
-import Ficha from '../components/ficha.vue'
+import Ficha from '../components/Ficha.vue'
 import Cuentas from '../components/registro.vue'
 import Login from '../components/login.vue'
 import NuevaContra from '../components/nuevaContraseña.vue'

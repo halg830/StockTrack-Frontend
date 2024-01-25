@@ -1,11 +1,16 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useStoreFichas } from '../stores/ficha.js';
+
 
 const $q = useQuasar();
+const storeFichas = useStoreFichas();
 
-let numeroFicha = ref(null);
+let fichas = ref([]);
+
+let codigo = ref(null);
 let nombreFicha = ref(null);
 let nivelFormacion = ref(null);
 let fechaInicio = ref(null);
@@ -15,50 +20,119 @@ let pagination = ref({rowsPerPage: 0});
 let text = ref('');
 let dense =  ref(false);
 
-let textAgregarEditar = ref("Agregar Fichas")
+let textAgregarEditar = ref("Agregar Fichas");
+let textEditarAgregar = ref("Agregar");
+let cambio = ref(null);
 
 let niveles = ref([
     "Técnico", "Tecnólogo"
-])
+]);
 
-let rows = ref([
-    {nombre: "Ficha 1", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-    {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-])
+const columns = [
+  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
+  { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left"},
+  { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left"},
+  { name: "fechaInicio", label: "Fecha Inicio", field: "fechaInicio", sortable: true, align: "left"},
+  { name: "fechaFin", label: "Fecha Fin", field: "fechaFin", sortable: true, align: "left"},
+  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
+  { name: "createAT", label: "Fecha de Creación", field: "createAT", sortable: true, format: (val) => format(new Date(val), "yyyy-MM-dd"),align: "center"},
+  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
+];
 
-function agregarFicha() {
 
+function notificar(tipo, msg) {
     $q.notify({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: 'Submitted'
+        type: tipo,
+        message: msg,
+        position: "top",
     });
-    onReset();
-
 };
 
+
+let rows = ref([]);
+
+async function getInfoFichas(){
+    textEditarAgregar.value = "Agregar"
+    try {
+        await storeFichas.getAll();
+        fichas.value = storeFichas.fichas;
+        rows.value = storeFichas.fichas.reverse();
+        notificar('positive', "Fichas Obtenidas")
+    } catch (error) {
+        console.log(error);
+    };
+};
+
+onMounted(async () => {
+  getInfoFichas();
+  
+});
+
+async function agregarEditarFicha(){
+    if (cambio.value === 0) {
+        try {
+            await storeFichas.agregar({
+                codigo: codigo.value,
+                nombre: nombreFicha.value,
+                nivelFormacion: nivelFormacion.value,
+                fechaInicio: fechaInicio.value,
+                fechaFin: fechaFin.value
+            })
+            onReset();
+        } catch (error) {
+            console.log(error);
+            notificar('negative', error)
+        };
+    }else{
+        try {
+            await storeFichas.editar(id,{
+                codigo: codigo.value,
+                nombre: nombreFicha.value,
+                nivelFormacion: nivelFormacion.value,
+                fechaInicio: fechaInicio.value,
+                fechaFin: fechaFin.value
+            })
+        } catch (error) {
+            console.log(error);
+        };
+    };
+};
+
+
+
+
+
+function agregarFicha() {
+    cambio.value = 0
+    agregarEditarFicha();
+    onReset();
+};
+
+function editarFicha(id){
+    const fichaSelected = fichas.value.find((ficha) => ficha._id === id);
+  if (fichaSelected) {
+    fixed.value = true;
+    textEditarAgregar.value = "Guardar";
+    codigo.value = fichaSelected.codigo;
+    nombre.value = fichaSelected.nombre;
+    nivelFormacion.value = fichaSelected.nivelFormacion;
+    fechaInicio.value = fichaSelected.fechaInicio;
+    fechaFin.value = fichaSelected.fechaFin;
+  };
+}
 function buscarFicha(){
     console.log("Buscando Ficha");
 };
 
 
 function onReset() {
-    numeroFicha.value = "";
+    codigo.value = "";
     nombreFicha.value = "";
     nivelFormacion.value = "";
     fechaInicio.value = "";
     fechaFin.value = "";
 };
+
 </script>
 
 <template>
@@ -68,11 +142,11 @@ function onReset() {
             <article>
                 <div class="q-pa-md" style="width: 400px">
                     <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
-                        <q-input filled v-model="numeroFicha" type="number" label="N° Ficha" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el numero de ficha']" />
+                        <q-input filled v-model="codigo" type="number" label="N° Ficha" lazy-rules
+                            :rules="[val => val && val.length > 0 && val>0 || 'Digite el numero de ficha']" />
 
                         <q-input filled v-model="nombreFicha" label="Nombre Programa" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el Nombre del Programa']" />
+                            :rules="[val => val && val.length > 0  || 'Digite el Nombre del Programa']" />
 
                         <q-select filled v-model="nivelFormacion" label="Nivel de Formación" lazy-rules :options=niveles
                             :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
@@ -82,9 +156,12 @@ function onReset() {
 
                         <q-input filled v-model="fechaFin" type="date" label="Fecha Fin" lazy-rules
                             :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización']" />
+
+                        <q-select filled v-model="nivelFormacion" label="Area" lazy-rules :options=niveles
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
                         <div>
-                            <q-btn label="Submit" type="submit" color="primary" />
-                            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+                            <q-btn :label="textEditarAgregar" type="submit" color="primary" />
+                            <q-btn label="Borrar" type="reset" color="primary" flat class="q-ml-sm" />
                         </div>
                     </q-form>
 
@@ -117,10 +194,10 @@ function onReset() {
                             >
                             <template v-slot:body-cell-opciones="props">
                                 <q-td :props="props" class="botones">
-                                  <q-btn color="white" text-color="black" label="🖋️" @click="EditarBus(props.row._id)" />
-                                  <q-btn color="white" text-color="black" label="❌" @click="InactivarBus(props.row._id)"
+                                  <q-btn color="white" text-color="black" label="🖋️" @click="editarFicha(props.row._id)" />
+                                  <q-btn color="white" text-color="black" label="❌" @click="inactivarFicha(props.row._id)"
                                     v-if="props.row.estado == 1" />
-                                  <q-btn color="white" text-color="black" label="✅" @click="ActivarBus(props.row._id)" v-else />
+                                  <q-btn color="white" text-color="black" label="✅" @click="activarFicha(props.row._id)" v-else />
                                 </q-td>
                               </template>
                             </q-table>
@@ -142,7 +219,7 @@ function onReset() {
 .container-fichas-existentes {
     height: 100vh;
     background-color: #39A900;
-    width: 50%;
+    width: 60%;
 }
 
 .container-agregar-fichas {
@@ -151,7 +228,7 @@ function onReset() {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    width: 50%;
+    width: 40%;
 }
 .container-agregar-fichas h3{
     padding: 0;
