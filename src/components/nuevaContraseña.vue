@@ -1,16 +1,35 @@
 <script setup>
 import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router';
 import { ref } from 'vue'
 
-const newPassword = ref('')
-const confirmPassword = ref('')
+const router = useRouter();
+const isPwd = ref(true);
+const isPw = ref(true);
+const newPassword = ref('');
+const confirmPassword = ref('');
+const hideOne = ref(true);
+const showTwo = ref(false);
 const onReset = () => {
-  newPassword.value = ''
+  newPassword.value = '';
+  confirmPassword.value = '';
 }
 
 const isPasswordValid = (value) => {
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@#$%^&+=/()])[A-Za-z\d@#$%^&+=/()]{8,}$/;
   return passwordRegex.test(value);
+}
+
+
+function messageSuccessful() {
+  if (newPassword.value === confirmPassword.value) {
+    showTwo.value = true;
+    hideOne.value = false;
+  }
+}
+
+function home(){
+  router.push('/')
 }
 
 
@@ -21,42 +40,65 @@ const isPasswordValid = (value) => {
     <header>
     </header>
 
-    <section id="sectionone">
+    <section id="section">
       <article id="image">
-        <img src="src/assets/Stocktrack.jpg" alt="">
+        <img src="/src/assets/logoSena.png" alt="">
       </article>
+    </section> 
+   
+    <section id="sectionone" v-if="hideOne">
+      
       <article id="text">
         <div id="text1">
           <p id="message">Diligencie todos los campos para cambiar su contraseña:</p>
         </div>
       </article>
-    </section>
 
-    <section id="sectiontwo">
-      <article>
+      <article id="sectiontwo">
         <div id="text2">
           <p class="text-h5">Nueva contraseña</p>
           <q-form @reset="onReset" id="inputcorreo">
-            <q-input square v-model="newPassword" label="Digite una contraseña nueva" lazy-rules hide-bottom-space bg-color="white"
-              color="dark" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
+            <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'" label="Digite una contraseña nueva" lazy-rules hide-bottom-space  color="dark" bg-color="white"
+            :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
               val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
-              val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial',
-              val => val && isPasswordValid(val) || 'La contraseña no cumple con los requisitos']" />
+              val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial (@, #, / )',
+              val => val && isPasswordValid(val) || 'La contraseña no cumple con los requisitos']">
+              <template v-slot:append>
+                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+              </template>
+            </q-input>
           </q-form>
         </div>
         <div id="text2">
           <p class="text-h5">Confirme contraseña</p>
           <q-form @reset="onReset" id="inputcorreo">
-            <q-input square v-model="confirmPassword" label="Confirme nueva contraseña" lazy-rules hide-bottom-space
-              color="dark" bg-color="white"
-              :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'No coinciden las contraseñas']" />
+            <q-input v-model="confirmPassword" filled :type="isPw ? 'password' : 'text'" label="Confirme nueva contraseña"  lazy-rules hide-bottom-space  color="dark" bg-color="white"
+            :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']" >
+              <template v-slot:append>
+                <q-icon :name="isPw ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPw = !isPw" />
+              </template>
+            </q-input>
           </q-form>
         </div>
 
         <div id="text3">
-          <button id="buttonpassword" type="button" class="bg-primary">Cambiar Contraseña</button>
+          <q-btn id="buttonpassword" type="button" class="bg-primary" @click="messageSuccessful()">Cambiar Contraseña</q-btn>
         </div>
       </article>
+    </section>
+
+    <section v-if="showTwo" id="second">
+      <article id="stext">
+        <div id="stext1">
+          <p class="text-h2" id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
+        </div>
+        <div id="stext2">
+          <p class="text-h4">Ahora puede ingresar al sistema</p>
+          <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
+        </div>
+      </article>
+
+
     </section>
 
     <footer>
@@ -76,28 +118,41 @@ main {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-}
 
-#sectiontwo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 120vh;
-  background-color: gray;
-
-}
-
-#sectionone {
-  width: 100%;
-  height: 80%;
 }
 
 header,
 footer {
   width: 100%;
   background-color: #EEEEEE;
-  height: 6vh;
+  height: 9vh;
 }
+
+#sectionone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+#section {
+  width: 100%;
+  height: 30%;
+}
+
+
+#sectiontwo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 40%;
+  height: 70%;
+  gap: 50px;
+  background-color: rgb(245, 245, 245);
+}
+
+
 
 #image {
   margin-left: 20px;
@@ -117,6 +172,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 #text1 {
@@ -144,18 +200,17 @@ img {
 }
 
 #inputcorreo {
-  width: 408px;
+  width: 300px;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 #buttonpassword {
   color: white;
   font-weight: bolder;
-  font-size: 30px;
+  border: 2px solid black;
+  font-size: 20px;
   border-radius: 25px;
   cursor: pointer;
-  width: 500px;
-  height: 50px;
 }
 
 #validation {
@@ -163,25 +218,81 @@ img {
   font-size: 20px;
 }
 
+#second{
+  height: 100vh;
+}
 
-@media screen and (min-width: 390px) and (max-width: 520px) {
+#stext {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+
+#stext1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#smessage {
+  text-align: center;
+  width: 60%;
+  font-weight: 700;
+  
+}
+
+#stext2 {
+  width: 50%;
+  text-align: center;
+  
+}
+
+#sbuttonpassword {
+  margin-top: 50px;
+  color: white;
+  font-weight: bolder;
+  border: 2px solid black;
+  font-size: 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  width: 200px;
+}
+
+@media screen and (min-width: 521px) and (max-width: 815px) {
   #inputcorreo {
-    width: 288px;
+    width: 220px;
   }
 
   #buttonpassword {
-    width: 390px;
+    width: 220px;
+    font-size: 20px;
+  }
+}
+
+
+@media screen and (min-width: 390px) and (max-width: 520px) {
+  #inputcorreo {
+    width: 208px;
+  }
+
+  #buttonpassword {
+    width: 200px;
+    font-size: 15px;
   }
 }
 
 @media screen and (min-width: 0px) and (max-width: 389px) {
 
   #inputcorreo {
-    width: 230px;
+    width: 150px;
   }
 
   #buttonpassword {
-    width: 300px;
+    width: 150px;
+    font-size: 10px;
   }
 }
 </style>
