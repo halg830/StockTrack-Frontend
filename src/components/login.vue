@@ -50,6 +50,7 @@ async function login() {
   }
 
   Cookies.set('x-token', response.data.token, { expires: 1 })
+  Cookies.set('rol', response.data.usuario.rol, { expires: 1 })
   router.push('/nav')
 }
 
@@ -85,10 +86,11 @@ function limitarLongitud(input, maxLength) {
                     </q-input>
             
                 </div>
-            </q-form> 
-            <div class="boton">
-                <button class="ingresa">Ingresar</button>  
+                <div class="boton">
+                <q-btn class="ingresa" type="submit" >Ingresar</q-btn>  
             </div> 
+            </q-form> 
+            
 
         </section>
         <section class="right-panel">
@@ -100,7 +102,6 @@ function limitarLongitud(input, maxLength) {
                 <button class="registrate">Registrate</button>  
             </div>
             </div>
-           
         </section>
     </main>
 </template>
