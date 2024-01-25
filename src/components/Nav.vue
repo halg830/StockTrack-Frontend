@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import Cookies from 'js-cookie'
 import helpersGenerales from '../helpers/generales.js'
 
 const profileDialog = ref(false);
@@ -18,30 +19,48 @@ const closeProfileDialog = () => {
   profileDialog.value = false;
 };
 
-const opciones = [
-  {label: 'Prueba', o:['nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido']},
-  {label: 'Administración General', o: ['fichas', 'lotes', 'presupuestos', 'cuentas']},
-  {label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución'},
-  {label: 'Productos', o: ['listado', 'reportes']},
-]
+const rol = Cookies.get('rol')
+
+const opciones = {
+  admin: [
+    { label: 'Prueba', o: ['nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido'] },
+    { label: 'Administración General', o: ['fichas', 'lotes', 'presupuestos', 'cuentas'] },
+    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
+    { label: 'Productos', o: ['listado', 'reportes'] },
+  ],
+  instructor: [
+    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
+    { label: 'Pedidos', o: ['generar-pedido', 'estado', 'historial'] , e: 'Generar Pedido'},
+  ],
+
+  bodega: [
+    { label: 'Productos', o: ['registro-devoluciones', 'Historial', 'reportes'], e: 'Registro de devolución' },
+    { label: 'Pedidos', o: ['historial', 'listado'] },
+  ]
+}
+
+
 </script>
 <template>
   <div class="stocktrackHome">
     <nav class="header">
       <div class="logo">
-        <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
+        <router-link to="/home" class="boton-home">
+          <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
+        </router-link>
       </div>
 
       <div class="spacer"></div>
 
-      <q-btn-dropdown v-for="(opcion, index) in opciones" :key="index" class="menuDesplegable" :label="opcion.label" flat style="color: black; background: transparent;">
-        <router-link v-for="(o,i) in opcion.o" :key="i" :to="'/' + o" class="items">
-          <q-item>{{ opcion.e && i==0 ? opcion.e : helpersGenerales.primeraMayus(o) }}</q-item>
+      <q-btn-dropdown v-for="(opcion, index) in opciones[rol]" :key="index" class="menuDesplegable"
+        :label="opcion.label" flat style="color: black; background: transparent;">
+        <router-link v-for="(o, i) in opcion.o" :key="i" :to="'/' + o" class="items">
+          <q-item>{{ opcion.e && i == 0 ? opcion.e : helpersGenerales.primeraMayus(o) }}</q-item>
         </router-link>
       </q-btn-dropdown>
 
       <q-btn class="usuarioMenu" icon="person" style="color: black; background: #39A900;" @click="showProfileDialog" />
-      
+
       <q-dialog v-model="profileDialog">
         <q-card>
           <q-card-section>
@@ -82,12 +101,12 @@ const opciones = [
 .usuarioMenu {
   margin-right: 3%;
 }
+
 .q-btn {
   margin-right: 10px;
 }
 
-.items{
+.items {
   text-decoration: none;
   color: black
-}
-</style>
+}</style>
