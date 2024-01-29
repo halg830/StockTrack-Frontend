@@ -9,7 +9,7 @@ import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
 import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/Lote.vue'
-
+import Programa from '../components/programa.vue'
 
 const routes = [
   {path: '/', component: Login},
@@ -23,7 +23,7 @@ const routes = [
     {path: '/solicitar-pedido', component: solicitar},
     {path: '/listado', component: GestionProductos},
     {path: '/lotes', component: Lote},
-    {path: '/programas', component: Lote},
+    {path: '/programas', component: Programa},
 
  
   ]}

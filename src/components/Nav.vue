@@ -23,14 +23,14 @@ const rol = Cookies.get('rol')
 
 const opciones = {
   admin: [
-    { label: 'Prueba', o: ['nueva-contraseña', 'recuperar-contraseña', 'solicitar-pedido'] },
+    { label: 'Prueba', o: ['nueva-contraseña', 'recuperar-contraseña'] },
     { label: 'Administración General', o: ['fichas', 'lotes', 'programas', 'distribucion-presupuesto', 'cuentas'] },
-    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
+    // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     { label: 'Productos', o: ['listado', 'reportes'] },
   ],
   instructor: [
     { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
-    { label: 'Pedidos', o: ['generar-pedido', 'estado', 'historial'] , e: 'Generar Pedido'},
+    { label: 'Pedidos', o: ['solicitar-pedido', 'estado', 'historial'] , e: 'Generar Pedido'},
   ],
 
   bodega: [
