@@ -1,12 +1,15 @@
 <script setup>
-
+import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 
-const email = ref('')
+const email = ref('');
+const showWindow = ref(false);
+const hideWindow = ref(true);
+const router = useRouter();
 
 const onReset = () => {
-  email.value = ''
+  email.value = '';
 }
 
 const correoValido = () => {
@@ -14,16 +17,29 @@ const correoValido = () => {
   return emailRegex.test(email.value);
 }
 
+function procesorecuperacion() {
+  if (correoValido()) {
+    showWindow.value = true;
+    hideWindow.value = false;
+  }
+}
+
+function home(){
+  router.push('/')
+}
+
 </script>
 
 <template>
   <main>
+
     <header>
     </header>
 
-    <section>
+
+    <section v-if="hideWindow">
       <article id="image">
-        <img src="src/assets/Stocktrack.jpg" alt="">
+        <img src="/src/assets/logoSena.png" alt="">
       </article>
       <article id="text">
         <div id="text1">
@@ -33,21 +49,43 @@ const correoValido = () => {
           <h3>Correo electrónico</h3>
         </div>
         <div id="text3">
-          <q-form  @reset="onReset" id="inputcorreo" >
-            <q-input rounded outlined v-model="email" label="Digite su correo aquí..."  lazy-rules hide-bottom-space color="dark"
+          <q-form @reset="onReset" id="inputcorreo">
+            <q-input rounded outlined v-model="email" label="Digite su correo aquí..." lazy-rules hide-bottom-space
+              color="dark"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese su correo', val => val && correoValido() || 'Por favor ingrese un correo valido']" />
           </q-form>
-          
-          <button id="buttonpassword" type="button" class="bg-primary">Recuperar contraseña</button>
+
+          <q-btn id="buttonpassword" type="submit" class="bg-primary" @click="procesorecuperacion()">Recuperar
+            contraseña</q-btn>
         </div>
-       
+
       </article>
+    </section>
+
+    <section v-if="showWindow" id="sectiontwo">
+      <article id="image">
+        <img src="/src/assets/logoSena.png" alt="">
+      </article>
+      <article id="stext">
+        <div id="stext1">
+          <p class="text-h2" id="smessage">¡El proceso de restablecimiento de contraseña ha sido exitoso!</p>
+        </div>
+        <div id="stext2">
+          <p class="text-h4">En los próximos minutos le enviaremos a
+            {{ email }} las instrucciones para ingresar una nueva contraseña</p>
+          <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
+        </div>
+      </article>
+
+
     </section>
 
     <footer>
     </footer>
 
+    
   </main>
+  
 </template>
 
 
@@ -72,7 +110,7 @@ header,
 footer {
   width: 100%;
   background-color: #EEEEEE;
-  height: 60px;
+  height: 7vh;
 }
 
 #image {
@@ -128,16 +166,55 @@ img {
 #buttonpassword {
   color: white;
   font-weight: bolder;
-  font-size: 30px;
+  font-size: 20px;
   border-radius: 25px;
+  border: 2px solid black;
   cursor: pointer;
-  width: 500px;
-  height: 50px;
+  width: 450px;
 }
 
 #validation {
   color: red;
   font-size: 20px;
+}
+
+#stext {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+
+#stext1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#smessage {
+  text-align: center;
+  width: 60%;
+  font-weight: 700;
+  
+}
+
+#stext2 {
+  width: 50%;
+  text-align: center;
+  
+}
+
+#sbuttonpassword {
+  margin-top: 50px;
+  color: white;
+  font-weight: bolder;
+  border: 2px solid black;
+  font-size: 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  width: 200px;
 }
 
 @media screen and (min-width: 390px) and (max-width: 520px) {
