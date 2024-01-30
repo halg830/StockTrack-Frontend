@@ -2,11 +2,12 @@ import axios from "axios";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { ref } from "vue"
+import { ref } from 'vue';
 
-const modelo = "ficha";
 
-export const useStoreFichas = defineStore(modelo, () => {
+const modelo = "area";
+
+export const useStoreAreas = defineStore(modelo, () => {
   const $q = useQuasar();
   function notificar(tipo, msg) {
     $q.notify({
@@ -21,12 +22,12 @@ export const useStoreFichas = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const fichas = ref([])
+  const areas = ref([]);
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
-      console.log(response);
-      fichas.value = response.data
+      console.log(response.data);
+      areas.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -129,5 +130,5 @@ export const useStoreFichas = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, fichas };
+  return { getAll, agregar, editar, activar, inactivar, areas };
 });

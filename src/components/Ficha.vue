@@ -3,10 +3,13 @@
 import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
+import { useStoreAreas } from '../stores/area.js';
+import { format } from "date-fns";
 
 
 const $q = useQuasar();
 const storeFichas = useStoreFichas();
+const storeAreas = useStoreAreas();
 
 let fichas = ref([]);
 
@@ -15,14 +18,14 @@ let nombreFicha = ref(null);
 let nivelFormacion = ref(null);
 let fechaInicio = ref(null);
 let fechaFin = ref(null);
-
+let area = ref(null)
 let pagination = ref({rowsPerPage: 0});
 let text = ref('');
 let dense =  ref(false);
 
 let textAgregarEditar = ref("Agregar Fichas");
 let textEditarAgregar = ref("Agregar");
-let cambio = ref(null);
+let cambio = ref(0);
 
 let niveles = ref([
     "Técnico", "Tecnólogo"
@@ -32,10 +35,10 @@ const columns = [
   { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
   { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left"},
   { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left"},
-  { name: "fechaInicio", label: "Fecha Inicio", field: "fechaInicio", sortable: true, align: "left"},
-  { name: "fechaFin", label: "Fecha Fin", field: "fechaFin", sortable: true, align: "left"},
+  { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}` , sortable: true, align: "left"},
+  { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}` , sortable: true, align: "left"},
   { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
-  { name: "createAT", label: "Fecha de Creación", field: "createAT", sortable: true, format: (val) => format(new Date(val), "yyyy-MM-dd"),align: "center"},
+  { name: "createAT", label: "Fecha de Creación", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}`, sortable: true, align: "center" },
   { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
 ];
 
@@ -56,16 +59,32 @@ async function getInfoFichas(){
     try {
         await storeFichas.getAll();
         fichas.value = storeFichas.fichas;
-        rows.value = storeFichas.fichas.reverse();
-        notificar('positive', "Fichas Obtenidas")
+        rows.value = storeFichas.fichas;
+        // notificar('positive', "Fichas Obtenidas")
     } catch (error) {
         console.log(error);
     };
 };
 
+let optionsArea = ref([])
+
+async function getOptionsArea(){
+  try {
+    await storeAreas.getAll();
+    const areasActicas = storeAreas.areas.filter(area => area.estado === true);
+
+    optionsArea.value = areasActicas.map((area) => ({
+      label: `${area.nombre}`,
+      value: String(area._id),
+    }));
+  } catch (error) {
+    console.log(error);
+  };
+};
+
 onMounted(async () => {
   getInfoFichas();
-  
+  getOptionsArea();
 });
 
 async function agregarEditarFicha(){
@@ -76,22 +95,29 @@ async function agregarEditarFicha(){
                 nombre: nombreFicha.value,
                 nivelFormacion: nivelFormacion.value,
                 fechaInicio: fechaInicio.value,
-                fechaFin: fechaFin.value
+                fechaFin: fechaFin.value,
+                idArea: area._rawValue.value
             })
             onReset();
+            getInfoFichas();
         } catch (error) {
             console.log(error);
             notificar('negative', error)
         };
     }else{
         try {
+            const id = idFicha.value;
             await storeFichas.editar(id,{
                 codigo: codigo.value,
                 nombre: nombreFicha.value,
                 nivelFormacion: nivelFormacion.value,
                 fechaInicio: fechaInicio.value,
-                fechaFin: fechaFin.value
+                fechaFin: fechaFin.value,
+                idArea: area._rawValue.value
             })
+            getInfoFichas();
+            onReset();
+            cambio.value == 0;
         } catch (error) {
             console.log(error);
         };
@@ -99,25 +125,23 @@ async function agregarEditarFicha(){
 };
 
 
-
-
-
-function agregarFicha() {
-    cambio.value = 0
-    agregarEditarFicha();
-    onReset();
-};
-
+let idFicha = ref("")
 function editarFicha(id){
+    cambio.value = 1
     const fichaSelected = fichas.value.find((ficha) => ficha._id === id);
   if (fichaSelected) {
-    fixed.value = true;
+    console.log(fichaSelected._id);
+    idFicha.value = String(fichaSelected._id)
     textEditarAgregar.value = "Guardar";
     codigo.value = fichaSelected.codigo;
-    nombre.value = fichaSelected.nombre;
+    nombreFicha.value = fichaSelected.nombre;
     nivelFormacion.value = fichaSelected.nivelFormacion;
     fechaInicio.value = fichaSelected.fechaInicio;
     fechaFin.value = fichaSelected.fechaFin;
+    area.value = {
+      label: `${fichaSelected.idArea.nombre}`,
+      value: String(fichaSelected.idArea._id),
+    }
   };
 }
 function buscarFicha(){
@@ -131,8 +155,29 @@ function onReset() {
     nivelFormacion.value = "";
     fechaInicio.value = "";
     fechaFin.value = "";
+    area.value = "";
 };
 
+
+async function inactivarFicha(id){
+    try {
+        await storeFichas.inactivar(id);
+        onReset();
+        getInfoFichas();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function activarFicha(id){
+    try {
+        await storeFichas.activar(id);
+        onReset();
+        getInfoFichas();
+    } catch (error) {
+        console.log(error);
+    }
+}
 </script>
 
 <template>
@@ -141,7 +186,7 @@ function onReset() {
             <h3>{{textAgregarEditar}}</h3>
             <article>
                 <div class="q-pa-md" style="width: 400px">
-                    <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
+                    <q-form @submit="agregarEditarFicha" @reset="onReset" class="q-gutter-md">
                         <q-input filled v-model="codigo" type="number" label="N° Ficha" lazy-rules
                             :rules="[val => val && val.length > 0 && val>0 || 'Digite el numero de ficha']" />
 
@@ -157,8 +202,8 @@ function onReset() {
                         <q-input filled v-model="fechaFin" type="date" label="Fecha Fin" lazy-rules
                             :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización']" />
 
-                        <q-select filled v-model="nivelFormacion" label="Area" lazy-rules :options=niveles
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
+                        <q-select filled v-model="area" label="Area" lazy-rules :options=optionsArea
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
                         <div>
                             <q-btn :label="textEditarAgregar" type="submit" color="primary" />
                             <q-btn label="Borrar" type="reset" color="primary" flat class="q-ml-sm" />
@@ -179,7 +224,7 @@ function onReset() {
                         </template>
                       </q-input>
                       
-                        <div class="q-pa-md">
+                        <div class="q-pa-md" style="max-width: 90%; overflow: auto;">
                             <q-table
                               class="my-sticky-virtscroll-table"
                               virtual-scroll
@@ -192,6 +237,12 @@ function onReset() {
                               :columns="columns"
                               style="height: 52vh;"
                             >
+                            <template v-slot:body-cell-estado="props">
+                                <q-td :props="props">
+                                  <label for="" v-if="props.row.estado == 1" style="color: green"  >Activo</label>
+                                  <label for="" v-else style="color: red">Inactivo</label>
+                                </q-td>
+                              </template>
                             <template v-slot:body-cell-opciones="props">
                                 <q-td :props="props" class="botones">
                                   <q-btn color="white" text-color="black" label="🖋️" @click="editarFicha(props.row._id)" />
