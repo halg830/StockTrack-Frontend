@@ -1,9 +1,11 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useStoreLotes } from '../stores/lote.js';
 
 const $q = useQuasar();
+const storeLote = useStoreLotes();
 
 let presupuesto = ref(null);
 let nombreLote = ref(null);
@@ -15,45 +17,24 @@ let dense =  ref(false);
 
 let textAgregarEditar = ref("Agregar Lote")
 
-// let niveles = ref([
-//     "Técnico", "Tecnólogo"
-// ])
-
-// let rows = ref([
-//     {nombre: "Ficha 1", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-// ])
-
-function agregarFicha() {
-
-    $q.notify({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: 'Submitted'
-    });
-    onReset();
-
-};
-
-function buscarFicha(){
-    console.log("Buscando Lote");
-};
+let rows = ref([]);
 
 
-function onReset() {
-    nombreLote.value = "";
-    presupuesto.value = "";
-};
+async function obtenerLotes(){
+    try {
+        let response = await storeLote.getAll();
+        console.log("Response:", response);
+        rows.value = response;
+    } catch (error) {
+        console.log(error);
+    }
+   
+}
+
+onMounted(()=>{
+    obtenerLotes();
+})
+
 </script>
 
 <template>
@@ -62,7 +43,7 @@ function onReset() {
             <h3>{{textAgregarEditar}}</h3>
             <article>
                 <div class="q-pa-md" style="width: 400px">
-                    <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
+                    <q-form @submit="agregarEditarLote" @reset="onReset" class="q-gutter-md">
                         
                         <q-input filled v-model="nombreFicha" label="Nombre Lote" lazy-rules
                             :rules="[val => val && val.length > 0 || 'Digite el Nombre del Lote']" />
