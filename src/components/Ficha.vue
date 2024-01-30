@@ -1,7 +1,7 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
 import { useStoreAreas } from '../stores/area.js';
 import { format } from "date-fns";
@@ -35,8 +35,8 @@ const columns = [
   { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
   { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left"},
   { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left"},
-  { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}` , sortable: true, align: "left"},
-  { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}` , sortable: true, align: "left"},
+  { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}` , sortable: true, align: "left"},
+  { name: "fechaFin", label: "Fecha Fin", field:(row)=>`${format(new Date(row.fechaFin), "yyyy-MM-dd")}`},
   { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
   { name: "createAT", label: "Fecha de Creación", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}`, sortable: true, align: "center" },
   { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
@@ -124,6 +124,10 @@ async function agregarEditarFicha(){
     };
 };
 
+watch(fechaFin,() =>{
+    console.log(fechaFin.value);
+  }
+)
 
 let idFicha = ref("")
 function editarFicha(id){
