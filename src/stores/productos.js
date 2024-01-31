@@ -1,4 +1,5 @@
 import axios from "axios";
+import {ref} from "vue"
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
@@ -7,6 +8,7 @@ const modelo = "producto";
 
 export const useStoreProductos = defineStore(modelo, () => {
   const $q = useQuasar();
+  const productos = ref([]);
   function notificar(tipo, msg) {
     $q.notify({
       type: tipo,
@@ -25,6 +27,7 @@ export const useStoreProductos = defineStore(modelo, () => {
     try {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
+      productos.value = response.data
 
       return response.data;
     } catch (error) {
@@ -128,5 +131,5 @@ export const useStoreProductos = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar };
+  return { getAll, agregar, editar, activar, inactivar, productos };
 });

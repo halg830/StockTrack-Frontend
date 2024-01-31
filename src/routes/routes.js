@@ -11,6 +11,7 @@ import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/Lote.vue'
 import Programa from '../components/programa.vue'
 import Area from '../components/area.vue'
+import formatoDevolucion from '../components/formatoDevoluciones.vue'
 
 const routes = [
   {path: '/', component: Login},
@@ -26,6 +27,7 @@ const routes = [
     {path: '/lotes', component: Lote},
     {path: '/programas', component: Programa},
     {path: '/areas', component: Area},
+    {path: '/formato-devolucion', component: formatoDevolucion},
   ]}
 ]
 
