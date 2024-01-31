@@ -1,60 +1,150 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useStoreLotes } from '../stores/lote.js';
+import { format } from "date-fns";
+
 
 const $q = useQuasar();
+const storeLote = useStoreLotes();
 
-let presupuesto = ref(null);
-let nombreLote = ref(null);
+let lotes = ref([]);
 
+let codigo = ref(null);
+let nombre = ref(null);
+let descrición = ref(null)
+let fechaFin = ref(null);
 let pagination = ref({rowsPerPage: 0});
-
 let text = ref('');
 let dense =  ref(false);
 
-let textAgregarEditar = ref("Agregar Lote")
+let textAgregarEditar = ref("Agregar Fichas");
+let textEditarAgregar = ref("Agregar");
+let cambio = ref(0);
 
-// let niveles = ref([
-//     "Técnico", "Tecnólogo"
-// ])
 
-// let rows = ref([
-//     {nombre: "Ficha 1", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-//     {nombre: "Ficha 3", numero: "2557356", nivelFormacion:"Tecnologo", fechaInicio:"12-12-2024", fechaFin:"12-12-2026", estado: 1},
-// ])
+const columns = [
+  { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left"},
+  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
+  { name: "descripcion", label: "Descripción", field: "decripcion", sortable: true, align: "left"},
+  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
+  { name: "createAT", label: "Fecha de Creación", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}`, sortable: true, align: "center" },
+  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
+];
 
-function agregarFicha() {
 
+function notificar(tipo, msg) {
     $q.notify({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: 'Submitted'
+        type: tipo,
+        message: msg,
+        position: "top",
     });
-    onReset();
-
 };
 
-function buscarFicha(){
-    console.log("Buscando Lote");
+
+let rows = ref([]);
+
+async function getInfoLotes(){
+    textEditarAgregar.value = "Agregar"
+    try {
+        let response = await storeLote.getAll();
+        console.log(response.data);
+        lotes.value = storeLote.lotes;
+        rows.value = storeLote.lotes;
+        // notificar('positive', "Fichas Obtenidas")
+    } catch (error) {
+        console.log(error);
+    };
+};
+
+
+onMounted(async () => {
+  getInfoLotes();
+});
+
+async function agregarEditarLote(){
+    if (cambio.value === 0) {
+        try {
+            await storeLote.agregar({
+                codigo: codigo.value,
+                nombre: nombre.value,
+                descripcion: descripcion.value
+            })
+            onReset();
+            getInfoLotes();
+        } catch (error) {
+            console.log(error);
+            notificar('negative', error)
+        };
+    }else{
+        try {
+            const id = idLote.value;
+            await storeLote.editar(id,{
+                codigo: codigo.value,
+                nombre: nombre.value,
+                descripcion: descripcion.value
+            })
+            getInfoLotes();
+            onReset();
+            cambio.value == 0;
+        } catch (error) {
+            console.log(error);
+        };
+    };
+};
+
+watch(fechaFin,() =>{
+    console.log(fechaFin.value);
+  }
+)
+
+let idLote = ref("")
+function editarLote(id){
+    cambio.value = 1
+    const loteSelected = lotes.value.find((lote) => lote._id === id);
+  if (loteSelected) {
+    console.log(loteSelected._id);
+    idFicha.value = String(loteSelected._id)
+    textEditarAgregar.value = "Guardar";
+    codigo.value = loteSelected.codigo;
+    nombre.value = loteSelected.nombre;
+    descripcion.value = loteSelected.descripcion;
+  };
+}
+function buscarLote(){
+    console.log("Buscando Ficha");
 };
 
 
 function onReset() {
-    nombreLote.value = "";
-    presupuesto.value = "";
+    codigo.value = "";
+    nombre.value = "";
+    descripcion.value = "";
 };
+
+
+async function inactivarLote(id){
+    try {
+        await storeLote.inactivar(id);
+        onReset();
+        getInfoLotes();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function activarLote(id){
+    try {
+        await storeLote.activar(id);
+        onReset();
+        getInfoLotes();
+    } catch (error) {
+        console.log(error);
+    }
+}
 </script>
+
 
 <template>
     <div class="container-fichas">
@@ -62,13 +152,16 @@ function onReset() {
             <h3>{{textAgregarEditar}}</h3>
             <article>
                 <div class="q-pa-md" style="width: 400px">
-                    <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
+                    <q-form @submit="agregarEditarLote" @reset="onReset" class="q-gutter-md">
                         
-                        <q-input filled v-model="nombreFicha" label="Nombre Lote" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el Nombre del Lote']" />
+                        <q-input filled v-model="codigo" type="number" label="Codigo Lote" lazy-rules
+                            :rules="[val => val && val.length > 0 || 'Digite el Codigo del Lote']" />
 
-                        <q-input filled v-model="numeroFicha" type="number" label="Presupuesto" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el presupuesto']" />
+                        <q-input filled v-model="nombre"  label="Nombre Lote" lazy-rules
+                            :rules="[val => val && val.length > 0 || 'Digite el nombre']" />
+
+                        <q-input filled v-model="descripcion" label="Descripción" lazy-rules
+                            :rules="[val => val && val.length > 0 || 'Digite la descrición']" />
                         <div>
                             <q-btn label="Submit" type="submit" color="primary" />
                             <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
@@ -85,11 +178,11 @@ function onReset() {
                     <q-input filled bottom-slots v-model="text" label="Buscar Lote" :dense="dense" style="width: 400px; color: white" bg-color="white">
                         <template v-slot:append>
                           <q-icon v-if="text !== ''" name="delete" @click="text = ''" class="cursor-pointer" />
-                          <q-icon name="search" @click="buscarFicha()" />
+                          <q-icon name="search" @click="buscarLote()" />
                         </template>
                       </q-input>
                       
-                        <div class="q-pa-md">
+                        <div class="q-pa-md" style="max-width: 90%; overflow: auto;">
                             <q-table
                               class="my-sticky-virtscroll-table"
                               virtual-scroll
@@ -102,12 +195,18 @@ function onReset() {
                               :columns="columns"
                               style="height: 52vh;"
                             >
+                            <template v-slot:body-cell-estado="props">
+                                <q-td :props="props">
+                                  <label for="" v-if="props.row.estado == 1" style="color: green"  >Activo</label>
+                                  <label for="" v-else style="color: red">Inactivo</label>
+                                </q-td>
+                              </template>
                             <template v-slot:body-cell-opciones="props">
                                 <q-td :props="props" class="botones">
-                                  <q-btn color="white" text-color="black" label="🖋️" @click="EditarBus(props.row._id)" />
-                                  <q-btn color="white" text-color="black" label="❌" @click="InactivarBus(props.row._id)"
+                                  <q-btn color="white" text-color="black" label="🖋️" @click="editarLote(props.row._id)" />
+                                  <q-btn color="white" text-color="black" label="❌" @click="inactivarLote(props.row._id)"
                                     v-if="props.row.estado == 1" />
-                                  <q-btn color="white" text-color="black" label="✅" @click="ActivarBus(props.row._id)" v-else />
+                                  <q-btn color="white" text-color="black" label="✅" @click="activarLote(props.row._id)" v-else />
                                 </q-td>
                               </template>
                             </q-table>

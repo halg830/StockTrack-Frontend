@@ -11,6 +11,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.9",
     "axios": "^1.5.1",
+    "date-fns": "^3.3.1",
     "js-cookie": "^3.0.5",
     "pdf-lib": "^1.17.1",
     "pinia": "^2.1.7",

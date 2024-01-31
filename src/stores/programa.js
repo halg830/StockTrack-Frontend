@@ -2,11 +2,17 @@ import axios from "axios";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { ref } from "vue"
+import Cookies from "js-cookie";
 
-const modelo = "ficha";
+axios.defaults.headers.common["x-token"] = obtenerToken();
+function obtenerToken() {
+  console.log(Cookies.get("x-token"));
+  return Cookies.get("x-token");
+}
 
-export const useStoreFichas = defineStore(modelo, () => {
+const modelo = "item";
+
+export const useStorePrograma = defineStore(modelo, () => {
   const $q = useQuasar();
   function notificar(tipo, msg) {
     $q.notify({
@@ -21,12 +27,12 @@ export const useStoreFichas = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const fichas = ref([])
+
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      fichas.value = response.data
+
       return response.data;
     } catch (error) {
       console.log(error);
@@ -73,17 +79,17 @@ export const useStoreFichas = defineStore(modelo, () => {
     try {
       const response = await axios.put(`${modelo}/editar/${id}`, data);
       console.log(response);
-      return response.data
+      return response.data;
     } catch (error) {
       console.log(error);
       if (error.message === "Network Error") {
-        notificar('negative',"Sin conexión, por favor intente recargar");
+        notificar("negative", "Sin conexión, por favor intente recargar");
         return null;
       }
 
       if (error.response.data.error === "Token no valido") {
         salir();
-        return null
+        return null;
       }
       return error.response.data;
     }
@@ -129,5 +135,5 @@ export const useStoreFichas = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, fichas };
+  return { getAll, agregar, editar, activar, inactivar };
 });
