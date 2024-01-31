@@ -19,7 +19,7 @@ let pagination = ref({rowsPerPage: 0});
 let text = ref('');
 let dense =  ref(false);
 
-let textAgregarEditar = ref("Agregar Fichas");
+let textAgregarEditar = ref("Agregar Lote");
 let textEditarAgregar = ref("Agregar");
 let cambio = ref(0);
 
@@ -88,6 +88,7 @@ async function agregarEditarLote(){
             getInfoLotes();
             onReset();
             cambio.value == 0;
+            textAgregarEditar.value = "Agregar Lote"
         } catch (error) {
             console.log(error);
         };
@@ -101,6 +102,7 @@ watch(fechaFin,() =>{
 
 let idLote = ref("")
 function editarLote(id){
+    textAgregarEditar.value = "Editar Lote"
     cambio.value = 1
     const loteSelected = lotes.value.find((lote) => lote._id === id);
   if (loteSelected) {
@@ -163,7 +165,7 @@ async function activarLote(id){
                         <q-input filled v-model="descripcion" label="Descripción" lazy-rules
                             :rules="[val => val && val.length > 0 || 'Digite la descrición']" />
                         <div>
-                            <q-btn label="Submit" type="submit" color="primary" />
+                            <q-btn :label="textEditarAgregar" type="submit" color="primary" />
                             <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
                         </div>
                     </q-form>

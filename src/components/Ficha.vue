@@ -118,6 +118,8 @@ async function agregarEditarFicha(){
             getInfoFichas();
             onReset();
             cambio.value == 0;
+            textAgregarEditar.value = "Agregar Ficha";
+
         } catch (error) {
             console.log(error);
         };
@@ -131,6 +133,7 @@ watch(fechaFin,() =>{
 
 let idFicha = ref("")
 function editarFicha(id){
+    textAgregarEditar.value = "Editar Ficha";
     cambio.value = 1
     const fichaSelected = fichas.value.find((ficha) => ficha._id === id);
   if (fichaSelected) {

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
 
 
@@ -43,8 +43,8 @@ onMounted(async () => {
         <section class="container-areas-existentes">
             <article>
                 <div class="busquedas">
-                    <h2>areas</h2>
-                    <q-input filled bottom-slots v-model="text" label="Buscar Ficha" :dense="dense" style="width: 400px; color: white" bg-color="white">
+                    <h2>Areas</h2>
+                    <q-input filled bottom-slots v-model="text" label="Buscar Area" :dense="dense" style="width: 400px; color: white" bg-color="white">
                         <template v-slot:append>
                           <q-icon v-if="text !== ''" name="delete" @click="text = ''" class="cursor-pointer" />
                           <q-icon name="search" @click="buscarFicha()" />

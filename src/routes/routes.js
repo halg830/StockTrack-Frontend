@@ -10,6 +10,7 @@ import solicitar from '../components/solicitarPedido.vue'
 import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/Lote.vue'
 import Programa from '../components/programa.vue'
+import Area from '../components/area.vue'
 
 const routes = [
   {path: '/', component: Login},
@@ -24,8 +25,7 @@ const routes = [
     {path: '/listado', component: GestionProductos},
     {path: '/lotes', component: Lote},
     {path: '/programas', component: Programa},
-
- 
+    {path: '/areas', component: Area},
   ]}
 ]
 
