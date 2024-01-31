@@ -1,21 +1,61 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useStoreFichas } from '../stores/ficha.js';
+import { useStoreAreas } from '../stores/area.js';
+import { format } from "date-fns";
 
 
-const storeFichas = useStoreFichas();
 
-let fichas = ref([]);
+const storeAreas = useStoreAreas();
 
-async function obtenerFichas(){
-    await storeFichas.getAll();
-    fichas.value = storeFichas.fichas;
+let areas = ref([]);
+let nombreArea = ref(null);
+let descripcionArea = ref(null);
+let pagination = ref({rowsPerPage: 0});
+let text = ref('');
+let dense =  ref(false);
+
+let textAgregarEditar = ref("Agregar Fichas");
+let textEditarAgregar = ref("Agregar");
+let cambio = ref(0);
+
+
+const columns = [
+  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
+  { name: "descripcion", label: "Descripcion", field: "descripcion", sortable: true, align: "left"},
+  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
+  { name: "createAT", label: "Fecha de Creación", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}`, sortable: true, align: "center" },
+  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
+];
+
+
+function notificar(tipo, msg) {
+    $q.notify({
+        type: tipo,
+        message: msg,
+        position: "top",
+    });
+};
+
+
+let rows = ref([]);
+
+async function getInfoArea(){
+    textEditarAgregar.value = "Agregar"
+    try {
+        await storeAreas.getAll();
+        areas.value = storeAreas.areas;
+        rows.value = storeAreas.areas;
+        // notificar('positive', "Fichas Obtenidas")
+    } catch (error) {
+        console.log(error);
+    };
 };
 
 
 onMounted(async () => {
-  await obtenerFichas();
+  getInfoArea();
 });
+
 </script>
 
 
@@ -27,10 +67,10 @@ onMounted(async () => {
                 <div class="q-pa-md" style="width: 400px">
                     <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
                         <q-input filled v-model="nombreArea" type="text" label="Nombre Area" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización']" />
-
-                        <q-select filled v-model="ficha" label="Ficha" lazy-rules :options=fichas
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
+                            :rules="[val => val !== null && val !== '' || 'Digite el Nombre del area']" />
+                        <q-input filled v-model="descripcionArea" type="text" label="Descripción Area" lazy-rules
+                            :rules="[val => val !== null && val !== '' || 'Digite la descripcion del area']" />
+                        
                         <div>
                             <q-btn :label="textEditarAgregar" type="submit" color="primary" />
                             <q-btn label="Borrar" type="reset" color="primary" flat class="q-ml-sm" />
@@ -64,6 +104,12 @@ onMounted(async () => {
                               :columns="columns"
                               style="height: 52vh;"
                             >
+                            <template v-slot:body-cell-estado="props">
+                                <q-td :props="props">
+                                  <label for="" v-if="props.row.estado == 1" style="color: green"  >Activo</label>
+                                  <label for="" v-else style="color: red">Inactivo</label>
+                                </q-td>
+                              </template>
                             <template v-slot:body-cell-opciones="props">
                                 <q-td :props="props" class="botones">
                                   <q-btn color="white" text-color="black" label="🖋️" @click="editarFicha(props.row._id)" />
