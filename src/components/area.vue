@@ -1,195 +1,279 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue'
+import { useQuasar } from 'quasar';
 import { useStoreAreas } from '../stores/area.js';
-import { format } from "date-fns";
+import helpersGenerales from '../helpers/generales';
 
-
-
-const storeAreas = useStoreAreas();
-
-let areas = ref([]);
-let nombreArea = ref(null);
-let descripcionArea = ref(null);
-let pagination = ref({rowsPerPage: 0});
-let text = ref('');
-let dense =  ref(false);
-
-let textAgregarEditar = ref("Agregar Fichas");
-let textEditarAgregar = ref("Agregar");
-let cambio = ref(0);
-
-
-const columns = [
-  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left"},
-  { name: "descripcion", label: "Descripcion", field: "descripcion", sortable: true, align: "left"},
-  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "left"},
-  { name: "createAT", label: "Fecha de Creación", field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")} - ${format(new Date(row.createAT), 'HH:mm:ss')}`, sortable: true, align: "center" },
-  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center"},
-];
-
+const useAreas = useStoreAreas();
+const loadingTable = ref(false);
+const loadingModal = ref(false);
+const loadIn_activar = ref(false);
+const filter = ref("");
+const modal = ref(false);
+const $q = useQuasar();
 
 function notificar(tipo, msg) {
-    $q.notify({
-        type: tipo,
-        message: msg,
-        position: "top",
-    });
+  $q.notify({
+    type: tipo,
+    message: msg,
+    position: "top",
+  });
 };
 
+const estado = ref('agregar');
+const data = ref({});
 
-let rows = ref([]);
 
-async function getInfoArea(){
-    textEditarAgregar.value = "Agregar"
-    try {
-        await storeAreas.getAll();
-        areas.value = storeAreas.areas;
-        rows.value = storeAreas.areas;
-        // notificar('positive', "Fichas Obtenidas")
-    } catch (error) {
-        console.log(error);
+const columns = ref([
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    align: 'center',
+    field: 'nombre'
+  },
+  {
+    name: 'descripcion',
+    label: 'Descripción',
+    align: 'center',
+    field: 'descripcion'
+  },
+  {
+    name: 'estado',
+    label: 'Estado',
+    align: 'center',
+    field: 'estado'
+  },
+  {
+    name: "opciones",
+    label: "Opciones",
+    align: 'center',
+    field: "opciones",
+  },
+]);
+const rows = ref([]);
+
+async function getInfo() {
+  try {
+    loadingTable.value = true
+
+    const response = await useAreas.getAll()
+    console.log(response);
+
+    if (!response) return;
+    if (response.error) {
+      notificar('negative', response.error)
+      return
     };
+
+    rows.value = response
+
+  } catch (error) {
+    console.log(error);
+  }
+  finally {
+    loadingTable.value = false
+  };
 };
 
+getInfo();
 
-onMounted(async () => {
-  getInfoArea();
-});
+const opciones = {
+  agregar: () => {
+    data.value = {}
+    estado.value = 'agregar'
+    modal.value = true
+  },
+  editar: (info) => {
+    data.value = { ...info }
+    estado.value = 'editar'
+    modal.value = true
+  }
+};
+
+const enviarInfo = {
+  agregar: async () => {
+    try {
+      loadingModal.value = true;
+
+      const response = await useAreas.agregar(data.value);
+      console.log(response);
+
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error);
+        return
+      };
+      rows.value.unshift(response.area);
+
+      modal.value = false;
+      notificar('positive', 'Guardado exitosamente');
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadingModal.value = false;
+    };
+  },
+  editar: async () => {
+    loadingModal.value = true;
+    try {
+      console.log(data.value);
+      const response = await useAreas.editar(data.value._id, data.value);
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+      rows.value.splice(buscarIndexLocal(response._id), 1, response);
+      modal.value = false;
+      notificar('positive', 'Editado exitosamente')
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadingModal.value = false;
+    }
+  }
+}
+
+function validarCampos() {
+  console.log(data.value);
+  const arrData = Object.values(data.value);
+  console.log(arrData);
+  for (const d of arrData) {
+    console.log(d);
+    if (d === null) {
+      errorCamposVacios();
+      return;
+    }
+    if (typeof d === "string") {
+      if (d.trim() === "") {
+        errorCamposVacios();
+        return;
+      };
+    };
+  };
+  enviarInfo[estado.value]()
+};
+
+const in_activar = {
+  activar: async (id) => {
+    loadIn_activar.value = true
+    try {
+      const response = await useAreas.activar(id)
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      };
+      rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadIn_activar.value = false
+    };
+  },
+  inactivar: async (id) => {
+    loadIn_activar.value = true
+    try {
+      const response = await useAreas.inactivar(id)
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      };
+      rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadIn_activar.value = false
+    };
+  }
+};
+
+function buscarIndexLocal(id) {
+  return rows.value.findIndex((r) => r._id === id);
+};
 
 </script>
 
-
 <template>
-    <div class="container-areas">
-        <section class="container-agregar-areas">
-            <h3>{{textAgregarEditar}}</h3>
-            <article>
-                <div class="q-pa-md" style="width: 400px">
-                    <q-form @submit="agregarFicha" @reset="onReset" class="q-gutter-md">
-                        <q-input filled v-model="nombreArea" type="text" label="Nombre Area" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Digite el Nombre del area']" />
-                        <q-input filled v-model="descripcionArea" type="text" label="Descripción Area" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Digite la descripcion del area']" />
-                        
-                        <div>
-                            <q-btn :label="textEditarAgregar" type="submit" color="primary" />
-                            <q-btn label="Borrar" type="reset" color="primary" flat class="q-ml-sm" />
-                        </div>
-                    </q-form>
+  <main style=" width: 100%; display: flex; justify-content: center;">
+    <!-- Modal -->
+    <q-dialog v-model="modal">
+      <q-card class="modal" style="width: 450px;">
+        <q-toolbar style="        background-color: #39A900;color: white">
+          <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Area</q-toolbar-title>
+          <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+        </q-toolbar>
 
-                </div>
-            </article>
-        </section>
-        <section class="container-areas-existentes">
-            <article>
-                <div class="busquedas">
-                    <h2>Areas</h2>
-                    <q-input filled bottom-slots v-model="text" label="Buscar Area" :dense="dense" style="width: 400px; color: white" bg-color="white">
-                        <template v-slot:append>
-                          <q-icon v-if="text !== ''" name="delete" @click="text = ''" class="cursor-pointer" />
-                          <q-icon name="search" @click="buscarFicha()" />
-                        </template>
-                      </q-input>
-                      
-                        <div class="q-pa-md">
-                            <q-table
-                              class="my-sticky-virtscroll-table"
-                              virtual-scroll
-                              flat bordered
-                              v-model:pagination="pagination"
-                              :rows-per-page-options="[0]"
-                              :virtual-scroll-sticky-size-start="48"
-                              row-key="index"
-                              :rows="rows"
-                              :columns="columns"
-                              style="height: 52vh;"
-                            >
-                            <template v-slot:body-cell-estado="props">
-                                <q-td :props="props">
-                                  <label for="" v-if="props.row.estado == 1" style="color: green"  >Activo</label>
-                                  <label for="" v-else style="color: red">Inactivo</label>
-                                </q-td>
-                              </template>
-                            <template v-slot:body-cell-opciones="props">
-                                <q-td :props="props" class="botones">
-                                  <q-btn color="white" text-color="black" label="🖋️" @click="editarFicha(props.row._id)" />
-                                  <q-btn color="white" text-color="black" label="❌" @click="inactivarFicha(props.row._id)"
-                                    v-if="props.row.estado == 1" />
-                                  <q-btn color="white" text-color="black" label="✅" @click="activarFicha(props.row._id)" v-else />
-                                </q-td>
-                              </template>
-                            </q-table>
-                        </div>
-                </div>
-            </article>
-        </section>
-    </div>
+        <q-card-section class="q-gutter-md">
+          <q-form @submit="validarCampos" class="q-gutter-md">
+            <q-input outlined v-model="data.nombre" label="Nombre" type="text"
+              :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
+
+            <q-input outlined v-model="data.descripcion" label="Descripcion" type="text"
+              :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
+            <div style=" display: flex; width: 96%; justify-content: flex-end;">
+              <q-btn :loading="loadingModal" padding="10px" type="submit"
+                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado"/>
+            </div>
+
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Tabla -->
+    <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
+      :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Areas" style="width: 90%;"
+      no-data-label="No hay Areas registrados.">
+      <template v-slot:top-left>
+        <div style=" display: flex; gap: 10px;">
+          <h4 id="titleTable">Areas</h4>
+          <q-btn @click="opciones.agregar" color="primary">
+            <q-icon name="add" color="white" center />
+          </q-btn>
+        </div>
+
+      </template>
+      <template v-slot:top-right>
+        <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+          placeholder="Buscar cualquier campo" id="boxBuscar">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
+      <template v-slot:body-cell-estado="props">
+        <q-td :props="props" class="botones">
+          <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
+            ? 'Activo'
+            : !props.row.estado
+              ? 'Inactivo'
+              : '‎  ‎   ‎   ‎   ‎ '
+            " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+            @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-opciones="props">
+        <q-td :props="props" class="botones">
+          <q-btn color="warning" icon="edit" class="botonv1" @click="opciones.editar(props.row)" />
+        </q-td>
+      </template>
+    </q-table>
+  </main>
 </template>
 
 <style scoped>
-.container-areas {
-    display: flex;
-    width: 100%;
-    min-height: 100vh;
-    align-items: center;
+#titleTable {
+  margin: auto;
 }
 
-.container-areas-existentes {
-    height: 100vh;
-    background-color: #39A900;
-    width: 50%;
-}
-
-.container-agregar-areas {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 50%;
-}
-.container-agregar-areas h3{
-    padding: 0;
-    margin: 5px;
-}
-.busquedas{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.areas{
-    background-color: white;
-    border-radius: 5px;
-    margin: 0;
-    
-}
-</style>
-
-<style lang="sass">
-.my-sticky-virtscroll-table
-  /* height or max-height is important */
-  height: 410px
-
-  .q-table__top,
-  .q-table__bottom,
-  thead tr:first-child th /* bg color is important for th; just specify one */
-    background-color: #21BA45
-
-  thead tr th
-    position: sticky
-    z-index: 1
-  /* this will be the loading indicator */
-  thead tr:last-child th
-    /* height of all previous header rows */
-    top: 48px
-  thead tr:first-child th
-    top: 0
-
-  /* prevent scrolling behind sticky top row on focus */
-  tbody
-    /* height of all previous header rows */
-    scroll-margin-top: 48px
+/* #boxBuscar {} */
 </style>
