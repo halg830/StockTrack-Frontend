@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import Cookies from 'js-cookie'
 import helpersGenerales from '../helpers/generales.js'
+import { useStoreUsuarios } from '../stores/usuarios';
 
 const profileDialog = ref(false);
 
@@ -19,22 +20,22 @@ const closeProfileDialog = () => {
   profileDialog.value = false;
 };
 
-const rol = Cookies.get('rol')
+const rol = Cookies.get('rol');
 
 const opciones = {
   admin: [
-    { label: 'Prueba', o: ['nueva-contraseña', 'recuperar-contraseña'] },
+    { label: 'Prueba', o: ['nueva-password', 'recuperar-password'] },
     { label: 'Administración General', o: ['fichas', 'lotes', 'programas', 'distribucion-presupuesto', 'cuentas', 'areas'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
-    { label: 'Productos', o: ['listado', 'reportes'] },
+    { label: 'Productos', o: ['listado'] },
   ],
   instructor: [
-    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
-    { label: 'Pedidos', o: ['solicitar-pedido', 'estado', 'historial'] , e: 'Generar Pedido'},
+    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: ['Formato de devolución', 'Historial'] },
+    { label: 'Pedidos', o: ['solicitar-pedido', 'estado', 'historial-pedido'] , e: ['Generar Pedido', 'Estado', 'Historial']},
   ],
 
   bodega: [
-    { label: 'Productos', o: ['registro-devoluciones', 'Historial', 'reportes'], e: 'Registro de devolución' },
+    { label: 'Productos', o: ['registro-devoluciones', 'Historial'], e: ['Registro de devolución', 'Historial'] },
     { label: 'Pedidos', o: ['historial', 'listado'] },
   ]
 }
@@ -55,7 +56,7 @@ const opciones = {
       <q-btn-dropdown v-for="(opcion, index) in opciones[rol]" :key="index" class="menuDesplegable"
         :label="opcion.label" flat style="color: black; background: transparent;">
         <router-link v-for="(o, i) in opcion.o" :key="i" :to="'/' + o" class="items">
-          <q-item>{{ opcion.e && i == 0 ? opcion.e : helpersGenerales.primeraMayus(o) }}</q-item>
+          <q-item>{{ opcion.e ? opcion.e[i] : helpersGenerales.primeraMayus(o) }}</q-item>
         </router-link>
       </q-btn-dropdown>
 

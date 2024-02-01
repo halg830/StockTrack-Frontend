@@ -2,15 +2,18 @@
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router';
 import { ref } from 'vue'
+import { useStoreUsuarios } from '../stores/usuarios';
 
 const router = useRouter();
 const isPwd = ref(true);
 const isPw = ref(true);
+const password = ref('')
 const newPassword = ref('');
 const confirmPassword = ref('');
 const hideOne = ref(true);
 const showTwo = ref(false);
 const onReset = () => {
+  password.value = ''
   newPassword.value = '';
   confirmPassword.value = '';
 }
@@ -28,10 +31,43 @@ function messageSuccessful() {
   }
 }
 
-function home(){
+function home() {
   router.push('/')
 }
 
+//Formulario
+const useUsuario = useStoreUsuarios()
+async function cambiarPassword() {
+  try {
+    const data = {
+      password,
+      newPassword
+    }
+
+    const res = await useUsuario.cambiarPassword(data)
+    console.log(res);
+
+    if (!response) return
+    if (response.error) {
+      notificar('negative', response.error)
+      return
+    }
+
+    notificar('Contraseña cambiada exitosamente')
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const $q = useQuasar();
+const productos = ref([]);
+function notificar(tipo, msg) {
+  $q.notify({
+    type: tipo,
+    message: msg,
+    position: "top",
+  });
+}
 
 </script>
 
@@ -44,10 +80,10 @@ function home(){
       <article id="image">
         <img src="/src/assets/logoSena.png" alt="">
       </article>
-    </section> 
-   
+    </section>
+
     <section id="sectionone" v-if="hideOne">
-      
+
       <article id="text">
         <div id="text1">
           <p id="message">Diligencie todos los campos para cambiar su contraseña:</p>
@@ -56,34 +92,39 @@ function home(){
 
       <article id="sectiontwo">
         <div id="text2">
-          <p class="text-h5">Nueva contraseña</p>
-          <q-form @reset="onReset" id="inputcorreo">
-            <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'" label="Digite una contraseña nueva" lazy-rules hide-bottom-space  color="dark" bg-color="white"
-            :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
-              val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
-              val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial (@, #, / )',
-              val => val && isPasswordValid(val) || 'La contraseña no cumple con los requisitos']">
-              <template v-slot:append>
-                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-              </template>
-            </q-input>
-          </q-form>
-        </div>
-        <div id="text2">
-          <p class="text-h5">Confirme contraseña</p>
-          <q-form @reset="onReset" id="inputcorreo">
-            <q-input v-model="confirmPassword" filled :type="isPw ? 'password' : 'text'" label="Confirme nueva contraseña"  lazy-rules hide-bottom-space  color="dark" bg-color="white"
-            :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']" >
+          <q-form @reset="onReset" id="inputcorreo" class="q-gutter-md" @submit="cambiarPassword">
+            <q-input v-model="password" filled :type="isPw ? 'password' : 'text'" label="Digite su contraseña actual"
+              lazy-rules hide-bottom-space color="dark" bg-color="white"
+              :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña']">
               <template v-slot:append>
                 <q-icon :name="isPw ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPw = !isPw" />
               </template>
             </q-input>
+
+            <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'" label="Digite una contraseña nueva"
+              lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
+              val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
+              val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial (@, #, / )',
+              val => val && isPasswordValid(val) || 'La contraseña debe tener al menos una letra']">
+              <template v-slot:append>
+                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+              </template>
+            </q-input>
+            <q-input v-model="confirmPassword" filled :type="isPw ? 'password' : 'text'" label="Confirme nueva contraseña"
+              lazy-rules hide-bottom-space color="dark" bg-color="white"
+              :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
+              <template v-slot:append>
+                <q-icon :name="isPw ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPw = !isPw" />
+              </template>
+            </q-input>
+            <div id="text3">
+              <q-btn id="buttonpassword" type="submit" class="bg-primary" @click="messageSuccessful()">Cambiar
+                Contraseña</q-btn>
+            </div>
           </q-form>
         </div>
 
-        <div id="text3">
-          <q-btn id="buttonpassword" type="button" class="bg-primary" @click="messageSuccessful()">Cambiar Contraseña</q-btn>
-        </div>
+
       </article>
     </section>
 
@@ -200,7 +241,6 @@ img {
 }
 
 #inputcorreo {
-  width: 300px;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
@@ -218,7 +258,7 @@ img {
   font-size: 20px;
 }
 
-#second{
+#second {
   height: 100vh;
 }
 
@@ -241,13 +281,13 @@ img {
   text-align: center;
   width: 60%;
   font-weight: 700;
-  
+
 }
 
 #stext2 {
   width: 50%;
   text-align: center;
-  
+
 }
 
 #sbuttonpassword {
@@ -294,5 +334,4 @@ img {
     width: 150px;
     font-size: 10px;
   }
-}
-</style>
+}</style>

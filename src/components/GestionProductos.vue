@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useQuasar } from 'quasar';
-import { useStoreProductos } from '../Stores/productos.js'
+import { useStoreProductos } from '../stores/productos.js'
 import helpersGenerales from '../helpers/generales';
 const useProductos = useStoreProductos()
 const loadingTable = ref(false);
@@ -95,7 +95,7 @@ async function getInfo() {
             return
         }
 
-        rows.value = response
+        rows.value = response.reverse()
 
     } catch (error) {
         console.log(error);
@@ -289,13 +289,13 @@ function buscarIndexLocal(id) {
             </template>
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="botones">
-                    <q-btn class="botonv1" text-size="1px" padding="10px" :loading="loadIn_activar" :label="props.row.estado
+                    <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
                         ? 'Activo'
                         : !props.row.estado
                             ? 'Inactivo'
                             : '‎  ‎   ‎   ‎   ‎ '
                         " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
-                        @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id);" />
+                        @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
                 </q-td>
             </template>
             <template v-slot:body-cell-opciones="props">

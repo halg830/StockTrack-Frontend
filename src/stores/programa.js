@@ -2,17 +2,19 @@ import axios from "axios";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import Cookies from "js-cookie";
-
-axios.defaults.headers.common["x-token"] = obtenerToken();
-function obtenerToken() {
-  console.log(Cookies.get("x-token"));
-  return Cookies.get("x-token");
-}
+import { useStoreUsuarios } from "./usuarios.js";
+import Cookies from 'js-cookie'
 
 const modelo = "item";
 
 export const useStorePrograma = defineStore(modelo, () => {
+  function obtenerToken() {
+    console.log(Cookies.get('x-token'));
+    return Cookies.get('x-token');
+  }
+  
+  axios.defaults.headers.common["x-token"] = obtenerToken();
+  
   const $q = useQuasar();
   function notificar(tipo, msg) {
     $q.notify({

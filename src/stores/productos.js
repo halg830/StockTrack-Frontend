@@ -3,10 +3,19 @@ import {ref} from "vue"
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import Cookies from 'js-cookie'
 
 const modelo = "producto";
 
 export const useStoreProductos = defineStore(modelo, () => {
+
+  function obtenerToken() {
+    console.log(Cookies.get('x-token'));
+    return Cookies.get('x-token');
+  }
+  
+  axios.defaults.headers.common["x-token"] = obtenerToken();
+
   const $q = useQuasar();
   const productos = ref([]);
   function notificar(tipo, msg) {
