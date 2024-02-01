@@ -92,10 +92,10 @@ getInfo()
     </section>
 
     <section id="second-section">
-      <article>
-        <p class="text-h4">Nombre</p>
-        <q-select filled v-model="producto" clearable use-input hide-selected fill-input input-debounce="0"
-          label="Seleccione el producto" :options="getFilteredProducts(dataProductos)" style="width: 400px; background-color: rgb(217, 250, 252)"
+      <article style="width: 50%;">
+        <p class="text-h4">Producto</p>
+        <q-select outlined v-model="producto" clearable use-input hide-selected fill-input input-debounce="0"
+          label="Seleccione el producto" :options="getFilteredProducts(dataProductos)" style="width: 100%; background-color: rgb(217, 250, 252)"
           @filter="filtrarProductos">
           <template v-slot:no-option>
             <q-item>
@@ -107,16 +107,17 @@ getInfo()
         </q-select>
       </article>
 
-      <article>
+      <article style="width: 50%;">
         <p class="text-h4">Cantidad</p>
-        <q-input rounded outlined v-model="cantidad" lazy-rules type="number" color="dark" style="width: 400px;"
-          :rules="[val => val && val.length > 0 || 'Por favor ingrese una cantidad', val => val > 0 || 'Por favor ingrese una cantidad mayor a 0' ]" />
+        <q-input outlined v-model="cantidad" lazy-rules type="number" color="dark" label="Digite la cantidad" id="inputcantidad" hide-bottom-space
+          :rules="[val => val && val.length > 0 || 'Por favor ingrese una cantidad', val => val > 0 || 'Por favor ingrese una cantidad mayor a 0' ]"
+          style="background: rgb(217, 250, 252)"/>
       </article>
 
-      <article>
+      <article style="width: 50%;">
         <p class="text-h4">Tipo de Devolución</p>
-        <q-select filled v-model="tipoDevolucion" clearable use-input hide-selected fill-input input-debounce="0"
-          label="Seleccione el producto" :options="getFilteredTypes()" style="width: 400px; background-color: rgb(217, 250, 252);"
+        <q-select outlined v-model="tipoDevolucion" clearable use-input hide-selected fill-input input-debounce="0"
+          label="Seleccione el producto" :options="getFilteredTypes()" style="background-color: rgb(217, 250, 252);"
           @filter="filtrarTipos">
           <template v-slot:no-option>
             <q-item>
@@ -129,6 +130,8 @@ getInfo()
       </article>
 
     </section>
+    <q-btn class="enviar">Enviar</q-btn>
+
   </main>
 </template>
 
@@ -151,12 +154,30 @@ main{
 
 #second-section{
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 15px;
+
 }
+
+.enviar {
+    width: 10%;
+    background-color: #39A900;
+    color: white;
+    border: none;
+    height: 10%;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bolder;
+}
+/* Posible solucion q-input cantidad */
+/* ::v-deep .q-field__bottom {
+  background-color: #ffffff;
+  padding: 10px;
+} */
+
 
 </style>
