@@ -35,8 +35,9 @@ const columns = [
     { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
     { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
     { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
-    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, sortable: true, align: "left" },
-    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}` },
+    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
+    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}` , align: "left" },
+    { naem: "idArea", label: "Area Asignada",field: (row) => row.idArea.nombre ,align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -66,26 +67,35 @@ async function getInfo() {
     }
 }
 getInfo();
-
 const opciones = {
     agregar: () => {
-        data.value = {}
-        estado.value = 'agregar'
-        modal.value = true
+        data.value = {
+            
+        };
+        estado.value = 'agregar';
+        modal.value = true;
     },
     editar: (info) => {
-        data.value = { ...info }
-        estado.value = 'editar'
-        modal.value = true
+        console.log(info);
+        data.value = { 
+            ...info, 
+            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"), 
+            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
+            idArea:{
+                label: `${info.idArea.nombre}`,
+                value: String(info.idArea._id)
+            }
+        };
+        estado.value = 'editar';
+        modal.value = true;
     }
 }
-
+getOptionsArea();
 const enviarInfo = {
     agregar: async () => {
-        getOptionsArea();
         try {
             loadingModal.value = true
-
+            console.log(data.value);
             const response = await storeFichas.agregar(data.value)
             console.log(response);
 
@@ -106,7 +116,7 @@ const enviarInfo = {
         }
     },
     editar: async () => {
-        getOptionsArea();
+        
         loadingModal.value = true
         try {
             console.log(data.value);
@@ -196,6 +206,7 @@ let optionsArea = ref([])
 async function getOptionsArea() {
     try {
         await storeAreas.getAll();
+        console.log(storeAreas.areas);
         const areasActicas = storeAreas.areas.filter(area => area.estado === true);
 
         optionsArea.value = areasActicas.map((area) => ({
@@ -206,6 +217,8 @@ async function getOptionsArea() {
         console.log(error);
     };
 };
+
+
 </script>
 
 
