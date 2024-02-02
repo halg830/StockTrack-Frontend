@@ -12,7 +12,7 @@ import Lote from '../components/Lote.vue'
 import Programa from '../components/programa.vue'
 import Area from '../components/area.vue'
 import formatoDevolucion from '../components/formatoDevoluciones.vue'
-import historial from '../components/historial.vue'
+import historial from '../components/historialDevolucion.vue'
 import historialPedido from '../components/historialPedido.vue'
 
 const routes = [
