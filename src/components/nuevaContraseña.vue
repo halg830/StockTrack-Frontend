@@ -1,11 +1,12 @@
 <script setup>
-import { useQuasar } from 'quasar'
+import { Cookies, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router';
 import { ref } from 'vue'
 import { useStoreUsuarios } from '../stores/usuarios';
 
 const router = useRouter();
 const isPwd = ref(true);
+const isPwdb = ref(true);
 const isPw = ref(true);
 const password = ref('')
 const newPassword = ref('');
@@ -25,6 +26,7 @@ const isPasswordValid = (value) => {
 
 
 function messageSuccessful() {
+  Cookies.remove()
   if (newPassword.value === confirmPassword.value) {
     showTwo.value = true;
     hideOne.value = false;
@@ -37,15 +39,14 @@ function home() {
 
 //Formulario
 const useUsuario = useStoreUsuarios()
+const data = ref({
+      password,
+      newPassword, confirmPassword
+    })
 async function cambiarPassword() {
   try {
-    const data = {
-      password,
-      newPassword
-    }
-
-    const res = await useUsuario.cambiarPassword(data)
-    console.log(res);
+    const response = await useUsuario.cambiarPassword(data.value)
+    console.log(response);
 
     if (!response) return
     if (response.error) {
@@ -53,14 +54,14 @@ async function cambiarPassword() {
       return
     }
 
-    notificar('Contraseña cambiada exitosamente')
+    messageSuccessful()
   } catch (error) {
     console.log(error);
   }
 }
 
+//Notificaciones
 const $q = useQuasar();
-const productos = ref([]);
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
@@ -69,18 +70,11 @@ function notificar(tipo, msg) {
   });
 }
 
+const productos = ref([]);
 </script>
 
 <template>
   <main>
-    <header>
-    </header>
-
-    <section id="section">
-      <article id="image">
-        <img src="/src/assets/logoSena.png" alt="">
-      </article>
-    </section>
 
     <section id="sectionone" v-if="hideOne">
 
@@ -110,20 +104,19 @@ function notificar(tipo, msg) {
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
               </template>
             </q-input>
-            <q-input v-model="confirmPassword" filled :type="isPw ? 'password' : 'text'" label="Confirme nueva contraseña"
+            <q-input v-model="confirmPassword" filled :type="isPwdb ? 'password' : 'text'" label="Confirme nueva contraseña"
               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
               <template v-slot:append>
-                <q-icon :name="isPw ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPw = !isPw" />
+                <q-icon :name="isPwdb ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwdb = !isPwdb" />
               </template>
             </q-input>
             <div id="text3">
-              <q-btn id="buttonpassword" type="submit" class="bg-primary" @click="messageSuccessful()">Cambiar
+              <q-btn id="buttonpassword" type="submit" class="bg-primary">Cambiar
                 Contraseña</q-btn>
             </div>
           </q-form>
         </div>
-
 
       </article>
     </section>
@@ -139,11 +132,8 @@ function notificar(tipo, msg) {
         </div>
       </article>
 
-
     </section>
 
-    <footer>
-    </footer>
 
   </main>
 </template>
@@ -177,11 +167,6 @@ footer {
   width: 100%;
 }
 
-#section {
-  width: 100%;
-  height: 30%;
-}
-
 
 #sectiontwo {
   display: flex;
@@ -191,14 +176,6 @@ footer {
   height: 70%;
   gap: 50px;
   background-color: rgb(245, 245, 245);
-}
-
-
-
-#image {
-  margin-left: 20px;
-  margin-top: 20px;
-  display: flex;
 }
 
 img {
@@ -334,4 +311,5 @@ img {
     width: 150px;
     font-size: 10px;
   }
-}</style>
+}
+</style>
