@@ -97,7 +97,10 @@ const enviarInfo = {
         try {
             loadingModal.value = true
             console.log(data.value);
-            const response = await storeFichas.agregar(data.value)
+            let info = {
+                ...data.value, idArea: data.value.area.value
+            };
+            const response = await storeFichas.agregar(info)
             console.log(response);
 
             if (!response) return
@@ -105,7 +108,7 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            rows.value.unshift(response.area)
+            rows.value.unshift(response)
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -121,7 +124,10 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             console.log(data.value);
-            const response = await storeFichas.editar(data.value._id, data.value);
+            let info = {
+                ...data.value, idArea: data.value.area.value
+            };
+            const response = await storeFichas.editar(data.value._id, info);
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -209,10 +215,13 @@ async function getOptionsArea() {
         await storeAreas.getAll();
         const areasActicas = storeAreas.areas.filter(area => area.estado === true);
 
-        optionsArea.value = areasActicas.map((area) => ({
-            label: `${area.nombre}`,
-            value: String(area._id),
-        }));
+        optionsArea.value = areasActicas.map((area) => { return { label: area.nombre, value: area._id, disable: area.estado === 0 } });
+
+        // optionsArea.value = areasActicas.map((area) => ({
+        //     label: `${area.nombre}`,
+        //     value: String(area._id),
+        // }));
+        console.log(optionsArea.value);
     } catch (error) {
         console.log(error);
     };
@@ -257,7 +266,7 @@ watch(data, () => {
                     <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
                         :rules="[
                             val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio',
-                            val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
+                            // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
                         ]" />
 
                     <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules
@@ -272,8 +281,10 @@ watch(data, () => {
                             }
                         ]" />
 
-                    <q-select filled v-model="data.area" label="Area" lazy-rules :options=optionsArea
+                    <q-select filled v-model:model-value="data.area"  label="Area" lazy-rules :options=optionsArea
                         :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
+
+
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
                                 :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
