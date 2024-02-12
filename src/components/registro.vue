@@ -1,222 +1,435 @@
-<template>
-    <main class="container">
-        <section class="left-panel">
-            <h1></h1>
-
-            <div class="card">
-                <div class="box">
-                    <img class="img-perfil" src="../assets/perfil-removebg-preview.png" alt="">
-                    <p class="name">Juan Juan gutierez gutierez</p>
-
-                    <div class="toggler">
-                        <input id="toggler-1" name="toggler-1" type="checkbox" value="1">
-                        <label for="toggler-1">
-                            <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 130.2 130.2">
-                                <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
-                            </svg>
-                            <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 130.2 130.2">
-                                <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
-                                <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
-                            </svg>
-                        </label>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-        <section class="right-panel">
-            <h1 class="registro">Registro</h1>
-            <q-form class="form">
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-inpu ut filled label="Nombre" bottom-slots :error="!isValid" hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-inpu>
-                </div>
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled label="Identificacion" bottom-slots :error="!isValid" hint="Max 3 characters"
-                        input-class="input">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled label="Nombre de usuario" bottom-slots :error="!isValid" hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled label="Nombre de usuario" bottom-slots :error="!isValid" hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled v-model="model" label="Telefono" bottom-slots :error="!isValid" hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled v-model="model" label="Codigo Rol" bottom-slots :error="!isValid"
-                        hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-                <div class="q-pa-md" style="max-width: 500px">
-                    <q-input filled v-model="model" label="Contraseña" bottom-slots :error="!isValid"
-                        hint="Max 3 characters">
-                        <template v-slot:error>
-                            Please use maximum 3 characters.
-                        </template>
-                    </q-input>
-                </div>
-            </q-form>
-            <div class="boton">
-
-                <button class="ingresa">Registrese</button>
-            </div>
-
-        </section>
-    </main>
-</template>
 <script setup >
 import { ref, watch } from 'vue'
+import { useQuasar } from 'quasar';
+import { useStoreUsuarios } from '../stores/usuarios.js'
+import helpersGenerales from '../helpers/generales.js';
+
+// Alertas notify
+const $q = useQuasar()
+function notificar(tipo, msg) {
+  $q.notify({
+    type: tipo,
+    message: msg,
+    position: "top",
+  });
+}
+
+//Input contraseña visible
+const clicks = ref({ password: true, newPassword: true })
+
+//Data tabla
+const columns = ref([
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    align: 'center',
+    field: 'nombre'
+  },
+  {
+    name: 'apellido',
+    label: 'Apellidos',
+    align: 'center',
+    field: 'apellido'
+  },
+  {
+    name: 'identificacion',
+    label: 'Identificación',
+    align: 'center',
+    field: 'identificacion'
+  },
+  {
+    name: 'correo',
+    label: 'Correo',
+    align: 'center',
+    field: 'correo'
+  },
+  {
+    name: 'telefono',
+    label: 'Teléfono',
+    align: 'center',
+    field: 'telefono'
+  },
+  {
+    name: 'rol',
+    label: 'Rol',
+    align: 'center',
+    field: 'rol'
+  },
+  {
+    name: 'estado',
+    label: 'Estado',
+    align: 'center',
+    field: 'estado'
+  },
+])
+const rows = ref([])
+
+// Opciones tabla
+const data = ref({})
+const estado = ref('agregar')
+const modal = ref(false)
+const opciones = {
+  agregar: () => {
+    data.value = {}
+    estado.value = 'agregar'
+    modal.value = true
+  },
+  editar: (info) => {
+    data.value = { ...info }
+    estado.value = 'editar'
+    modal.value = true
+  }
+}
+
+//Registrar
+const useUsuario = useStoreUsuarios()
+const loadBtnModal = ref(false)
+const enviarInfo = {
+  agregar: async () => {
+    try {
+      loadBtnModal.value = true
+
+      const response = await useUsuario.agregar(data.value)
+      console.log(response);
+
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+
+      rows.value.unshift(response)
+      modal.value = false
+      notificar('positive', 'Guardado exitosamente')
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadBtnModal.value = false
+    }
+  },
+  editar: async () => {
+    loadBtnModal.value = true
+    try {
+      console.log(data.value);
+      const response = await useUsuario.editar(data.value._id, data.value);
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+      rows.value.splice(buscarIndexLocal(response._id), 1, response);
+      modal.value = false
+      notificar('positive', 'Editado exitosamente')
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadBtnModal.value = false;
+    }
+  }
+}
+
+//Validaciones
+function validarCampos() {
+  console.log(data.value);
+  const arrData = Object.values(data.value);
+  console.log(arrData);
+  for (const d of arrData) {
+    console.log(d);
+    if (d === null) {
+      notificar('negative', 'Por favor complete todos los campos');
+      return;
+    }
+    if (typeof d === "string") {
+      if (d.trim() === "") {
+        notificar('negative', 'Por favor complete todos los campos');
+        return;
+      }
+    }
+  }
+  enviarInfo[estado.value]()
+}
+
+//Activar y desactivar
+const loadIn_activar = ref(false)
+const in_activar = {
+  activar: async (id) => {
+    loadIn_activar.value = true
+    try {
+      const response = await useUsuario.activar(id)
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+      rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadIn_activar.value = false
+    }
+  },
+  inactivar: async (id) => {
+    loadIn_activar.value = true
+    try {
+      const response = await useUsuario.inactivar(id)
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+      rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadIn_activar.value = false
+    }
+  }
+}
+
+function buscarIndexLocal(id) {
+  return rows.value.findIndex((r) => r._id === id);
+}
 
 let model = ref('')
 let isValid = ref(null)
 
 watch(model, () => {
-    if (model.value.length <= 3) {
-        isValid.value = false
-    } else {
-        isValid.value = true
-    }
+  if (model.value.length <= 3) {
+    isValid.value = false
+  } else {
+    isValid.value = true
+  }
 })
 </script>
+
+<template>
+  <main>
+    <section>
+      <q-dialog v-model="modal">
+        <q-card class="modal">
+          <q-toolbar>
+            <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} programa</q-toolbar-title>
+            <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+          </q-toolbar>
+
+          <q-card-section class="q-gutter-md">
+            <q-form @submit="validarCampos" class="q-gutter-md">
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input ut filled label="Nombre" bottom-slots :rules="[val => !!val || 'Ingrese un nombre']">
+                </q-input>
+              </div>
+
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled label="Apellidos" bottom-slots :rules="[val => !!val || 'Ingrese un correo']">
+                </q-input>
+              </div>
+
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled label="Identificacion" bottom-slots type="number" input-class="input"
+                  :rules="[val => !!val || 'Ingrese una identificación']">
+                </q-input>
+              </div>
+
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled label="Correo" bottom-slots :rules="[val => !!val || 'Ingrese un correo']">
+                </q-input>
+              </div>
+
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled v-model="model" type="Number" label="Telefono" bottom-slots
+                  :rules="[val => !!val || 'Ingrese un nombre']">
+                </q-input>
+              </div>
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled v-model="model" label="Rol" bottom-slots :rules="[val => !!val || 'Ingrese un nombre']">
+                </q-input>
+              </div>
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled v-model="model" :type="clicks.password ? 'password' : 'text'" label="Contraseña"
+                  bottom-slots :rules="[val => !!val || 'Ingrese un nombre']">
+                  <template v-slot:append>
+                    <q-icon :name="clicks.password ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                      @click="clicks.password = !clicks.password" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="q-pa-md" style="max-width: 500px">
+                <q-input filled v-model="model" :type="clicks.newPassword ? 'password' : 'text'"
+                  label="Confirme su contraseña" bottom-slots :rules="[val => !!val || 'Ingrese un nombre']">
+                  <template v-slot:append>
+                    <q-icon :name="clicks.newPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                      @click="clicks.newPassword = !clicks.newPassword" />
+                  </template>
+                </q-input>
+              </div>
+
+              <q-btn :loading="loadBtnModal" padding="10px" type="submit"
+                :color="estado == 'editar' ? 'warning' : 'secondary'" :label="estado">
+              </q-btn>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+
+      <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
+        :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
+        no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Usuarios"
+        no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
+        <template v-slot:top-left style="margin: 100px; background-color:aqua">
+          <h4 id="titleTable">Usuarios</h4>
+          <q-btn @click="opciones.agregar" color="primary">
+            <q-icon name="add" color="white" center />
+          </q-btn>
+        </template>
+        <template v-slot:top-right>
+          <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+            placeholder="Buscar cualquier campo" id="boxBuscar">
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+        <template v-slot:body-cell-estado="props">
+          <q-td :props="props" class="botones">
+            <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
+              ? 'Activo'
+              : !props.row.estado
+                ? 'Inactivo'
+                : '‎  ‎   ‎   ‎   ‎ '
+              " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+              @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
+          </q-td>
+        </template>
+        <template v-slot:body-cell-opciones="props">
+          <q-td :props="props" class="botones">
+            <q-btn color="warning" icon="edit" class="botonv1" @click="opciones.editar(props.row)" />
+          </q-td>
+        </template>
+      </q-table>
+
+    </section>
+  </main>
+</template>
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Kanit:wght@500&display=swap');
-.name{
-    font-size: 15px;
-    font-family: "Inter", sans-serif;
-    margin-top:20px;
-    align-items: center;
-    justify-content: center;
-    display: flex;
+
+#infoUser {}
+
+.name {
+  font-size: 15px;
+  font-family: "Inter", sans-serif;
+  margin-top: 20px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 }
+
 .box {
-    display: flex;
-    width: 100%;
-    height: 70px;
-    border-bottom: solid black 1px;
+  display: flex;
+  width: 100%;
+  border-bottom: solid black 1px;
 }
 
 .img-perfil {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
 }
 
 .card {
-    margin-left: 200px;
-    margin-top: 200px;
-    width: 500px;
-    height: 500px;
-    border-radius: 30px;
-    background: #e0e0e0;
+  margin-left: 200px;
+  margin-top: 200px;
+  width: 500px;
+  height: 500px;
+  border-radius: 30px;
+  background: #e0e0e0;
 }
 
 .form {
-    width: 500px;
-    margin-top: -100px;
+  width: 500px;
+  margin-top: -100px;
 }
 
 .container {
-    display: flex;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 100vh;
+  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
 }
 
 .left-panel {
-    background-color: #39A900;
-    display: flex;
+  background-color: #39A900;
+  display: flex;
 }
 
 .right-panel {
-    margin: 0 auto;
+  margin: 0 auto;
 }
 
 .ingresa {
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 250px;
-    background-color: #39A900;
-    border: none;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 250px;
+  background-color: #39A900;
+  border: none;
 }
 
 .nombre {
-    align-items: center;
-    justify-content: center;
-    display: flex;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 }
 
 .boton {
-    justify-content: center;
-    display: flex;
+  justify-content: center;
+  display: flex;
 }
 
 
 .boton2 {
-    justify-content: center;
-    display: flex;
+  justify-content: center;
+  display: flex;
 }
 
 .ingresar {
-    width: 250px;
-    background-color: white;
-    border: none;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 250px;
+  background-color: white;
+  border: none;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
 }
 
 .input {
-    width: 500px;
+  width: 500px;
 }
 
 .registro {
-    justify-content: center;
-    align-items: center;
-    display: flex;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
 /* estilos de check activo inactivo */
 .toggler {
-    align-items: center;
-    /* width: 72px; */
-    /* margin: 15px 271px; */
-    display: flex;
-    justify-content: flex-end;
-    width: 38%;
+  align-items: center;
+  /* width: 72px; */
+  /* margin: 15px 271px; */
+  display: flex;
+  justify-content: flex-end;
+  width: 38%;
 }
 
 .toggler input {
@@ -247,7 +460,9 @@ watch(model, () => {
   animation-play-state: running;
 }
 
-.toggler label::after, .toggler label .toggler-on, .toggler label .toggler-off {
+.toggler label::after,
+.toggler label .toggler-on,
+.toggler label .toggler-off {
   position: absolute;
   top: 50%;
   left: 25%;
@@ -257,21 +472,25 @@ watch(model, () => {
   transition: left 0.15s ease-in-out, background-color 0.2s ease-out, width 0.15s ease-in-out, height 0.15s ease-in-out, opacity 0.15s ease-in-out;
 }
 
-.toggler input:checked + label::after, .toggler input:checked + label .toggler-on, .toggler input:checked + label .toggler-off {
+.toggler input:checked+label::after,
+.toggler input:checked+label .toggler-on,
+.toggler input:checked+label .toggler-off {
   left: 75%;
 }
 
-.toggler input:checked + label::after {
+.toggler input:checked+label::after {
   background-color: #50ac5d;
   animation-name: toggler-size2;
 }
 
-.toggler .toggler-on, .toggler .toggler-off {
+.toggler .toggler-on,
+.toggler .toggler-off {
   opacity: 1;
   z-index: 2;
 }
 
-.toggler input:checked + label .toggler-off, .toggler input:not(:checked) + label .toggler-on {
+.toggler input:checked+label .toggler-off,
+.toggler input:not(:checked)+label .toggler-on {
   width: 0;
   height: 0;
   opacity: 0;
@@ -286,7 +505,9 @@ watch(model, () => {
 }
 
 @keyframes toggler-size {
-  0%, 100% {
+
+  0%,
+  100% {
     width: 26px;
     height: 26px;
   }
@@ -298,7 +519,9 @@ watch(model, () => {
 }
 
 @keyframes toggler-size2 {
-  0%, 100% {
+
+  0%,
+  100% {
     width: 26px;
     height: 26px;
   }
@@ -308,5 +531,4 @@ watch(model, () => {
     height: 20px;
   }
 }
- 
 </style>

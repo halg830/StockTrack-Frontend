@@ -46,6 +46,30 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
+  const agregar = async (data) => {
+    try {
+      const response = await axios.post(`${modelo}/agregar`, data);
+      console.log(response);
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido"
+      ) {
+        notificar("negative", "Por favor vuelva a iniciar sesión");
+        router.push("/");
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const cambiarPassword = async (data) => {
     try {
       const id = Cookies.get("id");
@@ -72,5 +96,5 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
-  return { login, token, rol, cambiarPassword };
+  return { login, token, rol, cambiarPassword, agregar };
 });
