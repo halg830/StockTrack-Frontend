@@ -1,7 +1,7 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref  } from 'vue';
+import { ref , watch } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
 import { useStoreAreas } from '../stores/area.js';
 import { format } from "date-fns";
@@ -29,7 +29,11 @@ let niveles = ref([
 ]);
 
 const estado = ref('agregar')
-const data = ref({})
+const data = ref({
+    area: { value: null },
+    
+});
+
 
 const columns = [
     { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
@@ -69,19 +73,16 @@ async function getInfo() {
 getInfo();
 const opciones = {
     agregar: () => {
-        data.value = {
-            
-        };
+        data.value = {};
         estado.value = 'agregar';
         modal.value = true;
     },
     editar: (info) => {
-        console.log(info);
         data.value = { 
             ...info, 
             fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"), 
             fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            idArea:{
+            area: {
                 label: `${info.idArea.nombre}`,
                 value: String(info.idArea._id)
             }
@@ -206,7 +207,6 @@ let optionsArea = ref([])
 async function getOptionsArea() {
     try {
         await storeAreas.getAll();
-        console.log(storeAreas.areas);
         const areasActicas = storeAreas.areas.filter(area => area.estado === true);
 
         optionsArea.value = areasActicas.map((area) => ({
@@ -217,6 +217,11 @@ async function getOptionsArea() {
         console.log(error);
     };
 };
+
+
+watch(data, () => {
+  console.log(data);
+});
 
 
 </script>
@@ -235,22 +240,40 @@ async function getOptionsArea() {
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
                         <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules
-                            :rules="[val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha']" />
+                        :rules="[
+                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
+                            val => /^\d+$/.test(val) || 'Ingrese solo números'   
+                        ]" />
 
-                        <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules
-                            :rules="[val => val && val.length > 0 || 'Digite el Nombre del Programa']" />
+                    <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules
+                        :rules="[ 
+                            val => val && val.length > 0 || 'Digite el Nombre del Programa',
+                            val => !/\d/.test(val) || 'No se permiten números en el nombre'
+                        ]" />
 
-                        <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options=niveles
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
+                    <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options=niveles
+                        :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
 
-                        <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio']" />
+                    <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
+                        :rules="[
+                            val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio',
+                            val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
+                        ]" />
 
-                        <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización']" />
+                    <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules
+                        :rules="[
+                            val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
+                            val => {
+                                const startDate = new Date(data.fechaInicio);
+                                const endDate = new Date(val);
+                                const sixMonthsLater = new Date(startDate);
+                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
+                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
+                            }
+                        ]" />
 
-                        <q-select filled v-model="data.area" label="Area" lazy-rules :options=optionsArea
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
+                    <q-select filled v-model="data.area" label="Area" lazy-rules :options=optionsArea
+                        :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
                                 :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
