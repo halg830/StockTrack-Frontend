@@ -25,7 +25,7 @@ const rol = Cookies.get('rol');
 const opciones = {
   admin: [
     { label: 'Prueba', o: ['nueva-password', 'recuperar-password'] },
-    { label: 'Administración General', o: ['fichas', 'lotes', 'programas', 'distribucion-presupuesto', 'cuentas', 'areas'] },
+    { label: 'Administración General', o: ['fichas', 'lotes', 'programas', 'cuentas', 'areas' , 'distribucion-presupuesto', 'distribucion-item-lote', 'distribucion-lote-ficha'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     { label: 'Productos', o: ['listado'] },
   ],

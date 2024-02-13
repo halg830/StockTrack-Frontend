@@ -14,6 +14,9 @@ import Area from '../components/area.vue'
 import formatoDevolucion from '../components/formatoDevoluciones.vue'
 import historial from '../components/historialDevolucion.vue'
 import historialPedido from '../components/historialPedido.vue'
+import distribucionItemLote from '../components/distribucionItemLote.vue';
+import distribucionLoteFicha from '../components/distribucionLoteFicha.vue';
+
 
 const routes = [
   {path: '/', component: Login},
@@ -31,7 +34,9 @@ const routes = [
     {path: '/areas', component: Area},
     {path: '/formato-devolucion', component: formatoDevolucion},
     {path: '/historial', component: historial},
-    {path: '/historial-pedido', component: historialPedido}
+    {path: '/historial-pedido', component: historialPedido},
+    {path: '/distribucion-item-lote', component: distribucionItemLote},
+    {path: '/distribucion-lote-ficha', component: distribucionLoteFicha}
   ]}
 ]
 

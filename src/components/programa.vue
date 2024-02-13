@@ -202,10 +202,10 @@ function buscarIndexLocal(id) {
 
 </script>
 <template>
-  <main>
+  <main style=" width: 100%; display: flex; justify-content: center;">
     <q-dialog v-model="modal">
-      <q-card class="modal">
-        <q-toolbar>
+      <q-card class="modal" style="width: 450px;">
+        <q-toolbar style="background-color: #39A900;color: white">
           <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} programa</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
@@ -218,32 +218,36 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.presupuesto" label="Presupuesto" type="number"
               :rules="[val => !!val || 'Ingrese el presupuesto']"></q-input>
 
-            <q-btn :loading="loadingModal" padding="10px" type="submit"
-              :color="estado == 'editar' ? 'warning' : 'secondary'" :label="estado">
-            </q-btn>
+              <div style=" display: flex; width: 96%; justify-content: flex-end;">
+                <q-btn :loading="loadingModal" padding="10px" type="submit"
+                    :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
+            </div>
           </q-form>
         </q-card-section>
       </q-card>
     </q-dialog>
-    <section>
+    
       <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
         :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-        no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas"
+        no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas" style="width: 90%;"
         no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
-        <template v-slot:top-left style="margin: 100px; background-color:aqua">
-          <h4 id="titleTable">Programas</h4>
-          <q-btn @click="opciones.agregar" color="primary">
-            <q-icon name="add" color="white" center />
-          </q-btn>
+        <template v-slot:top-left>
+          <div style=" display: flex; gap: 10px;">
+            <h4 id="titleTable">Programas</h4>
+            <q-btn @click="opciones.agregar" color="primary">
+              <q-icon name="add" color="white" center />
+            </q-btn>
+          </div>
+          
         </template>
         <template v-slot:top-right>
           <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
-            placeholder="Buscar cualquier campo" id="boxBuscar">
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
+              placeholder="Buscar cualquier campo" id="boxBuscar">
+              <template v-slot:append>
+                  <q-icon name="search" />
+              </template>
           </q-input>
-        </template>
+      </template>
         <template v-slot:body-cell-estado="props">
           <q-td :props="props" class="botones">
             <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
@@ -261,7 +265,6 @@ function buscarIndexLocal(id) {
           </q-td>
         </template>
       </q-table>
-    </section>
   </main>
 </template>
 <style scoped>
@@ -270,13 +273,12 @@ function buscarIndexLocal(id) {
 }
 </style>
 
-<style lang="sass">
+<!-- <style lang="sass">
 .my-sticky-header-column-table
   
 
   tr th
-    background: #00b4ff
-  
-  
+    background:  #39A900
+   
 
-</style>
+</style> -->
