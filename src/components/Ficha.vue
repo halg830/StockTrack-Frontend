@@ -29,10 +29,7 @@ let niveles = ref([
 ]);
 
 const estado = ref('agregar')
-const data = ref({
-    area: { value: null },
-    
-});
+const data = ref({});
 
 
 const columns = [
@@ -51,17 +48,14 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-
         const response = await storeFichas.getAll()
-        console.log(response);
-
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
             return
         }
 
-        rows.value = response
+        rows.value = response.reverse()
 
     } catch (error) {
         console.log(error);
@@ -108,7 +102,8 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            rows.value.unshift(response)
+            // rows.value.unshift(response)
+            getInfo();
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -123,18 +118,17 @@ const enviarInfo = {
         
         loadingModal.value = true
         try {
-            console.log(data.value);
             let info = {
                 ...data.value, idArea: data.value.area.value
             };
             const response = await storeFichas.editar(data.value._id, info);
-            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
-            rows.value.splice(buscarIndexLocal(response._id), 1, response);
+            // rows.value.splice(buscarIndexLocal(response._id), 1, response);
+            getInfo()
             modal.value = false
             notificar('positive', 'Editado exitosamente')
         } catch (error) {
@@ -146,7 +140,6 @@ const enviarInfo = {
 }
 
 function validarCampos() {
-    console.log(data.value);
     const arrData = Object.values(data.value);
     console.log(arrData);
     for (const d of arrData) {
@@ -260,12 +253,11 @@ watch(data, () => {
                             val => !/\d/.test(val) || 'No se permiten números en el nombre'
                         ]" />
 
-                    <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options=niveles
-                        :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
+                    <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options="niveles"
+                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
 
                     <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
-                        :rules="[
-                            val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio',
+                        :rules="[val => !!val  || 'Seleccione la Fecha de Inicio',
                             // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
                         ]" />
 
@@ -281,7 +273,7 @@ watch(data, () => {
                             }
                         ]" />
 
-                    <q-select filled v-model:model-value="data.area"  label="Area" lazy-rules :options=optionsArea
+                    <q-select filled v-model:model-value="data.area"  label="Area" lazy-rules :options="optionsArea"
                         :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
 
 

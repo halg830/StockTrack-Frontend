@@ -47,7 +47,7 @@ async function getInfo() {
       return
     };
 
-    rows.value = response
+    rows.value = response.reverse();
 
   } catch (error) {
     console.log(error);
