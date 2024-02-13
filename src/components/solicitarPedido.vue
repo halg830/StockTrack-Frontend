@@ -1,40 +1,44 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 const selectLoad = ref({
-  ficha: false
-})
+  ficha: false,
+});
 
 function fechaActual() {
-  const fecha = new Date
-  const formatoFecha = `${fecha.getFullYear()}/${(fecha.getMonth() + 1)
+  const fecha = new Date();
+  const formatoFecha = `${fecha.getDate().toString().padStart(2, "0")} / ${(
+    fecha.getMonth() + 1
+  )
     .toString()
-    .padStart(2, '0')}/${fecha.getDate().toString().padStart(2, '0')}`;
+    .padStart(2, "0")} / ${fecha.getFullYear()}`;
 
-  return formatoFecha
+  return formatoFecha;
 }
 
-const data = ref({ fechaCreacion: fechaActual() })
+const data = ref({ fechaCreacion: fechaActual() });
 
 const opcionesFiltro = ref({
-  ficha: []
-})
+  ficha: [],
+});
 
 function filterFn(val, update) {
-  if (val === '') {
+  if (val === "") {
     update(() => {
-      opcionesFiltro.value.ficha = options.value.ficha
-    })
-    return
+      opcionesFiltro.value.ficha = options.value.ficha;
+    });
+    return;
   }
 
   update(() => {
-    const needle = val.toLowerCase()
-    opcionesFiltro.value.ficha = options.value.ficha.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-  })
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.ficha =
+      options.value.ficha.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
 }
 
-function onSubmit() { }
-
+function onSubmit() {}
 </script>
 <template>
   <main>
@@ -49,15 +53,31 @@ function onSubmit() { }
             <div>
               <div>
                 <span>Instructor: </span>
-                <q-input class="input3" outlined v-model="data.instructor" label="Nombre" type="text" disable
-                  lazy-rules></q-input>
+                <q-input
+                  class="input3"
+                  outlined
+                  v-model="data.instructor"
+                  label="Nombre"
+                  type="text"
+                  disable
+                  lazy-rules
+                ></q-input>
               </div>
               <div>
                 <span>Ficha: </span>
-                <q-select outlined v-model="data.ficha" use-input input-debounce="0" label="Numero"
-                  :options="opcionesFiltro.ficha" @filter="filterFn" behavior="menu"
-                  :rules="[val => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
-                  :disable="selectLoad.ficha">
+                <q-select
+                  outlined
+                  v-model="data.ficha"
+                  use-input
+                  input-debounce="0"
+                  label="Numero"
+                  :options="opcionesFiltro.ficha"
+                  @filter="filterFn"
+                  behavior="menu"
+                  :rules="[(val) => val != null || 'Seleccione una ficha']"
+                  :loading="selectLoad.ficha"
+                  :disable="selectLoad.ficha"
+                >
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">

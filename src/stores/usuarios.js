@@ -26,6 +26,29 @@ export const useStoreUsuarios = defineStore(modelo, () => {
   const token = ref("");
   const rol = ref("");
 
+  const getAll = async () => {
+    try {
+      const response = await axios.get(`${modelo}/all`);
+      console.log(response);
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const login = async (data) => {
     try {
       const response = await axios.post(`${modelo}/login`, data);
@@ -46,9 +69,33 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
+  const editar = async (id, data) => {
+    try {
+      const response = await axios.put(`${modelo}/editar/${id}`, data);
+      console.log(response);
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido"
+      ) {
+        notificar("negative", "Por favor vuelva a iniciar sesión");
+        router.push("/");
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const agregar = async (data) => {
     try {
-      const response = await axios.post(`${modelo}/agregar`, data);
+      const response = await axios.post(`${modelo}/registro`, data);
       console.log(response);
 
       return response.data;
@@ -96,5 +143,45 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
-  return { login, token, rol, cambiarPassword, agregar };
+  const activar = async (id) => {
+    try {
+      const response = await axios.put(`${modelo}/activar/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (error.response.data.error === "Token no valido") {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const inactivar = async (id) => {
+    try {
+      const response = await axios.put(`${modelo}/inactivar/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (error.response.data.error === "Token no valido") {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  return { getAll, login, token, rol, cambiarPassword, agregar, editar, activar, inactivar };
 });
