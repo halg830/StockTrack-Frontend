@@ -2,14 +2,14 @@
 
 import { useQuasar } from 'quasar';
 import { ref , watch } from 'vue';
-import { useStoreFichas } from '../stores/ficha.js';
-import { useStoreAreas } from '../stores/area.js';
+import { useStoreLotes } from '../stores/lote.js';
+import { useStorePrograma } from '../stores/programa.js';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
-const storeFichas = useStoreFichas();
-const storeAreas = useStoreAreas();
+const storeItem = useStorePrograma();
+const storeLotes = useStoreLotes();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -33,7 +33,7 @@ const data = ref({});
 
 
 const columns = [
-    { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
+    { name: "item", label: "Nombre", field: "nombre", sortable: true, align: "left" },
     { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
     { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
     { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
@@ -201,20 +201,16 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionsArea = ref([])
+let optionsLotes = ref([])
 
 async function getOptionsArea() {
     try {
-        await storeAreas.getAll();
-        const areasActicas = storeAreas.areas.filter(area => area.estado === true);
+        await storeLotes.getAll();
+        const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
-        optionsArea.value = areasActicas.map((area) => { return { label: area.nombre, value: area._id, disable: area.estado === 0 } });
+        optionsLotes.value = lotesActivos.map((lote) => { return { label: lote.nombre, value: lote._id, disable: lote.estado === 0 } });
 
-        // optionsArea.value = areasActicas.map((area) => ({
-        //     label: `${area.nombre}`,
-        //     value: String(area._id),
-        // }));
-        console.log(optionsArea.value);
+        console.log(optionsLotes.value);
     } catch (error) {
         console.log(error);
     };
@@ -235,47 +231,27 @@ watch(data, () => {
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribución item lote</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules
+                        
+                        
+
+                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto Global" lazy-rules :options="optionsPresupuesto"
+                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+                        
+                        <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
+                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+
+                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
                         :rules="[
                             val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
                             val => /^\d+$/.test(val) || 'Ingrese solo números'   
                         ]" />
-
-                    <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules
-                        :rules="[ 
-                            val => val && val.length > 0 || 'Digite el Nombre del Programa',
-                            val => !/\d/.test(val) || 'No se permiten números en el nombre'
-                        ]" />
-
-                    <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options="niveles"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
-
-                    <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
-                        :rules="[val => !!val  || 'Seleccione la Fecha de Inicio',
-                            // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
-                        ]" />
-
-                    <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules
-                        :rules="[
-                            val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
-                            val => {
-                                const startDate = new Date(data.fechaInicio);
-                                const endDate = new Date(val);
-                                const sixMonthsLater = new Date(startDate);
-                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
-                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
-                            }
-                        ]" />
-
-                    <q-select filled v-model:model-value="data.area"  label="Area" lazy-rules :options="optionsArea"
-                        :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
-
+                        
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -290,11 +266,11 @@ watch(data, () => {
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Fichas" style="width: 90%;"
-            no-data-label="No hay Fichas registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Item Lote" style="width: 90%;"
+            no-data-label="No hay Distribución Item Lote registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Fichas</h4>
+                    <h4 id="titleTable">Distribución Item Lote</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
