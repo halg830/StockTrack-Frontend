@@ -227,7 +227,6 @@ function buscarIndexLocal(id) {
       </q-card>
     </q-dialog>
     <!-- TABLA -->
-    <section>
       <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
         :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
         no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas" style="width: 90%;"
