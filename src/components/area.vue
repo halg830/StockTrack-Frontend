@@ -65,7 +65,7 @@ async function getInfo() {
       return
     };
 
-    rows.value = response
+    rows.value = response.reverse();
 
   } catch (error) {
     console.log(error);
@@ -103,7 +103,7 @@ const enviarInfo = {
         notificar('negative', response.error);
         return
       };
-      rows.value.unshift(response.area);
+      rows.value.unshift(response);
 
       modal.value = false;
       notificar('positive', 'Guardado exitosamente');

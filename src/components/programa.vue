@@ -218,9 +218,10 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.presupuesto" label="Presupuesto" type="number"
               :rules="[val => !!val || 'Ingrese el presupuesto']"></q-input>
 
-            <q-btn :loading="loadingModal" padding="10px" type="submit"
-              :color="estado == 'editar' ? 'warning' : 'secondary'" :label="estado">
-            </q-btn>
+              <div style=" display: flex; width: 96%; justify-content: flex-end;">
+                <q-btn :loading="loadingModal" padding="10px" type="submit"
+                    :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
+            </div>
           </q-form>
         </q-card-section>
       </q-card>
@@ -229,7 +230,7 @@ function buscarIndexLocal(id) {
     <section>
       <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
         :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-        no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas"
+        no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas" style="width: 90%;"
         no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
         <template v-slot:top-left>
           <div style=" display: flex; gap: 10px;">
@@ -241,12 +242,12 @@ function buscarIndexLocal(id) {
         </template>
         <template v-slot:top-right>
           <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
-            placeholder="Buscar cualquier campo" id="boxBuscar">
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
+              placeholder="Buscar cualquier campo" id="boxBuscar">
+              <template v-slot:append>
+                  <q-icon name="search" />
+              </template>
           </q-input>
-        </template>
+      </template>
         <template v-slot:body-cell-estado="props">
           <q-td :props="props" class="botones">
             <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
@@ -270,7 +271,6 @@ function buscarIndexLocal(id) {
           </q-td>
         </template>
       </q-table>
-    </section>
   </main>
 </template>
 <style scoped>

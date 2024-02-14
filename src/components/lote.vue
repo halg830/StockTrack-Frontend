@@ -47,7 +47,7 @@ async function getInfo() {
       return
     };
 
-    rows.value = response
+    rows.value = response.reverse();
 
   } catch (error) {
     console.log(error);
@@ -188,7 +188,7 @@ function buscarIndexLocal(id) {
         <!-- Modal -->
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
-                <q-toolbar style="        background-color: #39A900;color: white">
+                <q-toolbar style="background-color: #39A900;color: white">
                     <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>

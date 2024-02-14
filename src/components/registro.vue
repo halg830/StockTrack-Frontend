@@ -69,7 +69,9 @@ const columns = ref([
   },
 ]);
 const rows = ref([]);
+const filter = ref('')
 
+//Data modal
 const data = ref({});
 const confirmPassword = ref("");
 const estado = ref("agregar");
@@ -424,7 +426,7 @@ function buscarIndexLocal(id) {
         row-key="name"
         :loading="loadTable"
         loading-label="Cargando..."
-        :filter="filter"
+        :filter="filter.trim()"
         rows-per-page-label="Visualización de filas"
         page="2"
         :rows-per-page-options="[10, 20, 40, 0]"
@@ -434,7 +436,7 @@ function buscarIndexLocal(id) {
         no-data-label="No hay programa registrados."
         class="my-sticky-header-column-table"
       >
-        <template v-slot:top-left style="margin: 100px; background-color: aqua">
+        <template v-slot:top-left >
           <h4 id="titleTable">Usuarios</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
