@@ -24,9 +24,6 @@ function notificar(tipo, msg) {
         position: "top",
     });
 }
-let niveles = ref([
-    "Técnico", "Tecnólogo"
-]);
 
 const estado = ref('agregar')
 const data = ref({});
@@ -85,7 +82,8 @@ const opciones = {
         modal.value = true;
     }
 }
-getOptionsArea();
+getOptionsLote();
+getOptionsItem();
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -203,19 +201,31 @@ function buscarIndexLocal(id) {
 
 let optionsLotes = ref([])
 
-async function getOptionsArea() {
+async function getOptionsLote() {
     try {
         await storeLotes.getAll();
         const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
         optionsLotes.value = lotesActivos.map((lote) => { return { label: lote.nombre, value: lote._id, disable: lote.estado === 0 } });
 
-        console.log(optionsLotes.value);
     } catch (error) {
         console.log(error);
     };
 };
 
+let optionsPresupuesto = ref([]);
+
+async function getOptionsItem() {
+    try {
+        await storeItem.getAll();
+        const presupuestosActivos = storeItem.items.filter(item => item.estado === true);
+
+        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: item.nombre, value: item._id, disable: item.estado === 0 } });
+
+    } catch (error) {
+        console.log(error);
+    };
+};
 
 watch(data, () => {
   console.log(data);
