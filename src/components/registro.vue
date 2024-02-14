@@ -181,14 +181,14 @@ function validarCampos() {
       return;
     }
     if (typeof d[1] === "string") {
-      if (d[1].trim() === "" && (d[0]==='password' && estado.value==='agregar')) {
+      if (d[1].trim() === "" && (d[0] === 'password' && estado.value === 'agregar')) {
         notificar("negative", "Por favor complete todos los campos");
         return;
       }
     }
   }
 
-  if (confirmPassword.value.trim() === "" && estado.value==='agregar') {
+  if (confirmPassword.value.trim() === "" && estado.value === 'agregar') {
     notificar("negative", "Por favor complete todos los campos");
     return;
   }
@@ -247,98 +247,58 @@ function buscarIndexLocal(id) {
 </script>
 
 <template>
-  <main>
-    <section>
+  <main style=" width: 100%; display: flex; justify-content: center;">
+    
       <q-dialog v-model="modal">
         <q-card class="modal">
           <q-toolbar>
-            <q-toolbar-title
-              >{{
-                helpersGenerales.primeraMayus(estado)
-              }}
-              usuario</q-toolbar-title
-            >
+            <q-toolbar-title>{{
+              helpersGenerales.primeraMayus(estado)
+            }}
+              usuario</q-toolbar-title>
             <q-btn class="botonv1" flat dense icon="close" v-close-popup />
           </q-toolbar>
 
           <q-card-section class="q-gutter-md">
             <q-form @submit="validarCampos" class="q-gutter-md">
               <div class="q-pa-md" style="max-width: 500px">
-                <q-input
-                  filled
-                  v-model="data.nombre"
-                  label="Nombre"
-                  bottom-slots
-                  :rules="[(val) => !!val.trim() || 'Ingrese un nombre']"
-                >
+                <q-input filled v-model="data.nombre" label="Nombre" bottom-slots
+                  :rules="[(val) => !!val.trim() || 'Ingrese un nombre']">
                 </q-input>
               </div>
 
               <div class="q-pa-md" style="max-width: 500px">
-                <q-input
-                  filled
-                  v-model="data.apellido"
-                  label="Apellidos"
-                  bottom-slots
-                  :rules="[(val) => !!val.trim() || 'Ingrese un apellido']"
-                >
+                <q-input filled v-model="data.apellido" label="Apellidos" bottom-slots
+                  :rules="[(val) => !!val.trim() || 'Ingrese un apellido']">
                 </q-input>
               </div>
 
               <div class="q-pa-md" style="max-width: 500px">
-                <q-input
-                  filled
-                  v-model="data.identificacion"
-                  label="Identificación"
-                  bottom-slots
-                  type="number"
-                  input-class="input"
-                  :rules="[
+                <q-input filled v-model="data.identificacion" label="Identificación" bottom-slots type="number"
+                  input-class="input" :rules="[
                     (val) => !!val.trim() || 'Ingrese una identificación',
-                  ]"
-                  :oninput="limitarLongitud('identificacion', 10)"
-                >
+                  ]" :oninput="limitarLongitud('identificacion', 10)">
                 </q-input>
               </div>
 
               <div class="q-pa-md" style="max-width: 500px">
-                <q-input
-                  filled
-                  v-model="data.correo"
-                  label="Correo"
-                  bottom-slots
-                  :rules="[
-                    (val) => !!val.trim() || 'Ingrese un correo',
-                    (val) =>
-                      regexCorreo.test(val) ||
-                      'Por favor ingrese un correo válido',
-                  ]"
-                >
+                <q-input filled v-model="data.correo" label="Correo" bottom-slots :rules="[
+                  (val) => !!val.trim() || 'Ingrese un correo',
+                  (val) =>
+                    regexCorreo.test(val) ||
+                    'Por favor ingrese un correo válido',
+                ]">
                 </q-input>
               </div>
 
               <div class="q-pa-md" style="max-width: 500px">
-                <q-input
-                  filled
-                  v-model="data.telefono"
-                  type="Number"
-                  label="Telefono"
-                  bottom-slots
-                  :rules="[(val) => !!val.trim() || 'Ingrese un teléfono']"
-                  :oninput="limitarLongitud('telefono', 10)"
-                >
+                <q-input filled v-model="data.telefono" type="Number" label="Telefono" bottom-slots
+                  :rules="[(val) => !!val.trim() || 'Ingrese un teléfono']" :oninput="limitarLongitud('telefono', 10)">
                 </q-input>
               </div>
               <div class="q-pa-md" style="max-width: 500px">
-                <q-select
-                  filled
-                  v-model:model-value="data.rol"
-                  input-debounce="0"
-                  label="Rol"
-                  :options="opcionesSelect.rol"
-                  behavior="menu"
-                  :rules="[(val) => !!val || 'Seleccione un rol']"
-                >
+                <q-select filled v-model:model-value="data.rol" input-debounce="0" label="Rol"
+                  :options="opcionesSelect.rol" behavior="menu" :rules="[(val) => !!val || 'Seleccione un rol']">
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">
@@ -348,111 +308,58 @@ function buscarIndexLocal(id) {
                   </template>
                 </q-select>
               </div>
-              <div
-                class="q-pa-md"
-                style="max-width: 500px"
-                v-if="estado === 'agregar'"
-              >
-                <q-input
-                  filled
-                  v-model="data.password"
-                  :type="clicks.password ? 'password' : 'text'"
-                  label="Contraseña"
-                  bottom-slots
-                  :rules="[
+              <div class="q-pa-md" style="max-width: 500px" v-if="estado === 'agregar'">
+                <q-input filled v-model="data.password" :type="clicks.password ? 'password' : 'text'" label="Contraseña"
+                  bottom-slots :rules="[
                     (val) => !!val.trim() || 'Ingrese una contraseña',
                     (val) =>
                       vali.test(val) ||
                       'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-                  ]"
-                >
+                  ]">
                   <template v-slot:append>
-                    <q-icon
-                      :name="clicks.password ? 'visibility_off' : 'visibility'"
-                      class="cursor-pointer"
-                      @click="clicks.password = !clicks.password"
-                    />
+                    <q-icon :name="clicks.password ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                      @click="clicks.password = !clicks.password" />
                   </template>
                 </q-input>
               </div>
-              <div
-                class="q-pa-md"
-                style="max-width: 500px"
-                v-if="estado === 'agregar'"
-              >
-                <q-input
-                  filled
-                  v-model="confirmPassword"
-                  :type="clicks.newPassword ? 'password' : 'text'"
-                  label="Confirme su contraseña"
-                  bottom-slots
-                  :rules="[
+              <div class="q-pa-md" style="max-width: 500px" v-if="estado === 'agregar'">
+                <q-input filled v-model="confirmPassword" :type="clicks.newPassword ? 'password' : 'text'"
+                  label="Confirme su contraseña" bottom-slots :rules="[
                     (val) => !!val.trim() || 'Confirme la contraseña',
                     (val) =>
                       val === data.password || 'Las contraseñas no coinciden',
                     (val) =>
                       vali.test(val) ||
                       'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-                  ]"
-                >
+                  ]">
                   <template v-slot:append>
-                    <q-icon
-                      :name="
-                        clicks.newPassword ? 'visibility_off' : 'visibility'
-                      "
-                      class="cursor-pointer"
-                      @click="clicks.newPassword = !clicks.newPassword"
-                    />
+                    <q-icon :name="clicks.newPassword ? 'visibility_off' : 'visibility'
+                      " class="cursor-pointer" @click="clicks.newPassword = !clicks.newPassword" />
                   </template>
                 </q-input>
               </div>
 
-              <q-btn
-                :loading="loadBtnModal"
-                padding="10px"
-                type="submit"
-                :color="estado == 'editar' ? 'warning' : 'secondary'"
-                :label="estado"
-              >
+              <q-btn :loading="loadBtnModal" padding="10px" type="submit"
+                :color="estado == 'editar' ? 'warning' : 'secondary'" :label="estado">
               </q-btn>
             </q-form>
           </q-card-section>
         </q-card>
       </q-dialog>
 
-      <q-table
-        :rows="rows"
-        :columns="columns"
-        row-key="name"
-        :loading="loadTable"
-        loading-label="Cargando..."
-        :filter="filter.trim()"
-        rows-per-page-label="Visualización de filas"
-        page="2"
-        :rows-per-page-options="[10, 20, 40, 0]"
-        no-results-label="No hay resultados para la búsqueda."
-        wrap-cells="false"
-        label="Usuarios"
-        no-data-label="No hay programa registrados."
-        class="my-sticky-header-column-table"
-      >
-        <template v-slot:top-left >
+      <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
+        :filter="filter.trim()" rows-per-page-label="Visualización de filas" page="2"
+        :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda." wrap-cells="false"
+        label="Usuarios" no-data-label="No hay programa registrados." class="my-sticky-header-column-table"  style="width: 90%">
+        <template v-slot:top-left>
           <h4 id="titleTable">Usuarios</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
         </template>
         <template v-slot:top-right>
-          <q-input
-            borderless
-            dense
-            debounce="300"
-            color="primary"
-            v-model="filter"
-            class="buscar"
-            placeholder="Buscar cualquier campo"
-            id="boxBuscar"
-          >
+          <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+            placeholder="Buscar cualquier campo" id="boxBuscar">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -460,252 +367,107 @@ function buscarIndexLocal(id) {
         </template>
         <template v-slot:body-cell-estado="props">
           <q-td :props="props" class="botones">
-            <q-btn
-              class="botonv1"
-              text-size="1px"
-              padding="10px"
-              :loading="props.row.estado === 'load'"
-              :label="
-                props.row.estado
-                  ? 'Activo'
-                  : !props.row.estado
-                  ? 'Inactivo'
-                  : '‎  ‎   ‎   ‎   ‎ '
-              "
-              :color="props.row.estado ? 'positive' : 'accent'"
-              loading-indicator-size="small"
-              @click="
-                props.row.estado
-                  ? in_activar.inactivar(props.row._id)
-                  : in_activar.activar(props.row._id);
-                props.row.estado = 'load';
-              "
-            />
+            <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
+              ? 'Activo'
+              : !props.row.estado
+                ? 'Inactivo'
+                : '‎  ‎   ‎   ‎   ‎ '
+              " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small" @click="
+    props.row.estado
+      ? in_activar.inactivar(props.row._id)
+      : in_activar.activar(props.row._id);
+  props.row.estado = 'load';
+  " />
           </q-td>
         </template>
         <template v-slot:body-cell-opciones="props">
           <q-td :props="props" class="botones">
-            <q-btn
-              color="warning"
-              icon="edit"
-              class="botonv1"
-              @click="opciones.editar(props.row)"
-            />
+            <button class="editBtn" @click="opciones.editar(props.row)">
+              <svg height="1em" viewBox="0 0 512 512">
+                <path
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z">
+                </path>
+              </svg>
+            </button>
+
           </q-td>
         </template>
       </q-table>
-    </section>
+   
   </main>
 </template>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Kanit:wght@500&display=swap");
 
-.name {
-  font-size: 15px;
-  font-family: "Inter", sans-serif;
-  margin-top: 20px;
+.editBtn {
+  width: 55px;
+  height: 55px;
+  border-radius: 20px;
+  border: none;
+  background-color: #39A900;
+  display: flex;
   align-items: center;
   justify-content: center;
-  display: flex;
-}
-
-.box {
-  display: flex;
-  width: 100%;
-  border-bottom: solid black 1px;
-}
-
-.img-perfil {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-}
-
-.card {
-  margin-left: 200px;
-  margin-top: 200px;
-  width: 500px;
-  height: 500px;
-  border-radius: 30px;
-  background: #e0e0e0;
-}
-
-.form {
-  width: 500px;
-  margin-top: -100px;
-}
-
-.container {
-  display: flex;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-}
-
-.left-panel {
-  background-color: #39a900;
-  display: flex;
-}
-
-.right-panel {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
   margin: 0 auto;
 }
 
-.ingresa {
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 250px;
-  background-color: #39a900;
-  border: none;
-}
-
-.nombre {
-  align-items: center;
-  justify-content: center;
-  display: flex;
-}
-
-.boton {
-  justify-content: center;
-  display: flex;
-}
-
-.boton2 {
-  justify-content: center;
-  display: flex;
-}
-
-.ingresar {
-  width: 250px;
-  background-color: white;
-  border: none;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.input {
-  width: 500px;
-}
-
-.registro {
-  justify-content: center;
-  align-items: center;
-  display: flex;
-}
-
-/* estilos de check activo inactivo */
-.toggler {
-  align-items: center;
-  /* width: 72px; */
-  /* margin: 15px 271px; */
-  display: flex;
-  justify-content: flex-end;
-  width: 38%;
-}
-
-.toggler input {
-  display: none;
-}
-
-.toggler label {
-  display: block;
-  position: relative;
-  width: 72px;
-  height: 36px;
-  border: 1px solid #d6d6d6;
-  border-radius: 36px;
-  background: #e4e8e8;
-  cursor: pointer;
-}
-
-.toggler label::after {
-  display: block;
-  border-radius: 100%;
-  background-color: #d7062a;
+.editBtn::before {
   content: "";
-  animation-name: toggler-size;
-  animation-duration: 0.15s;
-  animation-timing-function: ease-out;
-  animation-direction: forwards;
-  animation-iteration-count: 1;
-  animation-play-state: running;
-}
-
-.toggler label::after,
-.toggler label .toggler-on,
-.toggler label .toggler-off {
+  width: 200%;
+  height: 200%;
+  background-color: #39A900;
   position: absolute;
-  top: 50%;
-  left: 25%;
-  width: 26px;
-  height: 26px;
-  transform: translateY(-50%) translateX(-50%);
-  transition: left 0.15s ease-in-out, background-color 0.2s ease-out,
-    width 0.15s ease-in-out, height 0.15s ease-in-out, opacity 0.15s ease-in-out;
+  z-index: 1;
+  transform: scale(0);
+  transition: all 0.3s;
+  border-radius: 50%;
+  filter: blur(10px);
 }
 
-.toggler input:checked + label::after,
-.toggler input:checked + label .toggler-on,
-.toggler input:checked + label .toggler-off {
-  left: 75%;
+.editBtn:hover::before {
+  transform: scale(1);
 }
 
-.toggler input:checked + label::after {
-  background-color: #50ac5d;
-  animation-name: toggler-size2;
+.editBtn:hover {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
 }
 
-.toggler .toggler-on,
-.toggler .toggler-off {
-  opacity: 1;
+.editBtn svg {
+  height: 17px;
+  fill: white;
+  z-index: 3;
+  transition: all 0.2s;
+  transform-origin: bottom;
+}
+
+.editBtn:hover svg {
+  transform: rotate(-15deg) translateX(5px);
+}
+
+.editBtn::after {
+  content: "";
+  width: 25px;
+  height: 1.5px;
+  position: absolute;
+  bottom: 19px;
+  left: -5px;
+  background-color: white;
+  border-radius: 2px;
   z-index: 2;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease-out;
 }
 
-.toggler input:checked + label .toggler-off,
-.toggler input:not(:checked) + label .toggler-on {
-  width: 0;
-  height: 0;
-  opacity: 0;
-}
-
-.toggler .path {
-  fill: none;
-  stroke: #fefefe;
-  stroke-width: 7px;
-  stroke-linecap: round;
-  stroke-miterlimit: 10;
-}
-
-@keyframes toggler-size {
-  0%,
-  100% {
-    width: 26px;
-    height: 26px;
-  }
-
-  50% {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-@keyframes toggler-size2 {
-  0%,
-  100% {
-    width: 26px;
-    height: 26px;
-  }
-
-  50% {
-    width: 20px;
-    height: 20px;
-  }
+.editBtn:hover::after {
+  transform: scaleX(1);
+  left: 0px;
+  transform-origin: right;
 }
 </style>
