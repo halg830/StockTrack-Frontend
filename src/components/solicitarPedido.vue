@@ -121,9 +121,11 @@ async function obtenerLotes() {
       return;
     }
 
+    const lotes = response.filter(lote => lote.estado === true);
+
     const result = [];
-    for (let i = 0; i < response.length; i += 4) {
-      result.push(response.slice(i, i + 4));
+    for (let i = 0; i < lotes.length; i += 4) {
+      result.push(lotes.slice(i, i + 4));
     }
 
     opcionesSelect.value.lotes = result;
@@ -143,6 +145,7 @@ const productoSeleccionar = ref({
 const useProducto = useStoreProductos();
 async function obtenerProductos() {
   try {
+    selectLoad.value.producto = true;
     const response = await useProducto.getAll();
     console.log(response);
 
@@ -163,6 +166,7 @@ async function obtenerProductos() {
 
 async function obtenerProductosPorLote(idLote, nombre) {
   try {
+    selectLoad.value.producto = true;
     const response = await useProducto.getPorLote(idLote);
     console.log(response);
 
@@ -173,7 +177,10 @@ async function obtenerProductosPorLote(idLote, nombre) {
       return;
     }
 
-    productoSeleccionar.value[nombre] = response;
+    const productos = response.filter(producto => producto.estado === true);
+
+    productoSeleccionar.value[nombre] = productos;
+    console.log(productoSeleccionar.value[nombre].length);
   } catch (error) {
     console.log(error);
   } finally {
@@ -203,10 +210,12 @@ function mostrarLotes(idLote, nombre) {
 }
 
 //Manejo de productos
+const detPedidos = ref([])
 const productosAgg = ref([]); //Productos agregados
 function aggProductos(producto) {
   console.log(producto);
   productosAgg.value.push({ ...producto });
+  detPedidos.value.push({idProducto: producto._id})
   notificar("positive", "Producto agregado a la lista");
 }
 
@@ -326,9 +335,12 @@ function quitarProducto(index) {
               <td>Opciones</td>
             </thead>
             <tr v-for="(producto, index) in productosAgg" :key="producto._id">
-              <td v-for="(atributo, i) in Object.values(producto)" :key="i">
-                {{ atributo }}
+              <td>
+                {{ producto.codigo }}
               </td>
+              <td>{{producto.unidadMedida}}</td>
+              <td>{{producto.precioUnitario}}</td>
+              <td>  <q-input outlined v-model="detPedidos[index].cantidad" type="number"></q-input> </td>
               <td>
                 <q-btn @click="quitarProducto(index)">
                   <q-icon name="close" />
@@ -354,6 +366,10 @@ function quitarProducto(index) {
             :thickness="10"
             v-if="selectLoad.producto"
           />
+
+          <div v-if="!selectLoad.producto && (productoSeleccionar[opcionLote].length<=0)">
+            <span>No hay productos disponibles</span>
+          </div>
 
           <div v-if="!selectLoad.producto">
             <div>
