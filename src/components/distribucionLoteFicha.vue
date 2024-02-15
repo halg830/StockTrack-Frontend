@@ -32,12 +32,10 @@ const data = ref({});
 
 
 const columns = [
-    { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-    { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
-    { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
-    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
-    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}`, align: "left" },
-    { naem: "idArea", label: "Area Asignada", field: (row) => row.idArea.nombre, align: "left" },
+    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idItem", label: "Item Nombre", field: (row)=>{row.idDistribucionPresupuesto.presupuesto}, sortable: true, align: "left" },
+    // { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    // { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -330,6 +328,69 @@ watch(data, () => {
 <style scoped>
 #titleTable {
     margin: auto;
+}
+.editBtn {
+  width: 55px;
+  height: 55px;
+  border-radius: 20px;
+  border: none;
+  background-color: #39A900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.editBtn::before {
+  content: "";
+  width: 200%;
+  height: 200%;
+  background-color: #39A900;
+  position: absolute;
+  z-index: 1;
+  transform: scale(0);
+  transition: all 0.3s;
+  border-radius: 50%;
+  filter: blur(10px);
+}
+.editBtn:hover::before {
+  transform: scale(1);
+}
+.editBtn:hover {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+}
+
+.editBtn svg {
+  height: 17px;
+  fill: white;
+  z-index: 3;
+  transition: all 0.2s;
+  transform-origin: bottom;
+}
+.editBtn:hover svg {
+  transform: rotate(-15deg) translateX(5px);
+}
+.editBtn::after {
+  content: "";
+  width: 25px;
+  height: 1.5px;
+  position: absolute;
+  bottom: 19px;
+  left: -5px;
+  background-color: white;
+  border-radius: 2px;
+  z-index: 2;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease-out;
+}
+.editBtn:hover::after {
+  transform: scaleX(1);
+  left: 0px;
+  transform-origin: right;
 }
 
 

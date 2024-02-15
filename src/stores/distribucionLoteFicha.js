@@ -33,7 +33,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
-      console.log(response);
+      console.log("d", response.data);
       distribucionLoteFicha.value = response.data;
       return response.data;
     } catch (error) {
