@@ -1,7 +1,7 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref , watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
 import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
@@ -69,15 +69,13 @@ const opciones = {
         modal.value = true;
     },
     editar: (info) => {
-        data.value = { 
-            ...info, 
-            idDistribucionPresupuesto: {
-                label: `${info.idDistribucionPresupuesto.nombre}`,
-                value: String(info.idDistribucionPresupuesto._id)
-            },
-            idFicha: {
-                label: `${info.idFicha.nombre}`,
-                value: String(info.idFicha._id)
+        data.value = {
+            ...info,
+            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"),
+            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
+            area: {
+                label: `${info.idArea.nombre}`,
+                value: String(info.idArea._id)
             }
         };
         estado.value = 'editar';
@@ -115,7 +113,7 @@ const enviarInfo = {
         }
     },
     editar: async () => {
-        
+
         loadingModal.value = true
         try {
             let info = {
@@ -216,19 +214,10 @@ async function getoptionsFicha() {
     };
 };
 
-let optionsItemLote = ref([])
-async function getOptionsItemLote(){
-    try {
-        await storeDisItemLote.getAll();
-        const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
 
-        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: disItemLote.presupuesto, value: disItemLote._id, disable: disItemLote.estado === 0 } });
-
-        console.log(optionsItemLote.value);
-    } catch (error) {
-        console.log(error);
-    };
-}
+watch(data, () => {
+    console.log(data);
+});
 
 
 </script>
@@ -246,20 +235,38 @@ async function getOptionsItemLote(){
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        
+                        <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules :rules="[
+                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
+                            val => /^\d+$/.test(val) || 'Ingrese solo números'
+                        ]" />
 
-                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Lote" lazy-rules :options="optionsItemLote"
-                            :rules="[val => !!val  || 'Seleccione un Lote']" />
+                        <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules :rules="[
+                            val => val && val.length > 0 || 'Digite el Nombre del Programa',
+                            val => !/\d/.test(val) || 'No se permiten números en el nombre'
+                        ]" />
+
+                        <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules
+                            :options="niveles" :rules="[val => !!val || 'Seleccione un nivel de Formación']" />
+
+                        <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules :rules="[val => !!val || 'Seleccione la Fecha de Inicio',
+                            // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
+                        ]" />
+
+                        <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules :rules="[
+                            val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
+                            val => {
+                                const startDate = new Date(data.fechaInicio);
+                                const endDate = new Date(val);
+                                const sixMonthsLater = new Date(startDate);
+                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
+                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
+                            }
+                        ]" />
+
+                        <q-select filled v-model:model-value="data.area" label="Area" lazy-rules :options="optionsArea"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
 
 
-                        <q-select filled v-model:model-value="data.idFicha"  label="Ficha" lazy-rules :options="optionsFichas"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" />
-
-                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
-                            :rules="[
-                                    val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
-                                    val => /^\d+$/.test(val) || 'Ingrese solo números'   
-                            ]" />
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
                                 :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
@@ -385,6 +392,79 @@ async function getOptionsItemLote(){
   left: 0px;
   transform-origin: right;
 }
+
+
+.editBtn {
+    width: 55px;
+    height: 55px;
+    border-radius: 20px;
+    border: none;
+    background-color: #39A900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin: 0 auto;
+}
+
+.editBtn::before {
+    content: "";
+    width: 200%;
+    height: 200%;
+    background-color: #39A900;
+    position: absolute;
+    z-index: 1;
+    transform: scale(0);
+    transition: all 0.3s;
+    border-radius: 50%;
+    filter: blur(10px);
+}
+
+.editBtn:hover::before {
+    transform: scale(1);
+}
+
+.editBtn:hover {
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+}
+
+.editBtn svg {
+    height: 17px;
+    fill: white;
+    z-index: 3;
+    transition: all 0.2s;
+    transform-origin: bottom;
+}
+
+.editBtn:hover svg {
+    transform: rotate(-15deg) translateX(5px);
+}
+
+.editBtn::after {
+    content: "";
+    width: 25px;
+    height: 1.5px;
+    position: absolute;
+    bottom: 19px;
+    left: -5px;
+    background-color: white;
+    border-radius: 2px;
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease-out;
+}
+
+.editBtn:hover::after {
+    transform: scaleX(1);
+    left: 0px;
+    transform-origin: right;
+}
+
 
 /* #boxBuscar {} */
 </style>

@@ -16,6 +16,7 @@ import historial from '../components/historialDevolucion.vue'
 import historialPedido from '../components/historialPedido.vue'
 import distribucionItemLote from '../components/distribucionItemLote.vue';
 import distribucionLoteFicha from '../components/distribucionLoteFicha.vue';
+import editarPerfil from '../components/editarPerfil.vue';
 
 
 const routes = [
@@ -36,7 +37,8 @@ const routes = [
     {path: '/historial', component: historial},
     {path: '/historial-pedido', component: historialPedido},
     {path: '/distribucion-item-lote', component: distribucionItemLote},
-    {path: '/distribucion-lote-ficha', component: distribucionLoteFicha}
+    {path: '/distribucion-lote-ficha', component: distribucionLoteFicha},
+    {path: '/editar-perfil', component: editarPerfil}
   ]}
 ]
 

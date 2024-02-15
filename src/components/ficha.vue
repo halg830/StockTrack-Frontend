@@ -340,70 +340,77 @@ watch(data, () => {
 #titleTable {
     margin: auto;
 }
+
 .editBtn {
-  width: 55px;
-  height: 55px;
-  border-radius: 20px;
-  border: none;
-  background-color: #39A900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
+    width: 55px;
+    height: 55px;
+    border-radius: 20px;
+    border: none;
+    background-color: #39A900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin: 0 auto;
 }
+
 .editBtn::before {
-  content: "";
-  width: 200%;
-  height: 200%;
-  background-color: #39A900;
-  position: absolute;
-  z-index: 1;
-  transform: scale(0);
-  transition: all 0.3s;
-  border-radius: 50%;
-  filter: blur(10px);
+    content: "";
+    width: 200%;
+    height: 200%;
+    background-color: #39A900;
+    position: absolute;
+    z-index: 1;
+    transform: scale(0);
+    transition: all 0.3s;
+    border-radius: 50%;
+    filter: blur(10px);
 }
+
 .editBtn:hover::before {
-  transform: scale(1);
+    transform: scale(1);
 }
+
 .editBtn:hover {
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
 }
 
 .editBtn svg {
-  height: 17px;
-  fill: white;
-  z-index: 3;
-  transition: all 0.2s;
-  transform-origin: bottom;
+    height: 17px;
+    fill: white;
+    z-index: 3;
+    transition: all 0.2s;
+    transform-origin: bottom;
 }
+
 .editBtn:hover svg {
-  transform: rotate(-15deg) translateX(5px);
+    transform: rotate(-15deg) translateX(5px);
 }
+
 .editBtn::after {
-  content: "";
-  width: 25px;
-  height: 1.5px;
-  position: absolute;
-  bottom: 19px;
-  left: -5px;
-  background-color: white;
-  border-radius: 2px;
-  z-index: 2;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s ease-out;
+    content: "";
+    width: 25px;
+    height: 1.5px;
+    position: absolute;
+    bottom: 19px;
+    left: -5px;
+    background-color: white;
+    border-radius: 2px;
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease-out;
 }
+
 .editBtn:hover::after {
-  transform: scaleX(1);
-  left: 0px;
-  transform-origin: right;
+    transform: scaleX(1);
+    left: 0px;
+    transform-origin: right;
 }
 
 
-/* #boxBuscar {} */
-</style>
+/* #boxBuscar {} */</style>

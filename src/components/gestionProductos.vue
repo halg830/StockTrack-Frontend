@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useQuasar } from 'quasar';
 import { useStoreProductos } from '../stores/productos.js'
 import helpersGenerales from '../helpers/generales';
+import { useStoreLotes } from '../stores/lote.js';
 const useProductos = useStoreProductos()
 const loadingTable = ref(false);
 const loadingModal = ref(false)
@@ -56,16 +57,22 @@ const columns = ref([
         field: (row) => helpersGenerales.formatearMoneda(row.precioUnitario)
     },
     {
-        name: 'tipoProducto',
-        label: 'Tipo de producto',
-        align: 'center',
-        field: 'tipoProducto'
-    },
-    {
         name: 'iva',
         label: 'Iva',
         align: 'center',
         field: 'iva'
+    },
+    {
+        name: 'consumible',
+        label: 'Consumible',
+        align: 'center',
+        field: val => val.consumible===true ? 'Sí' : 'No'
+    },
+    {
+        name: 'idLote',
+        label: 'Lote',
+        align: 'center',
+        field: val=>val.idLote.nombre
     },
     {
         name: 'estado',
@@ -113,7 +120,7 @@ const opciones = {
         modal.value = true
     },
     editar: (info) => {
-        data.value = { ...info }
+        data.value = { ...info, idLote: { label: info.idLote.nombre, value: info.idLote._id }, consumible: { label: info.consumible===true ? 'Sí' : 'No', value: info.consumible}}
         estado.value = 'editar'
         modal.value = true
     }
@@ -124,7 +131,9 @@ const enviarInfo = {
         try {
             loadingModal.value = true
 
-            const response = await useProductos.agregar(data.value)
+            const info = { ...data.value, idLote: data.value.idLote.value, consumible: data.value.consumible.value }
+
+            const response = await useProductos.agregar(info)
             console.log(response);
 
             if (!response) return
@@ -143,10 +152,12 @@ const enviarInfo = {
         }
     },
     editar: async () => {
-        loadingModal.value = true
         try {
+            loadingModal.value = true
+            const info = { ...data.value, idLote: data.value.idLote.value, consumible: data.value.consumible.value}
+
             console.log(data.value);
-            const response = await useProductos.editar(data.value._id, data.value);
+            const response = await useProductos.editar(data.value._id, info);
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -227,6 +238,30 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
+//Select lote
+const optionsLote = ref([])
+const useLotes = useStoreLotes()
+async function getOptionsLote() {
+    try {
+        const response = await useLotes.getAll();
+        console.log(response);
+        if (!response) return
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+
+        const lotes = response.filter(lote => lote.estado === true);
+
+        optionsLote.value = lotes.map((lote) => { return { label: lote.nombre, value: lote._id, disable: lote.estado === 0 } });
+    } catch (error) {
+        console.log(error);
+    };
+};
+getOptionsLote()
+
+//Select consumible
+const optionsConsumible = ref([{label: 'Sí', value: true}, {label: 'No', value: false}])
 </script>
 
 <template>
@@ -255,11 +290,14 @@ function buscarIndexLocal(id) {
                         <q-input outlined v-model="data.iva" label="Iva" type="number"
                             :rules="[val => !!val || 'Ingrese el iva']"></q-input>
 
-                        <q-input outlined v-model="data.tipoProducto" label="Tipo de producto" type="text"
-                            :rules="[val => !!val || 'Ingrese el tipo']"></q-input>
-
                         <q-input outlined v-model="data.precioUnitario" label="Precio unitario" type="number"
                             :rules="[val => !!val || 'Ingrese el precio unitario']"></q-input>
+
+                            <q-select outlined v-model:model-value="data.consumible" label="Consumible" lazy-rules :options="optionsConsumible"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una opción']" />
+
+                        <q-select outlined v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLote"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" />
 
                         <q-btn :loading="loadingModal" padding="10px" type="submit"
                             :color="estado == 'editar' ? 'warning' : 'secondary'" :label="estado">

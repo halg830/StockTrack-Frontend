@@ -201,7 +201,6 @@ function mostrarLotes(idLote, nombre) {
   }
   
 }
-mostrarLotes("65b8245c32ccc50b92c208db", 'Agro')
 
 //Manejo de productos
 const productosAgg = ref([]); //Productos agregados
@@ -360,7 +359,7 @@ function quitarProducto(index) {
             <div>
               <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
               <q-btn
-                v-for="producto in productoSeleccionar[opcionLote]"
+                v-for="producto in productoSeleccionar[opcionLote]" :key="producto._id"
                 @click="aggProductos(producto)"
               >
                 {{ producto.nombre }}
