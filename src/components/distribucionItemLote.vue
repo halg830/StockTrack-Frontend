@@ -5,7 +5,7 @@ import { ref , watch } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStorePrograma } from '../stores/programa.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
@@ -32,7 +32,9 @@ const data = ref({});
 
 
 const columns = [
-    { name: "item", label: "Nombre", field: "nombre", sortable: true, align: "left" },
+    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idLote", label: "Lote", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
+    { name: "idItem", label: "Item", field: (row) => row.idItem.nombre, sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -68,11 +70,13 @@ const opciones = {
     editar: (info) => {
         data.value = { 
             ...info, 
-            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"), 
-            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            area: {
-                label: `${info.idArea.nombre}`,
-                value: String(info.idArea._id)
+            idItem:{
+                label: `${info.idItem.presupuesto}`,
+                value: String(info.idItem._id) 
+            },
+            idLote: {
+                label: `${info.idLote.nombre}`,
+                value: String(info.idLote._id)
             }
         };
         estado.value = 'editar';
@@ -87,9 +91,9 @@ const enviarInfo = {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
-            const response = await storeFichas.agregar(info)
+            const response = await storeDisItemLote.agregar(info)
             console.log(response);
 
             if (!response) return
@@ -114,9 +118,9 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
-            const response = await storeFichas.editar(data.value._id, info);
+            const response = await storeDisItemLote.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -157,7 +161,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.activar(id)
+            const response = await storeDisItemLote.activar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -165,7 +169,7 @@ const in_activar = {
                 return
             }
             rows.value.splice(buscarIndexLocal(response._id), 1, response)
-
+            getInfo()
         } catch (error) {
             console.log(error);
         } finally {
@@ -175,7 +179,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.inactivar(id)
+            const response = await storeDisItemLote.inactivar(id)
             console.log(response);
             if (!response) return
             if (response.error) {

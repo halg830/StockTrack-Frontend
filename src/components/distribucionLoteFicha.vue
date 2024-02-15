@@ -3,13 +3,15 @@
 import { useQuasar } from 'quasar';
 import { ref , watch } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
-import { useStoreAreas } from '../stores/area.js';
+import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
+import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
 const storeFichas = useStoreFichas();
-const storeAreas = useStoreAreas();
+const storeDisItemLote = useStoreDisItemLote();
+const storeDisLoteFicha = useStoreDisLoteFicha();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -24,21 +26,13 @@ function notificar(tipo, msg) {
         position: "top",
     });
 }
-let niveles = ref([
-    "Técnico", "Tecnólogo"
-]);
 
 const estado = ref('agregar')
 const data = ref({});
 
 
 const columns = [
-    { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-    { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
-    { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
-    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
-    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}` , align: "left" },
-    { naem: "idArea", label: "Area Asignada",field: (row) => row.idArea.nombre ,align: "left" },
+    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -48,7 +42,7 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-        const response = await storeFichas.getAll()
+        const response = await storeDisLoteFicha.getAll()
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -74,27 +68,30 @@ const opciones = {
     editar: (info) => {
         data.value = { 
             ...info, 
-            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"), 
-            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            area: {
-                label: `${info.idArea.nombre}`,
-                value: String(info.idArea._id)
+            idDistribucionPresupuesto: {
+                label: `${info.idDistribucionPresupuesto.nombre}`,
+                value: String(info.idDistribucionPresupuesto._id)
+            },
+            idFicha: {
+                label: `${info.idFicha.nombre}`,
+                value: String(info.idFicha._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
-getOptionsArea();
+getoptionsFicha();
+getOptionsItemLote();
 const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
-            const response = await storeFichas.agregar(info)
+            const response = await storeDisLoteFicha.agregar(info)
             console.log(response);
 
             if (!response) return
@@ -119,9 +116,9 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
-            const response = await storeFichas.editar(data.value._id, info);
+            const response = await storeDisLoteFicha.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -162,7 +159,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.activar(id)
+            const response = await storeDisLoteFicha.activar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -180,7 +177,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.inactivar(id)
+            const response = await storeDisLoteFicha.inactivar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -201,29 +198,34 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionsArea = ref([])
+let optionsFichas = ref([])
 
-async function getOptionsArea() {
+async function getoptionsFicha() {
     try {
-        await storeAreas.getAll();
-        const areasActicas = storeAreas.areas.filter(area => area.estado === true);
+        await storeFichas.getAll();
+        const fichasActicas = storeFichas.fichas.filter(ficha => ficha.estado === true);
 
-        optionsArea.value = areasActicas.map((area) => { return { label: area.nombre, value: area._id, disable: area.estado === 0 } });
+        optionsFichas.value = fichasActicas.map((ficha) => { return { label: ficha.nombre, value: ficha._id, disable: ficha.estado === 0 } });
 
-        // optionsArea.value = areasActicas.map((area) => ({
-        //     label: `${area.nombre}`,
-        //     value: String(area._id),
-        // }));
-        console.log(optionsArea.value);
+        console.log(optionsFichas.value);
     } catch (error) {
         console.log(error);
     };
 };
 
+let optionsItemLote = ref([])
+async function getOptionsItemLote(){
+    try {
+        await storeDisItemLote.getAll();
+        const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
 
-watch(data, () => {
-  console.log(data);
-});
+        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: disItemLote.presupuesto, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+
+        console.log(optionsItemLote.value);
+    } catch (error) {
+        console.log(error);
+    };
+}
 
 
 </script>
@@ -235,48 +237,26 @@ watch(data, () => {
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Lote Fichas</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules
-                        :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
-                            val => /^\d+$/.test(val) || 'Ingrese solo números'   
-                        ]" />
+                        
 
-                    <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules
-                        :rules="[ 
-                            val => val && val.length > 0 || 'Digite el Nombre del Programa',
-                            val => !/\d/.test(val) || 'No se permiten números en el nombre'
-                        ]" />
-
-                    <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules :options="niveles"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
-
-                    <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules
-                        :rules="[val => !!val  || 'Seleccione la Fecha de Inicio',
-                            // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
-                        ]" />
-
-                    <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules
-                        :rules="[
-                            val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
-                            val => {
-                                const startDate = new Date(data.fechaInicio);
-                                const endDate = new Date(val);
-                                const sixMonthsLater = new Date(startDate);
-                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
-                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
-                            }
-                        ]" />
-
-                    <q-select filled v-model:model-value="data.area"  label="Area" lazy-rules :options="optionsArea"
-                        :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
+                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Lote" lazy-rules :options="optionsItemLote"
+                            :rules="[val => !!val  || 'Seleccione un Lote']" />
 
 
+                        <q-select filled v-model:model-value="data.idFicha"  label="Ficha" lazy-rules :options="optionsFichas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" />
+
+                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
+                            :rules="[
+                                    val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
+                                    val => /^\d+$/.test(val) || 'Ingrese solo números'   
+                            ]" />
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
                                 :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
@@ -290,11 +270,11 @@ watch(data, () => {
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Fichas" style="width: 90%;"
-            no-data-label="No hay Fichas registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Lote Fichas" style="width: 90%;"
+            no-data-label="No hay Distribución Lote Fichas registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Fichas</h4>
+                    <h4 id="titleTable">Distribución Lote Fichas</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
