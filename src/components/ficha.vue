@@ -237,7 +237,7 @@ watch(data, () => {
         <!-- Modal -->
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
-                <q-toolbar style="        background-color: #39A900;color: white">
+                <q-toolbar style="background-color: #39A900;color: white">
                     <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
@@ -278,9 +278,9 @@ watch(data, () => {
                             :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
 
 
-                        <div style=" display: flex; width: 96%; justify-content: flex-end;">
-                            <q-btn :loading="loadingModal" padding="10px" type="submit"
-                                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
+                        <div style=" display: flex; width: 96%; justify-content: flex-end; background-color: ;">
+                            <q-btn class="botonenv" :loading="loadingModal" padding="10px" type="submit" color="primary"
+                                :label="estado" />
                         </div>
 
                     </q-form>
@@ -413,4 +413,5 @@ watch(data, () => {
 }
 
 
-/* #boxBuscar {} */</style>
+/* #boxBuscar {} */
+</style>

@@ -219,8 +219,7 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.descripcion" label="Descripcion" type="text"
               :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
-              <q-btn :loading="loadingModal" padding="10px" type="submit"
-                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
+              <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
             </div>
 
           </q-form>
