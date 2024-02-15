@@ -1,13 +1,13 @@
 import axios from "axios";
-import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import { ref } from "vue";
 import Cookies from "js-cookie";
 
-const modelo = "producto";
+const modelo = "distribucion";
 
-export const useStoreProductos = defineStore(modelo, () => {
+export const useStoreDisItemLote = defineStore(modelo, () => {
   function obtenerToken() {
     console.log(Cookies.get("x-token"));
     return Cookies.get("x-token");
@@ -16,7 +16,6 @@ export const useStoreProductos = defineStore(modelo, () => {
   axios.defaults.headers.common["x-token"] = obtenerToken();
 
   const $q = useQuasar();
-  const productos = ref([]);
   function notificar(tipo, msg) {
     $q.notify({
       type: tipo,
@@ -30,13 +29,12 @@ export const useStoreProductos = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-
+  const distribucionesItemLote = ref([]);
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      productos.value = response.data;
-
+      distribucionesItemLote.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -55,30 +53,6 @@ export const useStoreProductos = defineStore(modelo, () => {
       return error.response.data;
     }
   };
-
-  const getPorLote =async(idLote)=>{
-    try {
-      const response = await axios.get(`${modelo}/getPorLote/${idLote}`)
-      console.log(response);
-
-      return response.data
-    } catch (error) {
-      console.log(error);
-      if (error.message === "Network Error") {
-        notificar("negative", "Sin conexión, por favor intente recargar");
-        return null;
-      }
-      if (
-        error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido" ||
-        error.response.data.error.name === "TokenExpiredError"
-      ) {
-        salir();
-        return null;
-      }
-      return error.response.data;
-    }
-  }
 
   const agregar = async (data) => {
     try {
@@ -177,5 +151,5 @@ export const useStoreProductos = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, getPorLote, agregar, editar, activar, inactivar, productos };
+  return { getAll, agregar, editar, activar, inactivar, distribucionesItemLote };
 });

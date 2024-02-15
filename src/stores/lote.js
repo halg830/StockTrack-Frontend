@@ -3,18 +3,18 @@ import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { ref } from "vue";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 const modelo = "lote";
 
-export const useStoreLotes= defineStore(modelo, () => {
+export const useStoreLotes = defineStore(modelo, () => {
   function obtenerToken() {
-    console.log(Cookies.get('x-token'));
-    return Cookies.get('x-token');
+    console.log(Cookies.get("x-token"));
+    return Cookies.get("x-token");
   }
-  
+
   axios.defaults.headers.common["x-token"] = obtenerToken();
-  
+
   const $q = useQuasar();
   function notificar(tipo, msg) {
     $q.notify({
@@ -29,12 +29,12 @@ export const useStoreLotes= defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const lotes = ref([])
+  const lotes = ref([]);
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      lotes.value = response.data
+      lotes.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -44,7 +44,8 @@ export const useStoreLotes= defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         salir();
         return null;
@@ -67,7 +68,8 @@ export const useStoreLotes= defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         notificar("negative", "Por favor vuelva a iniciar sesión");
         router.push("/");
@@ -81,17 +83,21 @@ export const useStoreLotes= defineStore(modelo, () => {
     try {
       const response = await axios.put(`${modelo}/editar/${id}`, data);
       console.log(response);
-      return response.data
+      return response.data;
     } catch (error) {
       console.log(error);
       if (error.message === "Network Error") {
-        notificar('negative',"Sin conexión, por favor intente recargar");
+        notificar("negative", "Sin conexión, por favor intente recargar");
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
-        return null
+        return null;
       }
       return error.response.data;
     }
@@ -109,7 +115,11 @@ export const useStoreLotes= defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -129,7 +139,11 @@ export const useStoreLotes= defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }

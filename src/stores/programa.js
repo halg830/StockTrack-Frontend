@@ -1,20 +1,21 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "./usuarios.js";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 const modelo = "item";
 
 export const useStorePrograma = defineStore(modelo, () => {
   function obtenerToken() {
-    console.log(Cookies.get('x-token'));
-    return Cookies.get('x-token');
+    console.log(Cookies.get("x-token"));
+    return Cookies.get("x-token");
   }
-  
+
   axios.defaults.headers.common["x-token"] = obtenerToken();
-  
+
   const $q = useQuasar();
   function notificar(tipo, msg) {
     $q.notify({
@@ -29,12 +30,12 @@ export const useStorePrograma = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-
+  const items = ref([]);
   const getAll = async () => {
     try {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-
+      items.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -44,7 +45,8 @@ export const useStorePrograma = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         salir();
         return null;
@@ -67,7 +69,8 @@ export const useStorePrograma = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         notificar("negative", "Por favor vuelva a iniciar sesión");
         router.push("/");
@@ -89,7 +92,11 @@ export const useStorePrograma = defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -109,7 +116,11 @@ export const useStorePrograma = defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -129,7 +140,11 @@ export const useStorePrograma = defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -137,5 +152,5 @@ export const useStorePrograma = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar };
+  return { items, getAll, agregar, editar, activar, inactivar };
 });

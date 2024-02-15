@@ -4,12 +4,14 @@ import { useQuasar } from 'quasar';
 import { ref , watch } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStorePrograma } from '../stores/programa.js';
-import { format } from "date-fns";
+import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
+// import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
 const storeItem = useStorePrograma();
 const storeLotes = useStoreLotes();
+const storeDisItemLote = useStoreDisItemLote();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -24,21 +26,15 @@ function notificar(tipo, msg) {
         position: "top",
     });
 }
-let niveles = ref([
-    "Técnico", "Tecnólogo"
-]);
 
 const estado = ref('agregar')
 const data = ref({});
 
 
 const columns = [
-    { name: "item", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-    { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
-    { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
-    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
-    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}` , align: "left" },
-    { naem: "idArea", label: "Area Asignada",field: (row) => row.idArea.nombre ,align: "left" },
+    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idLote", label: "Lote", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
+    { name: "idItem", label: "Item", field: (row) => row.idItem.nombre, sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -48,7 +44,7 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-        const response = await storeFichas.getAll()
+        const response = await storeDisItemLote.getAll()
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -74,27 +70,30 @@ const opciones = {
     editar: (info) => {
         data.value = { 
             ...info, 
-            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"), 
-            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            area: {
-                label: `${info.idArea.nombre}`,
-                value: String(info.idArea._id)
+            idItem:{
+                label: `${info.idItem.presupuesto}`,
+                value: String(info.idItem._id) 
+            },
+            idLote: {
+                label: `${info.idLote.nombre}`,
+                value: String(info.idLote._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
-getOptionsArea();
+getOptionsLote();
+getOptionsItem();
 const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
-            const response = await storeFichas.agregar(info)
+            const response = await storeDisItemLote.agregar(info)
             console.log(response);
 
             if (!response) return
@@ -119,9 +118,9 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
-            const response = await storeFichas.editar(data.value._id, info);
+            const response = await storeDisItemLote.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -162,7 +161,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.activar(id)
+            const response = await storeDisItemLote.activar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -170,7 +169,7 @@ const in_activar = {
                 return
             }
             rows.value.splice(buscarIndexLocal(response._id), 1, response)
-
+            getInfo()
         } catch (error) {
             console.log(error);
         } finally {
@@ -180,7 +179,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.inactivar(id)
+            const response = await storeDisItemLote.inactivar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -203,19 +202,31 @@ function buscarIndexLocal(id) {
 
 let optionsLotes = ref([])
 
-async function getOptionsArea() {
+async function getOptionsLote() {
     try {
         await storeLotes.getAll();
         const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
         optionsLotes.value = lotesActivos.map((lote) => { return { label: lote.nombre, value: lote._id, disable: lote.estado === 0 } });
 
-        console.log(optionsLotes.value);
     } catch (error) {
         console.log(error);
     };
 };
 
+let optionsPresupuesto = ref([]);
+
+async function getOptionsItem() {
+    try {
+        await storeItem.getAll();
+        const presupuestosActivos = storeItem.items.filter(item => item.estado === true);
+
+        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: item.nombre, value: item._id, disable: item.estado === 0 } });
+
+    } catch (error) {
+        console.log(error);
+    };
+};
 
 watch(data, () => {
   console.log(data);
@@ -237,18 +248,16 @@ watch(data, () => {
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        
-                        
 
-                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto Global" lazy-rules :options="optionsPresupuesto"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules :options="optionsPresupuesto"
+                        :rules="[val => !!val  || 'Seleccione el item']" />
                         
                         <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+                        :rules="[val => !!val  || 'Seleccione un lote']" />
 
                         <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
                         :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
+                            val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                             val => /^\d+$/.test(val) || 'Ingrese solo números'   
                         ]" />
                         
