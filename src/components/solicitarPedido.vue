@@ -3,6 +3,18 @@ import { ref } from "vue";
 import Cookies from "js-cookie";
 import { useStoreFichas } from "../stores/ficha.js";
 import { useStoreLotes } from "../stores/lote.js";
+import { useStoreProductos } from "../stores/productos";
+import { useQuasar } from "quasar";
+
+// Alertas notify
+const $q = useQuasar();
+function notificar(tipo, msg, posicion = "top") {
+  $q.notify({
+    type: tipo,
+    message: msg,
+    position: posicion,
+  });
+}
 
 //Data modal
 const data = ref({
@@ -34,6 +46,8 @@ function obtenerInstructor() {
 //Obtener fichas
 const selectLoad = ref({
   ficha: true,
+  lote: true,
+  producto: true,
 });
 
 const opcionesSelect = ref({});
@@ -54,9 +68,10 @@ async function obtenerOptions() {
     opcionesSelect.value.fichas = responseFichas.map((ficha) => {
       return {
         label:
-          ficha.codigo + " / " + (ficha.abreviatura
-            ? ficha.abreviatura
-            : ficha.nombre) + `${ficha.estado === 0 ? " - Inactivo" : ""}`,
+          ficha.codigo +
+          " / " +
+          (ficha.abreviatura ? ficha.abreviatura : ficha.nombre) +
+          `${ficha.estado === 0 ? " - Inactivo" : ""}`,
         value: ficha._id,
         disable: ficha.estado === 0,
       };
@@ -71,26 +86,29 @@ obtenerOptions();
 
 //Filtro de fichas
 const opcionesFiltro = ref({
-  fichas: opcionesSelect.value.fichas
-})
+  fichas: opcionesSelect.value.fichas,
+});
 function filterFn(val, update) {
-  val = val.trim()
-  if (val === '') {
+  val = val.trim();
+  if (val === "") {
     update(() => {
-      opcionesFiltro.value.fichas = opcionesSelect.value.fichas
-    })
-    return
+      opcionesFiltro.value.fichas = opcionesSelect.value.fichas;
+    });
+    return;
   }
 
   update(() => {
-    const needle = val.toLowerCase()
-    opcionesFiltro.value.fichas = opcionesSelect.value.fichas.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-  })
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.fichas =
+      opcionesSelect.value.fichas.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
 }
 
 //Lotes
-const slide = ref(1)
-const useLote = useStoreLotes()
+const slide = ref(1);
+const useLote = useStoreLotes();
 async function obtenerLotes() {
   try {
     const response = await useLote.getAll();
@@ -108,19 +126,97 @@ async function obtenerLotes() {
       result.push(response.slice(i, i + 4));
     }
 
-    opcionesSelect.value.lotes = result
+    opcionesSelect.value.lotes = result;
   } catch (error) {
     console.log(error);
   } finally {
     selectLoad.value.lote = false;
   }
 }
-obtenerLotes()
+obtenerLotes();
 
 //Productos
+const productoSeleccionar = ref({
+  todos: [],
+  //Lote
+});
+const useProducto = useStoreProductos();
+async function obtenerProductos() {
+  try {
+    const response = await useProducto.getAll();
+    console.log(response);
 
+    if (!response) return;
 
-function onSubmit() { }
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    productoSeleccionar.value.todos = response;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.producto = false;
+  }
+}
+
+async function obtenerProductosPorLote(idLote, nombre) {
+  try {
+    const response = await useProducto.getPorLote(idLote);
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    productoSeleccionar.value[nombre] = response;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.producto = false;
+  }
+}
+
+//Modal
+const modal = ref(false);
+const loadBtnModal = ref(false);
+const opcionLote = ref("todos");
+function verTodosProductos() {
+  obtenerProductos();
+  opcionLote.value = "todos";
+  modal.value = true;
+}
+
+function mostrarLotes(idLote, nombre) {
+  try {
+  obtenerProductosPorLote(idLote, nombre);
+  opcionLote.value = nombre;
+  modal.value = true;
+  } catch (error) {
+    console.log(error);
+  }
+  
+}
+mostrarLotes("65b8245c32ccc50b92c208db", 'Agro')
+
+//Manejo de productos
+const productosAgg = ref([]); //Productos agregados
+function aggProductos(producto) {
+  console.log(producto);
+  productosAgg.value.push({ ...producto });
+  notificar("positive", "Producto agregado a la lista");
+}
+
+function quitarProducto(index) {
+  productosAgg.value.splice(index, 1);
+  notificar("negative", "Producto eliminado", "bottom");
+}
+
+//Tabla de productos
 </script>
 <template>
   <main>
@@ -135,15 +231,31 @@ function onSubmit() { }
             <div>
               <div>
                 <span>Instructor: </span>
-                <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
-                  type="text" disable lazy-rules></q-select>
+                <q-select
+                  class="input3"
+                  outlined
+                  v-model:model-value="data.idInstructorEncargado"
+                  label="Nombre"
+                  type="text"
+                  disable
+                  lazy-rules
+                ></q-select>
               </div>
               <div>
                 <span>Ficha: </span>
-                <q-select outlined v-model:model-value="data.ficha" use-input input-debounce="0" label="Codigo Ficha"
-                  behavior="menu" @filter="filterFn" :options="opcionesFiltro.fichas"
-                  :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
-                  :disable="selectLoad.ficha">
+                <q-select
+                  outlined
+                  v-model:model-value="data.ficha"
+                  use-input
+                  input-debounce="0"
+                  label="Codigo Ficha"
+                  behavior="menu"
+                  @filter="filterFn"
+                  :options="opcionesFiltro.fichas"
+                  :rules="[(val) => val != null || 'Seleccione una ficha']"
+                  :loading="selectLoad.ficha"
+                  :disable="selectLoad.ficha"
+                >
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">
@@ -157,16 +269,44 @@ function onSubmit() { }
           </div>
         </article>
         <article>
-          <span>Escoger productos:</span>
+          <span>Seleccionar productos:</span>
           <div class="q-pa-md">
-            <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
-              control-color="amber" navigation padding arrows height="300px" class="bg-grey-9 shadow-2 rounded-borders"
-              draggable="false">
-              <q-carousel-slide :name="index + 1" class="column no-wrap"
-                v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
-                <div class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
-                  <h1 v-for="lote in loteGrupo" :key="lote._id" style="background-color: white; margin-left:20px">{{
-                    lote.nombre }}</h1>
+            <q-btn @click="verTodosProductos">Ver todos los productos</q-btn>
+            <q-carousel
+              v-model="slide"
+              transition-prev="slide-right"
+              transition-next="slide-left"
+              swipeable
+              animated
+              control-color="amber"
+              navigation
+              padding
+              arrows
+              height="200px"
+              class="bg-grey-9 shadow-2 rounded-borders"
+              draggable="false"
+            >
+              <q-carousel-slide
+                :name="index + 1"
+                class="column no-wrap"
+                v-for="(loteGrupo, index) in opcionesSelect.lotes"
+                :key="index"
+              >
+                <div
+                  class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap"
+                >
+                  <button
+                    v-for="lote in loteGrupo"
+                    :key="lote._id"
+                    style="
+                      background-color: white;
+                      margin-left: 20px;
+                      width: 100%;
+                      height: 100%;
+                    "
+                    @click="mostrarLotes(lote._id, lote.nombre)"
+                    >{{ lote.nombre }}</button
+                  >
                   <!-- <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/mountains.jpg" />
                   <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/parallax1.jpg" />
                   <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/material.png" />
@@ -177,18 +317,24 @@ function onSubmit() { }
           </div>
 
           <table>
-            <th>
-            <td>N°</td>
-            <td>Producto</td>
-            <td>Unidad Medida</td>
-            <td>Precio neto</td>
-            <td>Cantidad</td>
-            <td>Subtotal</td>
-            <td>Opciones</td>
-            </th>
-            <tr v-for="producto in opcionesSelect.productos" :key="producto._id">
-              <td v-for="(atributo, i) in Object.values(producto)" :key="i">{{ atributo }}</td>
-              <td> <q-btn>editar</q-btn></td>
+            <thead>
+              <td>N°</td>
+              <td>Producto</td>
+              <td>Unidad Medida</td>
+              <td>Precio neto</td>
+              <td>Cantidad</td>
+              <td>Subtotal</td>
+              <td>Opciones</td>
+            </thead>
+            <tr v-for="(producto, index) in productosAgg" :key="producto._id">
+              <td v-for="(atributo, i) in Object.values(producto)" :key="i">
+                {{ atributo }}
+              </td>
+              <td>
+                <q-btn @click="quitarProducto(index)">
+                  <q-icon name="close" />
+                </q-btn>
+              </td>
             </tr>
           </table>
         </article>
@@ -196,26 +342,43 @@ function onSubmit() { }
     </q-form>
 
     <q-dialog v-model="modal">
-      <q-card class="modal" style="width: 450px;">
-          <q-toolbar style="        background-color: #39A900;color: white">
-              <q-toolbar-title>Agregar producto</q-toolbar-title>
-              <q-btn class="botonv1" flat dense icon="close" v-close-popup />
-          </q-toolbar>
+      <q-card class="modal" style="width: 450px">
+        <q-toolbar style="background-color: #39a900; color: white">
+          <q-toolbar-title>Agregar producto</q-toolbar-title>
+          <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+        </q-toolbar>
 
-          <q-card-section class="q-gutter-md">
-              <q-form @submit="validarCampos" class="q-gutter-md">
-                  <q-select filled v-model:model-value="data.area" label="Area" lazy-rules :options="optionsArea"
-                      :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
+        <q-card-section class="q-gutter-md">
+          <q-spinner
+            color="primary"
+            size="5em"
+            :thickness="10"
+            v-if="selectLoad.producto"
+          />
 
-                  <div style=" display: flex; width: 96%; justify-content: flex-end;">
-                      <q-btn :loading="loadingModal" padding="10px" type="submit"
-                          :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
-                  </div>
-
-              </q-form>
-          </q-card-section>
+          <div v-if="!selectLoad.producto">
+            <div>
+              <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
+              <q-btn
+                v-for="producto in productoSeleccionar[opcionLote]"
+                @click="aggProductos(producto)"
+              >
+                {{ producto.nombre }}
+              </q-btn>
+            </div>
+            <div style="display: flex; width: 96%; justify-content: flex-end">
+              <q-btn
+                :loading="loadBtnModal"
+                padding="10px"
+                :color="'primary'"
+                label="Terminar"
+                v-close-popup
+              />
+            </div>
+          </div>
+        </q-card-section>
       </q-card>
-  </q-dialog>
+    </q-dialog>
   </main>
 </template>
 
