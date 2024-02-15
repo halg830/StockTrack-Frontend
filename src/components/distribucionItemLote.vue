@@ -4,12 +4,14 @@ import { useQuasar } from 'quasar';
 import { ref , watch } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStorePrograma } from '../stores/programa.js';
+import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
 const storeItem = useStorePrograma();
 const storeLotes = useStoreLotes();
+const storeDisItemLote = useStoreDisItemLote();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -31,11 +33,6 @@ const data = ref({});
 
 const columns = [
     { name: "item", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-    { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
-    { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
-    { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
-    { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}` , align: "left" },
-    { naem: "idArea", label: "Area Asignada",field: (row) => row.idArea.nombre ,align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -45,7 +42,7 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-        const response = await storeFichas.getAll()
+        const response = await storeDisItemLote.getAll()
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -247,18 +244,16 @@ watch(data, () => {
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        
-                        
 
-                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto Global" lazy-rules :options="optionsPresupuesto"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules :options="optionsPresupuesto"
+                        :rules="[val => !!val  || 'Seleccione el item']" />
                         
                         <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
-                        :rules="[val => !!val  || 'Seleccione un nivel de Formación']" />
+                        :rules="[val => !!val  || 'Seleccione un lote']" />
 
                         <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
                         :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
+                            val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                             val => /^\d+$/.test(val) || 'Ingrese solo números'   
                         ]" />
                         
