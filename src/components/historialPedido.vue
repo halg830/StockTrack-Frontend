@@ -1,19 +1,22 @@
 <script setup>
 import { ref } from 'vue'
 import { useQuasar } from 'quasar';
-import { useStoreProductos } from '../stores/productos';
+import { useStorePedidos } from '../stores/pedido.js';
+import { useStoreDetallePedido } from '../stores/detallePedido.js'
+import { format } from "date-fns";
 
 const rows = ref([]);
-const useProductos = useStoreProductos();
+const usePedidos = useStorePedidos();
+const useDetallePedidos = useStoreDetallePedido();
 const loadingTable = ref(false);
 const filter = ref("");
+const modal = ref(false);
 
 async function getInfo() {
     try {
         loadingTable.value = true
-
-        const response = await useProductos.getAll()
-        console.log(response);
+        const response = await usePedidos.getAll()
+        console.log("Hola soy pedidos", response);
 
         if (!response) return;
         if (response.error) {
@@ -34,59 +37,98 @@ getInfo()
 
 const columns = ref([
     {
-        name: 'fechapedido',
-        label: 'Fecha de pedido',
-        align: 'center',
-        field: 'fechapedido'
-    },
-    {
         name: 'numpedido',
         label: 'N° de pedido',
         align: 'center',
         field: 'numpedido'
     },
     {
-        name: 'numproducto',
-        label: 'N° de productos',
-        align: 'center',
-        field: 'numproducto'
-    },
-    {
-        name: 'estadoproducto',
-        label: 'Estado del producto',
-        align: 'center',
-        field: 'estadoproducto'
-    },
-    {
-        name: 'iva',
-        label: 'Total IVA',
-        align: 'center',
-        field: 'iva',
+        name: 'fechapedido',
+        label: 'Fecha Creación',
+        align: "center",
+        field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")}`
     },
     {
         name: 'total',
         label: 'Total',
         align: 'center',
-        field: 'total'
+        field: 'total',
+    },
+    {
+        name: 'Estado',
+        label: 'Estado',
+        align: 'center',
+        field: (row) => row.estado ? 'Aprobado' : 'Por aprobar'
+    },
+    {
+        name: 'Entregado',
+        label: 'Entregado',
+        align: 'center',
+        field: (row) => row.entregado ? 'Sí' : 'No',
+    },
+    { 
+        name: "opciones", 
+        label: "Opciones", 
+        field: (row) => null, sortable: false, 
+        align: "center" 
     },
 ]);
 
 
-function volver(){
-  router.push('/')
+
+function verDetallesPedido(){
+    modal.value = true; 
+    obtenerDetallePedido();
+}
+
+async function obtenerDetallePedido(idPedido) {
+  try {
+    const response = await useDetallePedidos.getPorPedido(idPedido);
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    productoSeleccionar.value[nombre] = response;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.producto = false;
+  }
 }
 </script>
 
 
 <template>
     <main>
+        <q-dialog v-model="modal">
+            <q-card class="modal" style="width: 450px;">
+                <q-toolbar style="        background-color: #39A900;color: white">
+                    <q-toolbar-title>Detalle Pedido</q-toolbar-title>
+                    <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                </q-toolbar>
+
+                <q-card-section class="q-gutter-md">
+                    <q-form @submit="validarCampos" class="q-gutter-md">
+                        <h1>ola</h1>
+
+                    </q-form>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
+
+        
         <section id="primeraseccion">
             <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
                 :filter="filter" rows-per-page-label="Visualización de filas" page="2" id="tabla"
                 :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda."
                 wrap-cells="false" label="Productos" no-data-label="No hay productos registrados.">
                 <template v-slot:top-left>
-                    <h4 id="titleTable">Historial Pedidos</h4>
+                    <h4 id="titleTable">Historial de pedidos</h4>
                 </template>
                 <template v-slot:top-right>
                     <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
@@ -96,14 +138,14 @@ function volver(){
                         </template>
                     </q-input>
                 </template>
+                <template v-slot:body-cell-opciones="props">
+                    <q-td :props="props" class="botones">
+                        <button @click="verDetallesPedido(props.row)" class="editBtn">🗒️
+                        </button>
+                    </q-td>
+                </template>
             </q-table>
         </section>
-
-        <section id="segundaseccion">
-            <q-btn type="submit" @click="volver()" id="button" bg-color="primary" class="text-h6">Cerrar</q-btn>
-        </section>
-       
-
     </main>
 </template>
 
@@ -124,17 +166,17 @@ main {
     align-items: center;
 }
 
-#tabla{
+#tabla {
     width: 70%;
 }
 
-#segundaseccion{
+#segundaseccion {
     width: 80%;
     display: flex;
     justify-content: flex-end;
 }
 
-#button{
+#button {
     width: 8%;
     background-color: #39A900;
     color: white;
@@ -144,5 +186,21 @@ main {
     font-weight: bolder;
 }
 
-
+.editBtn {
+    width: 55px;
+    font-size: 25px;
+    width: 55px;
+    border-radius: 20px;
+    border: none;
+    background-color: #39A900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin: 0 auto;
+}
 </style>
