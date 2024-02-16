@@ -244,13 +244,13 @@ async function solicitarPedido() {
       return;
     }
 
-    await detPedidos.value.forEach(async(detPedido)=>{
+    await detPedidos.value.forEach(async (detPedido) => {
       await crearDetPedido(detPedido)
     })
     notificar('Positive', 'Pedido generado con éxito')
   } catch (error) {
     console.log(error);
-  } finally{
+  } finally {
     loadBtnSolicitar.value = false;
   }
 }
@@ -259,7 +259,7 @@ const useDetPedido = useStoreDetallePedido();
 async function crearDetPedido(detPedido) {
   try {
     detPedido.idPedido = usePedidos.pedido._id
-    const response = await useDetPedido.getAll(detPedido);
+    const response = await useDetPedido.agregar(detPedido);
     console.log(response);
 
     if (!response) return;
@@ -273,44 +273,28 @@ async function crearDetPedido(detPedido) {
   }
 }
 </script>
-<template>
-  <main>
-    <q-form class="q-gutter-md">
+<template class="container">
+  <main class="target">
+    <q-form style="margin: 50px;" class="q-gutter-md">
       <section>
         <article>
           <div>
-            <span>Fecha: {{ data.fechaCreacion }}</span>
-            <span>N° pedido: </span>
+            <span class="spanns">Fecha: {{ data.fechaCreacion }}</span>
+            <span class="spanns">N° pedido: </span>
           </div>
           <div>
             <div>
-              <div>
+              <div class="input-cont">
                 <span>Instructor: </span>
-                <q-select
-                  class="input3"
-                  outlined
-                  v-model:model-value="data.idInstructorEncargado"
-                  label="Nombre"
-                  type="text"
-                  disable
-                  lazy-rules
-                ></q-select>
+                <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
+                  type="text" disable lazy-rules></q-select>
               </div>
-              <div>
+              <div class="input-cont">
                 <span>Ficha: </span>
-                <q-select
-                  outlined
-                  v-model:model-value="data.idFicha"
-                  use-input
-                  input-debounce="0"
-                  label="Codigo Ficha"
-                  behavior="menu"
-                  @filter="filterFn"
-                  :options="opcionesFiltro.fichas"
-                  :rules="[(val) => val != null || 'Seleccione una ficha']"
-                  :loading="selectLoad.ficha"
-                  :disable="selectLoad.ficha"
-                >
+                <q-select class="input3" outlined v-model:model-value="data.idFicha" use-input input-debounce="0"
+                  label="Codigo Ficha" behavior="menu" @filter="filterFn" :options="opcionesFiltro.fichas"
+                  :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
+                  :disable="selectLoad.ficha">
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">
@@ -330,40 +314,19 @@ async function crearDetPedido(detPedido) {
             <q-btn @click="verTodosProductos">Ver todos los productos</q-btn>
           </div>
           <div class="q-pa-md">
-            <q-carousel
-              v-model="slide"
-              transition-prev="slide-right"
-              transition-next="slide-left"
-              swipeable
-              animated
-              control-color="amber"
-              navigation
-              padding
-              arrows
-              height="200px"
-              class="bg-grey-9 shadow-2 rounded-borders"
-              draggable="false"
-            >
-              <q-carousel-slide
-                :name="index + 1"
-                class="column no-wrap"
-                v-for="(loteGrupo, index) in opcionesSelect.lotes"
-                :key="index"
-              >
-                <div
-                  class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap"
-                >
-                  <button
-                    v-for="lote in loteGrupo"
-                    :key="lote._id"
-                    style="
+            <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
+              control-color="black" navigation padding arrows height="200px" class="transparent shadow-2 rounded-borders"
+              draggable="false">
+              <q-carousel-slide :name="index + 1" class="column no-wrap  "
+                v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
+                <div style="background-color: transparent;"
+                  class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
+                  <button class="image" v-for="lote in loteGrupo" :key="lote._id" style="
                       background-color: white;
                       margin-left: 20px;
-                      width: 100%;
-                      height: 100%;
-                    "
-                    @click="mostrarLotes(lote._id, lote.nombre)"
-                  >
+                      width: 40%;
+                      height: 80%;
+                    " @click="mostrarLotes(lote._id, lote.nombre)">
                     {{ lote.nombre }}
                   </button>
                   <!-- <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/mountains.jpg" />
@@ -375,7 +338,7 @@ async function crearDetPedido(detPedido) {
             </q-carousel>
           </div>
 
-          <table>
+          <table class="tabla">
             <thead>
               <td>N°</td>
               <td>Producto</td>
@@ -390,11 +353,7 @@ async function crearDetPedido(detPedido) {
               <td>{{ producto.nombre }}</td>
               <td>{{ producto.unidadMedida }}</td>
               <td>
-                <input
-                  outlined
-                  v-model="detPedidos[index].cantidad"
-                  type="number"
-                />
+                <input outlined v-model="detPedidos[index].cantidad" type="number" />
               </td>
               <td>
                 <q-btn @click="quitarProducto(index)">
@@ -403,10 +362,10 @@ async function crearDetPedido(detPedido) {
               </td>
             </tr>
           </table>
-
-          <q-btn type="submit" :loading="loadBtnSolicitar" @click="solicitarPedido"
-            >Solicitar pedido</q-btn
-          >
+          <div style="display: flex; flex-direction: row-reverse; ">
+            <q-btn class="solicitar-pedido" style="display: flex; " type="submit" :loading="loadBtnSolicitar"
+              @click="solicitarPedido">Solicitar pedido</q-btn>
+          </div>
         </article>
       </section>
     </q-form>
@@ -419,41 +378,24 @@ async function crearDetPedido(detPedido) {
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
-          <q-spinner
-            color="primary"
-            size="5em"
-            :thickness="10"
-            v-if="selectLoad.producto"
-          />
+          <q-spinner color="primary" size="5em" :thickness="10" v-if="selectLoad.producto" />
 
-          <div
-            v-if="
-              !selectLoad.producto &&
-              productoSeleccionar[opcionLote].length <= 0
-            "
-          >
+          <div v-if="!selectLoad.producto &&
+            productoSeleccionar[opcionLote].length <= 0
+            ">
             <span>No hay productos disponibles</span>
           </div>
 
           <div v-if="!selectLoad.producto">
             <div>
               <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
-              <q-btn
-                v-for="producto in productoSeleccionar[opcionLote]"
-                :key="producto._id"
-                @click="aggProductos(producto)"
-              >
+              <q-btn v-for="producto in productoSeleccionar[opcionLote]" :key="producto._id"
+                @click="aggProductos(producto)">
                 {{ producto.nombre }}
               </q-btn>
             </div>
             <div style="display: flex; width: 96%; justify-content: flex-end">
-              <q-btn
-                :loading="loadBtnModal"
-                padding="10px"
-                :color="'primary'"
-                label="Terminar"
-                v-close-popup
-              />
+              <q-btn :loading="loadBtnModal" padding="10px" :color="'primary'" label="Terminar" v-close-popup />
             </div>
           </div>
         </q-card-section>
@@ -463,6 +405,47 @@ async function crearDetPedido(detPedido) {
 </template>
 
 <style scoped>
+.tabla {
+  width: 100%;
+}
+
+td {
+  margin: 50px;
+}
+
+.container {
+  width: 100%;
+  justify-content: center;
+}
+
+.target {
+  width: 60%;
+  background-color: darkgrey;
+  margin: 0 auto;
+  margin-top: 100px;
+  border-radius: 5px;
+  height: 700px;
+}
+
+
+
+.input3 {
+  display: flex;
+  width: 250px;
+  height: 60px;
+}
+
+.solicitar-pedido {
+  background-color: black;
+  color: white;
+  border-radius: 50px;
+}
+
+.image {
+  border-radius: 50px;
+
+}
+
 #contTopLotes {
   display: flex;
   justify-content: space-between;
