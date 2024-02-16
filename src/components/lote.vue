@@ -25,9 +25,7 @@ const estado = ref('agregar');
 const data = ref({});
 
 const columns = [
-  { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
   { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-  { name: "descripcion", label: "Descripción", field: "descripcion", sortable: true, align: "left" },
   { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
   { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -195,14 +193,9 @@ function buscarIndexLocal(id) {
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model="data.codigo" type="number" label="Codigo Lote" lazy-rules
-              :rules="[val => val && val.length > 0 || 'Digite el Codigo del Lote']" />
-
             <q-input filled v-model="data.nombre" label="Nombre Lote" lazy-rules
               :rules="[val => val && val.length > 0 || 'Digite el nombre']" />
 
-            <q-input filled v-model="data.descripcion" label="Descripción" lazy-rules
-              :rules="[val => val && val.length > 0 || 'Digite la descrición']" />
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
             </div>

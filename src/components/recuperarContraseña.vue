@@ -17,7 +17,7 @@ const correoValido = () => {
   return emailRegex.test(email.value);
 }
 
-function procesorecuperacion() {
+function validarCampo() {
   if (correoValido()) {
     showWindow.value = true;
     hideWindow.value = false;
@@ -49,14 +49,14 @@ function home(){
           <h3>Correo electrónico</h3>
         </div>
         <div id="text3">
-          <q-form @reset="onReset" id="inputcorreo">
+          <q-form @reset="validarCampo" id="inputcorreo">
             <q-input rounded outlined v-model="email" label="Digite su correo aquí..." lazy-rules hide-bottom-space
               color="dark"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese su correo', val => val && correoValido() || 'Por favor ingrese un correo valido']" />
+              <q-btn id="buttonpassword" type="submit" class="bg-primary" >Recuperar
+                contraseña</q-btn>
           </q-form>
 
-          <q-btn id="buttonpassword" type="submit" class="bg-primary" @click="procesorecuperacion()">Recuperar
-            contraseña</q-btn>
         </div>
 
       </article>
