@@ -96,8 +96,8 @@ const enviarInfo = {
                 ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
             const response = await storeDisItemLote.agregar(info)
-            console.log(response);
-
+            console.log("r",response._id);
+            const ajustarPresupuesto = await storeItem.ajustarPresupuesto(response.idItem._id, info.presupuesto)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)

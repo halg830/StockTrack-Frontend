@@ -58,7 +58,7 @@ export const useStorePrograma = defineStore(modelo, () => {
   const agregar = async (data) => {
     try {
       const response = await axios.post(`${modelo}/agregar`, data);
-      console.log(response);
+      console.log(response.data._id);
 
       return response.data;
     } catch (error) {
@@ -89,6 +89,30 @@ export const useStorePrograma = defineStore(modelo, () => {
       console.log(error);
       if (error.message === "Network Error") {
         notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const ajustarPresupuesto = async(id, presupuesto) =>{
+    try {
+      const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
         return null;
       }
 
@@ -152,5 +176,5 @@ export const useStorePrograma = defineStore(modelo, () => {
     }
   };
 
-  return { items, getAll, agregar, editar, activar, inactivar };
+  return { items, getAll, agregar, editar, activar, inactivar, ajustarPresupuesto };
 });
