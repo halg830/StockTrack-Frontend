@@ -29,13 +29,7 @@ const columns = ref([
     name: 'nombre',
     label: 'Nombre',
     align: 'center',
-    field: 'nombre'
-  },
-  {
-    name: 'descripcion',
-    label: 'Descripción',
-    align: 'center',
-    field: 'descripcion'
+    field: val=>helpersGenerales.primeraMayus(val.nombre)
   },
   {
     name: 'estado',
@@ -216,8 +210,7 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.nombre" label="Nombre" type="text"
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
-            <q-input outlined v-model="data.descripcion" label="Descripcion" type="text"
-              :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
+    
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
             </div>

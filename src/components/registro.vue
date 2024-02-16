@@ -53,7 +53,7 @@ const columns = ref([
     name: "rol",
     label: "Rol",
     align: "center",
-    field: "rol",
+    field: val=>helpersGenerales.primeraMayus(val.rol),
   },
   {
     name: "estado",

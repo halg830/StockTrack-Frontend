@@ -274,25 +274,29 @@ const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', val
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
-                <q-card-section class="q-gutter-md" style="width: 450px;">
+                <q-card-section class="q-gutter-md" style="width: 550px;">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input outlined v-model="data.codigo" label="Código" type="text"
-                            :rules="[val => !!val || 'Ingrese un código']"></q-input>
+                        <div class="flex">
+                            <q-input class="inputM" outlined v-model="data.codigo" label="Código" type="text"
+                                :rules="[val => !!val || 'Ingrese un código']"></q-input>
 
-                        <q-input outlined v-model="data.nombre" label="Nombre" type="text"
-                            :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
+                            <q-input class="inputM" outlined v-model="data.nombre" label="Nombre" type="text"
+                                :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
+                        </div>
 
                         <q-input outlined v-model="data.descripcion" label="Descripción" type="textarea"
                             :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
 
                         <q-select outlined v-model="data.unidadMedida" label="Unidad medida" behavior="menu"
                             :options="unidadesMedida"></q-select>
+                        <div class="flex">
 
-                        <q-input outlined v-model="data.iva" label="Iva" type="number"
-                            :rules="[val => !!val || 'Ingrese el iva']"></q-input>
+                            <q-input class="inputM" outlined v-model="data.iva" label="Iva" type="number"
+                                :rules="[val => !!val || 'Ingrese el iva']"></q-input>
 
-                        <q-input outlined v-model="data.precioUnitario" label="Precio unitario" type="number"
-                            :rules="[val => !!val || 'Ingrese el precio unitario']"></q-input>
+                            <q-input class="inputM" outlined v-model="data.precioUnitario" label="Precio unitario"
+                                type="number" :rules="[val => !!val || 'Ingrese el precio unitario']"></q-input>
+                        </div>
 
                         <q-select outlined v-model:model-value="data.consumible" label="Consumible" lazy-rules
                             :options="optionsConsumible"
@@ -358,8 +362,31 @@ const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', val
 </template>
 
 <style scoped>
+@media (max-width: 600px) and (max-height: 785px) {
+    .flex {
+        display: none;
+    }
+
+    .inputM {
+        width: 90%;
+
+    }
+
+
+}
+
 #titleTable {
     margin: auto;
+}
+
+.inputM {
+    width: 47%;
+}
+
+.flex {
+    display: flex;
+    width: 100%;
+    gap: 6px;
 }
 
 .editBtn {

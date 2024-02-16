@@ -106,6 +106,7 @@ export const useStorePrograma = defineStore(modelo, () => {
 
   const ajustarPresupuesto = async(id, presupuesto) =>{
     try {
+      console.log("Responde:", id, presupuesto);
       const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
       console.log(response);
       return response.data;
