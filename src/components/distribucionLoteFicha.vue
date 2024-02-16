@@ -32,10 +32,13 @@ const data = ref({});
 
 
 const columns = [
+    { name: "idFicha", label: "Codigo Ficha", field: (row) => row.idFicha.codigo, sortable: true, align: "left" },
+    { name: "idFicha", label: "Nombre Ficha" , field: (row) => row.idFicha.nombre, sortable: true, align: "left" },
     { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
-    { name: "idItem", label: "Item Nombre", field: (row)=>{row.idDistribucionPresupuesto.presupuesto}, sortable: true, align: "left" },
-    // { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
-    // { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionPresupuesto.idItem.nombre, align: "left" },
+    { name: "idItem", label: "Item Presupuesto", field: (row) => row.idDistribucionPresupuesto.idItem.presupuesto, align: "left" },
+    { name: "idLote", label: "Lote Nombre", field: (row) => row.idDistribucionPresupuesto.idLote.nombre, align: "left" },
+    { name: "idLote", label: "Lote Presupuesto", field: (row) => row.idDistribucionPresupuesto.presupuesto, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -208,16 +211,21 @@ async function getoptionsFicha() {
 
         optionsFichas.value = fichasActicas.map((ficha) => { return { label: ficha.nombre, value: ficha._id, disable: ficha.estado === 0 } });
 
-        console.log(optionsFichas.value);
     } catch (error) {
         console.log(error);
     };
 };
 
-
-watch(data, () => {
-    console.log(data);
-});
+let optionsItemLote = ref([])
+async function getOptionsItemLote(){
+    try {
+        await storeDisItemLote.getAll();
+        const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
+        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: disItemLote.presupuesto, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+    } catch (error) {
+        console.log(error);
+    };
+}
 
 
 </script>
@@ -235,37 +243,16 @@ watch(data, () => {
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
-                            val => /^\d+$/.test(val) || 'Ingrese solo números'
-                        ]" />
 
-                        <q-input filled v-model="data.nombre" label="Nombre Programa" lazy-rules :rules="[
-                            val => val && val.length > 0 || 'Digite el Nombre del Programa',
-                            val => !/\d/.test(val) || 'No se permiten números en el nombre'
-                        ]" />
-
-                        <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules
-                            :options="niveles" :rules="[val => !!val || 'Seleccione un nivel de Formación']" />
-
-                        <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules :rules="[val => !!val || 'Seleccione la Fecha de Inicio',
-                            // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
-                        ]" />
-
-                        <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules :rules="[
-                            val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
-                            val => {
-                                const startDate = new Date(data.fechaInicio);
-                                const endDate = new Date(val);
-                                const sixMonthsLater = new Date(startDate);
-                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
-                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
-                            }
-                        ]" />
-
-                        <q-select filled v-model:model-value="data.area" label="Area" lazy-rules :options="optionsArea"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
-
+                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Lote" lazy-rules :options="optionsItemLote"
+                            :rules="[val => !!val  || 'Seleccione un Lote']" />
+                        <q-select filled v-model:model-value="data.idFicha"  label="Ficha" lazy-rules :options="optionsFichas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" />
+                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
+                            :rules="[
+                                    val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
+                                    val => /^\d+$/.test(val) || 'Ingrese solo números'   
+                            ]" />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"

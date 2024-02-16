@@ -32,10 +32,10 @@ const data = ref({});
 
 
 const columns = [
-    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
     { name: "idLote", label: "Codigo Lote", field: (row) => row.idLote.codigo, sortable: true, align: "left" },
     { name: "idLote", label: "Nombre Lote", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
-    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionPresupuesto.nombre, sortable: true, align: "left" },
+    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idItem", label: "Item Nombre", field: (row) => row.idItem.nombre, sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -163,7 +163,6 @@ const in_activar = {
         loadIn_activar.value = true
         try {
             const response = await storeDisItemLote.activar(id)
-            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -181,7 +180,6 @@ const in_activar = {
         loadIn_activar.value = true
         try {
             const response = await storeDisItemLote.inactivar(id)
-            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -208,7 +206,7 @@ async function getOptionsLote() {
         await storeLotes.getAll();
         const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
-        optionsLotes.value = lotesActivos.map((lote) => { return { label: lote.nombre, value: lote._id, disable: lote.estado === 0 } });
+        optionsLotes.value = lotesActivos.map((lote) => { return { label: `${lote.nombre } - ${lote.codigo}`, value: lote._id, disable: lote.estado === 0 } });
 
     } catch (error) {
         console.log(error);
@@ -222,7 +220,7 @@ async function getOptionsItem() {
         await storeItem.getAll();
         const presupuestosActivos = storeItem.items.filter(item => item.estado === true);
 
-        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: item.nombre, value: item._id, disable: item.estado === 0 } });
+        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: `${item.nombre} - ${item.presupuesto}`, value: item._id, disable: item.estado === 0 } });
 
     } catch (error) {
         console.log(error);
