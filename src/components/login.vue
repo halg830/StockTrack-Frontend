@@ -55,6 +55,7 @@ async function login() {
     Cookies.set('x-token', response.data.token, { expires: 1 })
     Cookies.set('id', response.data.usuario._id, { expires: 1 })
     Cookies.set('rol', response.data.usuario.rol, { expires: 1 })
+    Cookies.set('usuario', JSON.stringify(response.data.usuario), {expires: 1})
 
     router.push('/nav')
   } catch (error) {

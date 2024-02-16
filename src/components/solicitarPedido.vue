@@ -1,7 +1,12 @@
 <script setup>
 import { ref } from "vue";
-const selectLoad = ref({
-  ficha: false,
+import Cookies from "js-cookie";
+import { useStoreFichas } from "../stores/ficha.js";
+
+//Data modal
+const data = ref({
+  fechaCreacion: fechaActual(),
+  idInstructorEncargado: obtenerInstructor(),
 });
 
 function fechaActual() {
@@ -15,28 +20,53 @@ function fechaActual() {
   return formatoFecha;
 }
 
-const data = ref({ fechaCreacion: fechaActual() });
+function obtenerInstructor() {
+  const usuario = Cookies.get("usuario");
+  const objUsuario = JSON.parse(usuario);
+  console.log(objUsuario);
+  return {
+    label: objUsuario.nombre + " " + objUsuario.apellido,
+    value: objUsuario._id,
+  };
+}
 
-const opcionesFiltro = ref({
-  ficha: [],
+//Obtener fichas
+const selectLoad = ref({
+  ficha: true,
 });
 
-function filterFn(val, update) {
-  if (val === "") {
-    update(() => {
-      opcionesFiltro.value.ficha = options.value.ficha;
-    });
-    return;
-  }
+const opcionesSelect = ref({});
 
-  update(() => {
-    const needle = val.toLowerCase();
-    opcionesFiltro.value.ficha =
-      options.value.ficha.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      ) || [];
-  });
+const useFicha = useStoreFichas();
+async function obtenerOptions() {
+  try {
+    const responseFichas = await useFicha.getAll();
+    console.log(responseFichas);
+
+    if (!responseFichas) return;
+
+    if (responseFichas.error) {
+      notificar("negative", responseFichas.error);
+      return;
+    }
+
+    opcionesSelect.value.fichas = responseFichas.map((ficha) => {
+      return {
+        label:
+          ficha.codigo + " / " + (ficha.abreviatura
+            ? ficha.abreviatura
+            : ficha.nombre) + `${ficha.estado === 0 ? " - Inactivo" : ""}`,
+        value: ficha._id,
+        disable: ficha.estado === 0,
+      };
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.ficha = false;
+  }
 }
+obtenerOptions();
 
 function onSubmit() {}
 </script>
@@ -53,15 +83,15 @@ function onSubmit() {}
             <div>
               <div>
                 <span>Instructor: </span>
-                <q-input
+                <q-select
                   class="input3"
                   outlined
-                  v-model="data.instructor"
+                  v-model:model-value="data.idInstructorEncargado"
                   label="Nombre"
                   type="text"
                   disable
                   lazy-rules
-                ></q-input>
+                ></q-select>
               </div>
               <div>
                 <span>Ficha: </span>
@@ -71,9 +101,8 @@ function onSubmit() {}
                   use-input
                   input-debounce="0"
                   label="Numero"
-                  :options="opcionesFiltro.ficha"
-                  @filter="filterFn"
                   behavior="menu"
+                  :options="opcionesSelect.fichas"
                   :rules="[(val) => val != null || 'Seleccione una ficha']"
                   :loading="selectLoad.ficha"
                   :disable="selectLoad.ficha"
