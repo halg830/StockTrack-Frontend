@@ -4,17 +4,20 @@ import { useQuasar } from 'quasar';
 import { useStorePedidos } from '../stores/pedido.js';
 import { useStoreDetallePedido } from '../stores/detallePedido.js'
 import { format } from "date-fns";
+import { useRouter } from 'vue-router';
 
 const rows = ref([]);
 const rowsdetails = ref([]);
 const usePedidos = useStorePedidos();
 const useDetallePedidos = useStoreDetallePedido();
+const pedidoSeleccionado = ref(null);
 const loadingTable = ref(false);
 const filter = ref("");
 const modal = ref(false);
 const $q = useQuasar();
 const subTotal = ref();
 const iva = ref();
+const router = useRouter();
 
 function notificar(tipo, msg, posicion = "top") {
     $q.notify({
@@ -31,7 +34,7 @@ const columns = ref([
         name: 'numpedido',
         label: 'Nro pedido',
         align: 'center',
-        field: 'numpedido'
+        field: 'numero'
     },
     {
         name: 'ficha',
@@ -46,16 +49,10 @@ const columns = ref([
         field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")}`
     },
     {
-        name: 'total',
-        label: 'Total',
-        align: 'center',
-        field: 'total',
-    },
-    {
         name: 'Estado',
         label: 'Estado',
         align: 'center',
-        field: (row) => row.estado ? 'Aprobado' : 'Por aprobar'
+        field: (row) => row.estado ? 'Aprobado' : 'En revisión'
     },
     {
         name: 'Entregado',
@@ -109,18 +106,6 @@ const columnsdetails = ref([
         align: 'center',
         field: (row) => row.idProducto.unidadMedida
     },
-    {
-        name: 'precioUnitario',
-        label: 'Precio Unitario',
-        align: 'center',
-        field: (row) => row.idProducto.precioUnitario
-    },
-    {
-        name: 'precioUniconIva',
-        label: 'Precio U + IVA',
-        align: 'center',
-        field: 'precioUniconIva',
-    },
 ]);
 
 async function getInfo() {
@@ -135,7 +120,7 @@ async function getInfo() {
             return
         }
 
-        rows.value = response
+        rows.value = response.reverse()
 
     } catch (error) {
         console.log(error);
@@ -150,6 +135,7 @@ getInfo()
 function verDetallesPedido(idPedido) {
     modal.value = true;
     obtenerDetallePedido(idPedido);
+    pedidoSeleccionado.value = rows.value.find(pedido => pedido._id === idPedido);
 }
 
 async function obtenerDetallePedido(idPedido) {
@@ -166,8 +152,6 @@ async function obtenerDetallePedido(idPedido) {
         }
 
         rowsdetails.value = response
-        subTotal.value = response[0].subTotal
-        iva.value = (response[0].idProducto.precioUnitario * response[0].idProducto.iva) / 100
         if (!response) return;
 
         if (response.error) {
@@ -179,7 +163,13 @@ async function obtenerDetallePedido(idPedido) {
     }
 }
 
+function formatearFecha(fecha) {
+    return fecha ? format(new Date(fecha), 'yyyy-MM-dd HH:mm') : '';
+}
 
+function realizarPedido() {
+    router.push('/solicitar-pedido')
+}
 
 
 </script>
@@ -189,31 +179,58 @@ async function obtenerDetallePedido(idPedido) {
     <main>
         <q-dialog v-model="modal">
             <q-card class="modal">
-                <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>Detalle Pedido</q-toolbar-title>
-                    <q-btn class="botonv1" flat dense icon="close" v-close-popup />
-                </q-toolbar>
-
                 <q-card-section class="q-gutter-md">
-                    <q-form class="q-gutter-md">
-                        <div class="q-pa-md">
+                    <q-form class="q-gutter-md" >
+                        <div style="display: flex; justify-content: center">
+                            <h1>Detalle pedido</h1>
+                            <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap;">
+                            <div style="flex: 1; margin-right: 20px;">
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Número pedido: </p>
+                                <p class="text-h5">{{ pedidoSeleccionado ? pedidoSeleccionado.numero : '' }}</p>
+                            </div>
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Instructor: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
+                            </div>
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Código Ficha: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.codigo : '' }}</p>
+                            </div>
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Ficha: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.nombre : '' }}</p>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Estado: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.estado ? 'Aprobado' : 'En revisión') : '' }}
+                                </p>
+                            </div>
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Entregado: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.entregado ? 'Sí' : 'No') : '' }}</p>
+                            </div>
+
+                            <div class="text">
+                                <p class="text-h5 text-weight-bold">Fecha Creación: </p>
+                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? formatearFecha(pedidoSeleccionado.createAT) : '' }}</p>
+                            </div>
+                        </div>
+                        </div>
+                      
+                        <div class="q-pa-md" style="flex-basis: 100%;">
                             <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom>
                             </q-table>
                         </div>
-                        <div class="text-container">
-                            <div>
-                                <p>Subtotal: {{ subTotal }}</p>
-                            </div>
-                            <div>
-                                <p>IVA: {{ iva }}</p>
-                            </div>
-                        </div>
-
-
                     </q-form>
                 </q-card-section>
             </q-card>
         </q-dialog>
+
 
 
         <section id="primeraseccion">
@@ -222,7 +239,13 @@ async function obtenerDetallePedido(idPedido) {
                 :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda."
                 wrap-cells="false" label="Productos" no-data-label="No hay productos registrados.">
                 <template v-slot:top-left>
-                    <h4 id="titleTable">Historial de pedidos</h4>
+                    <div style=" display: flex; gap: 10px;">
+                        <h4 id="titleTable">Pedidos</h4>
+                        <q-btn @click="realizarPedido()" color="primary">
+                            <q-icon name="add" color="white" center />
+                        </q-btn>
+                    </div>
+
                 </template>
                 <template v-slot:top-right>
                     <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
@@ -246,11 +269,6 @@ async function obtenerDetallePedido(idPedido) {
 <style scoped>
 main {
     width: 100%;
-    height: 80vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
 }
 
 #primeraseccion {
@@ -261,7 +279,7 @@ main {
 }
 
 #tabla {
-    width: 70%;
+    width: 90%;
 }
 
 #segundaseccion {
@@ -280,10 +298,13 @@ main {
     font-weight: bolder;
 }
 
+#titleTable {
+    margin: auto;
+}
+
 .editBtn {
     width: 55px;
-    font-size: 25px;
-    width: 55px;
+    height: 55px;
     border-radius: 20px;
     border: none;
     background-color: #39A900;
@@ -298,15 +319,78 @@ main {
     margin: 0 auto;
 }
 
+.editBtn::before {
+    content: "";
+    width: 200%;
+    height: 200%;
+    background-color: #39A900;
+    position: absolute;
+    z-index: 1;
+    transform: scale(0);
+    transition: all 0.3s;
+    border-radius: 50%;
+    filter: blur(10px);
+}
+
+.editBtn:hover::before {
+    transform: scale(1);
+}
+
+.editBtn:hover {
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+}
+
+.editBtn svg {
+    height: 17px;
+    fill: white;
+    z-index: 3;
+    transition: all 0.2s;
+    transform-origin: bottom;
+}
+
+.editBtn:hover svg {
+    transform: rotate(-15deg) translateX(5px);
+}
+
+.editBtn::after {
+    content: "";
+    width: 25px;
+    height: 1.5px;
+    position: absolute;
+    bottom: 19px;
+    left: -5px;
+    background-color: white;
+    border-radius: 2px;
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease-out;
+}
+
+.editBtn:hover::after {
+    transform: scaleX(1);
+    left: 0px;
+    transform-origin: right;
+}
+
 .modal {
+    max-width: 95%;
     width: 100%;
+    max-height: 95%;
     height: auto;
 }
 
-.text-container {
+
+
+.text{
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-weight: bolder;
+    align-items: center;
 }
+
+#text{
+    margin-left: 12px;
+}
+
+
+
 </style>
