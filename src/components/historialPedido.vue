@@ -6,41 +6,38 @@ import { useStoreDetallePedido } from '../stores/detallePedido.js'
 import { format } from "date-fns";
 
 const rows = ref([]);
+const rowsdetails = ref([]);
 const usePedidos = useStorePedidos();
 const useDetallePedidos = useStoreDetallePedido();
 const loadingTable = ref(false);
 const filter = ref("");
 const modal = ref(false);
+const $q = useQuasar();
+const subTotal = ref();
+const iva = ref();
 
-async function getInfo() {
-    try {
-        loadingTable.value = true
-        const response = await usePedidos.getAll()
-        console.log("Hola soy pedidos", response);
-
-        if (!response) return;
-        if (response.error) {
-            notificar('negative', response.error)
-            return
-        }
-
-        rows.value = response
-
-    } catch (error) {
-        console.log(error);
-    }
-    finally {
-        loadingTable.value = false
-    }
+function notificar(tipo, msg, posicion = "top") {
+    $q.notify({
+        type: tipo,
+        message: msg,
+        position: posicion,
+    });
 }
-getInfo()
+
+
 
 const columns = ref([
     {
         name: 'numpedido',
-        label: 'N° de pedido',
+        label: 'Nro pedido',
         align: 'center',
         field: 'numpedido'
+    },
+    {
+        name: 'ficha',
+        label: 'Ficha',
+        align: "center",
+        field: (row) => row.idFicha.codigo
     },
     {
         name: 'fechapedido',
@@ -66,62 +63,159 @@ const columns = ref([
         align: 'center',
         field: (row) => row.entregado ? 'Sí' : 'No',
     },
-    { 
-        name: "opciones", 
-        label: "Opciones", 
-        field: (row) => null, sortable: false, 
-        align: "center" 
+    {
+        name: "opciones",
+        label: "Opciones",
+        field: (row) => null, sortable: false,
+        align: "center"
     },
 ]);
 
+const columnsdetails = ref([
+    {
+        name: 'numProducto',
+        label: 'Nro',
+        align: 'center',
+        field: 'numProducto'
+    },
+    {
+        name: 'codigo',
+        label: 'Item',
+        align: 'center',
+        field: (row) => row.idProducto.codigo
+    },
+    {
+        name: 'producto',
+        label: 'Producto',
+        align: "center",
+        field: (row) => row.idProducto.nombre
+    },
+    {
+        name: 'descripcion',
+        label: 'Descripción',
+        align: 'center',
+        field: (row) => row.idProducto.descripcion
+        ,
+    },
+    {
+        name: 'cantidad',
+        label: 'Cantidad',
+        align: 'center',
+        field: 'cantidad',
+    },
+    {
+        name: 'unidadmedida',
+        label: 'Unidad de Medida',
+        align: 'center',
+        field: (row) => row.idProducto.unidadMedida
+    },
+    {
+        name: 'precioUnitario',
+        label: 'Precio Unitario',
+        align: 'center',
+        field: (row) => row.idProducto.precioUnitario
+    },
+    {
+        name: 'precioUniconIva',
+        label: 'Precio U + IVA',
+        align: 'center',
+        field: 'precioUniconIva',
+    },
+]);
+
+async function getInfo() {
+    try {
+        loadingTable.value = true
+        const response = await usePedidos.getAll()
+        console.log("Hola soy pedidos", response);
+
+        if (!response) return;
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+
+        rows.value = response
+
+    } catch (error) {
+        console.log(error);
+    }
+    finally {
+        loadingTable.value = false
+    }
+}
+getInfo()
 
 
-function verDetallesPedido(){
-    modal.value = true; 
-    obtenerDetallePedido();
+function verDetallesPedido(idPedido) {
+    modal.value = true;
+    obtenerDetallePedido(idPedido);
 }
 
 async function obtenerDetallePedido(idPedido) {
-  try {
-    const response = await useDetallePedidos.getPorPedido(idPedido);
-    console.log(response);
 
-    if (!response) return;
+    try {
 
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
+        const response = await useDetallePedidos.getPorPedido(idPedido);
+        console.log("Hola soy detalle pedido", response);
+
+        if (!response) return;
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+
+        rowsdetails.value = response
+        subTotal.value = response[0].subTotal
+        iva.value = (response[0].idProducto.precioUnitario * response[0].idProducto.iva) / 100
+        if (!response) return;
+
+        if (response.error) {
+            notificar("negative", response.error);
+            return;
+        }
+    } catch (error) {
+        console.log(error);
     }
-
-    productoSeleccionar.value[nombre] = response;
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.producto = false;
-  }
 }
+
+
+
+
 </script>
 
 
 <template>
     <main>
         <q-dialog v-model="modal">
-            <q-card class="modal" style="width: 450px;">
+            <q-card class="modal">
                 <q-toolbar style="        background-color: #39A900;color: white">
                     <q-toolbar-title>Detalle Pedido</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
-                    <q-form @submit="validarCampos" class="q-gutter-md">
-                        <h1>ola</h1>
+                    <q-form class="q-gutter-md">
+                        <div class="q-pa-md">
+                            <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom>
+                            </q-table>
+                        </div>
+                        <div class="text-container">
+                            <div>
+                                <p>Subtotal: {{ subTotal }}</p>
+                            </div>
+                            <div>
+                                <p>IVA: {{ iva }}</p>
+                            </div>
+                        </div>
+
 
                     </q-form>
                 </q-card-section>
             </q-card>
         </q-dialog>
 
-        
+
         <section id="primeraseccion">
             <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
                 :filter="filter" rows-per-page-label="Visualización de filas" page="2" id="tabla"
@@ -140,7 +234,7 @@ async function obtenerDetallePedido(idPedido) {
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
-                        <button @click="verDetallesPedido(props.row)" class="editBtn">🗒️
+                        <button @click="verDetallesPedido(props.row._id)" class="editBtn">🗒️
                         </button>
                     </q-td>
                 </template>
@@ -202,5 +296,17 @@ main {
     overflow: hidden;
     transition: all 0.3s;
     margin: 0 auto;
+}
+
+.modal {
+    width: 100%;
+    height: auto;
+}
+
+.text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-weight: bolder;
 }
 </style>
