@@ -1,7 +1,7 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref , watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStorePrograma } from '../stores/programa.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
@@ -70,11 +70,11 @@ const opciones = {
         modal.value = true;
     },
     editar: (info) => {
-        data.value = { 
-            ...info, 
-            idItem:{
+        data.value = {
+            ...info,
+            idItem: {
                 label: `${info.idItem.presupuesto}`,
-                value: String(info.idItem._id) 
+                value: String(info.idItem._id)
             },
             idLote: {
                 label: `${info.idLote.nombre}`,
@@ -91,20 +91,22 @@ const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
-            console.log(data.value);
             let info = {
                 ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
+            console.log(info);
+
             const response = await storeDisItemLote.agregar(info)
-            console.log("r",response._id);
-            const ajustarPresupuesto = await storeItem.ajustarPresupuesto(response.idItem._id, info.presupuesto)
+
+            ajustarPresupuesto(response);
+            // const ajustarPresupuesto = await storeItem.ajustarPresupuesto(response.idItem._id, info.presupuesto)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.unshift(response)
-            getInfo();
+            rows.value.unshift(response);
+            // getInfo();
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -116,7 +118,7 @@ const enviarInfo = {
         }
     },
     editar: async () => {
-        
+
         loadingModal.value = true
         try {
             let info = {
@@ -138,6 +140,22 @@ const enviarInfo = {
             loadingModal.value = false;
         }
     }
+}
+
+async function ajustarPresupuesto(data) {
+    console.log("data", data);
+    try {
+        const response = await storeItem.ajustarPresupuesto(data.idItem._id, {presupuesto : data.presupuesto})
+        if (!response) return
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+        notificar('positive', 'Presupuesto Actualizado')
+    } catch (error) {
+        console.log(error);
+    }
+
 }
 
 function validarCampos() {
@@ -207,7 +225,7 @@ async function getOptionsLote() {
         await storeLotes.getAll();
         const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
-        optionsLotes.value = lotesActivos.map((lote) => { return { label: `${lote.nombre } - ${lote.codigo}`, value: lote._id, disable: lote.estado === 0 } });
+        optionsLotes.value = lotesActivos.map((lote) => { return { label: `${lote.nombre} - ${lote.codigo}`, value: lote._id, disable: lote.estado === 0 } });
 
     } catch (error) {
         console.log(error);
@@ -229,7 +247,7 @@ async function getOptionsItem() {
 };
 
 watch(data, () => {
-  console.log(data);
+    console.log(data);
 });
 
 
@@ -249,18 +267,17 @@ watch(data, () => {
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
 
-                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules :options="optionsPresupuesto"
-                        :rules="[val => !!val  || 'Seleccione el item']" />
-                        
-                        <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
-                        :rules="[val => !!val  || 'Seleccione un lote']" />
+                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules
+                            :options="optionsPresupuesto" :rules="[val => !!val || 'Seleccione el item']" />
 
-                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
-                        :rules="[
+                        <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
+                            :rules="[val => !!val || 'Seleccione un lote']" />
+
+                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules :rules="[
                             val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
-                            val => /^\d+$/.test(val) || 'Ingrese solo números'   
+                            val => /^\d+$/.test(val) || 'Ingrese solo números'
                         ]" />
-                        
+
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -275,8 +292,8 @@ watch(data, () => {
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Item Lote" style="width: 90%;"
-            no-data-label="No hay Distribución Item Lote registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Item Lote"
+            style="width: 90%;" no-data-label="No hay Distribución Item Lote registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
                     <h4 id="titleTable">Distribución Item Lote</h4>
@@ -324,70 +341,76 @@ watch(data, () => {
 #titleTable {
     margin: auto;
 }
+
 .editBtn {
-  width: 55px;
-  height: 55px;
-  border-radius: 20px;
-  border: none;
-  background-color: #39A900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
+    width: 55px;
+    height: 55px;
+    border-radius: 20px;
+    border: none;
+    background-color: #39A900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
 }
+
 .editBtn::before {
-  content: "";
-  width: 200%;
-  height: 200%;
-  background-color: #39A900;
-  position: absolute;
-  z-index: 1;
-  transform: scale(0);
-  transition: all 0.3s;
-  border-radius: 50%;
-  filter: blur(10px);
+    content: "";
+    width: 200%;
+    height: 200%;
+    background-color: #39A900;
+    position: absolute;
+    z-index: 1;
+    transform: scale(0);
+    transition: all 0.3s;
+    border-radius: 50%;
+    filter: blur(10px);
 }
+
 .editBtn:hover::before {
-  transform: scale(1);
+    transform: scale(1);
 }
+
 .editBtn:hover {
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
 }
 
 .editBtn svg {
-  height: 17px;
-  fill: white;
-  z-index: 3;
-  transition: all 0.2s;
-  transform-origin: bottom;
+    height: 17px;
+    fill: white;
+    z-index: 3;
+    transition: all 0.2s;
+    transform-origin: bottom;
 }
+
 .editBtn:hover svg {
-  transform: rotate(-15deg) translateX(5px);
+    transform: rotate(-15deg) translateX(5px);
 }
+
 .editBtn::after {
-  content: "";
-  width: 25px;
-  height: 1.5px;
-  position: absolute;
-  bottom: 19px;
-  left: -5px;
-  background-color: white;
-  border-radius: 2px;
-  z-index: 2;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s ease-out;
+    content: "";
+    width: 25px;
+    height: 1.5px;
+    position: absolute;
+    bottom: 19px;
+    left: -5px;
+    background-color: white;
+    border-radius: 2px;
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease-out;
 }
+
 .editBtn:hover::after {
-  transform: scaleX(1);
-  left: 0px;
-  transform-origin: right;
+    transform: scaleX(1);
+    left: 0px;
+    transform-origin: right;
 }
 
 
-/* #boxBuscar {} */
-</style>
+/* #boxBuscar {} */</style>

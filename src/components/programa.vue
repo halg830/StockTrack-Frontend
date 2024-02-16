@@ -31,6 +31,11 @@ const columns = [
     label: 'Presupuesto',
     align: 'center',
     field: 'presupuesto'
+  },{
+    name: 'presupuestoDisponible',
+    label: 'Presupuesto Diponible',
+    align: 'center',
+    field: 'presupuestoDisponible'
   },
   {
     name: 'estado',
