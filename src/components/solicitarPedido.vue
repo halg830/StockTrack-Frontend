@@ -3,7 +3,9 @@ import { ref } from "vue";
 import Cookies from "js-cookie";
 import { useStoreFichas } from "../stores/ficha.js";
 import { useStoreLotes } from "../stores/lote.js";
-import { useStoreProductos } from "../stores/productos";
+import { useStoreProductos } from "../stores/productos.js";
+import { useStorePedidos } from "../stores/pedido.js";
+import { useStoreDetallePedido } from "../stores/detallePedido.js";
 import { useQuasar } from "quasar";
 
 // Alertas notify
@@ -18,7 +20,6 @@ function notificar(tipo, msg, posicion = "top") {
 
 //Data modal
 const data = ref({
-  fechaCreacion: fechaActual(),
   idInstructorEncargado: obtenerInstructor(),
 });
 
@@ -121,7 +122,7 @@ async function obtenerLotes() {
       return;
     }
 
-    const lotes = response.filter(lote => lote.estado === true);
+    const lotes = response.filter((lote) => lote.estado === true);
 
     const result = [];
     for (let i = 0; i < lotes.length; i += 4) {
@@ -177,7 +178,7 @@ async function obtenerProductosPorLote(idLote, nombre) {
       return;
     }
 
-    const productos = response.filter(producto => producto.estado === true);
+    const productos = response.filter((producto) => producto.estado === true);
 
     productoSeleccionar.value[nombre] = productos;
     console.log(productoSeleccionar.value[nombre].length);
@@ -200,22 +201,21 @@ function verTodosProductos() {
 
 function mostrarLotes(idLote, nombre) {
   try {
-  obtenerProductosPorLote(idLote, nombre);
-  opcionLote.value = nombre;
-  modal.value = true;
+    obtenerProductosPorLote(idLote, nombre);
+    opcionLote.value = nombre;
+    modal.value = true;
   } catch (error) {
     console.log(error);
   }
-  
 }
 
 //Manejo de productos
-const detPedidos = ref([])
+const detPedidos = ref([]);
 const productosAgg = ref([]); //Productos agregados
 function aggProductos(producto) {
   console.log(producto);
   productosAgg.value.push({ ...producto });
-  detPedidos.value.push({idProducto: producto._id})
+  detPedidos.value.push({ idProducto: producto._id, cantidad: 1 });
   notificar("positive", "Producto agregado a la lista");
 }
 
@@ -224,11 +224,58 @@ function quitarProducto(index) {
   notificar("negative", "Producto eliminado", "bottom");
 }
 
-//Tabla de productos
+//Solicitar pedido
+const loadBtnSolicitar = ref(false);
+const usePedidos = useStorePedidos();
+async function solicitarPedido() {
+  try {
+    loadBtnSolicitar.value = true;
+    const info = {
+      idInstructorEncargado: data.value.idInstructorEncargado.value,
+      idFicha: data.value.idFicha.value,
+    };
+    const response = await usePedidos.agregar(info);
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    await detPedidos.value.forEach(async(detPedido)=>{
+      await crearDetPedido(detPedido)
+    })
+    notificar('Positive', 'Pedido generado con éxito')
+  } catch (error) {
+    console.log(error);
+  } finally{
+    loadBtnSolicitar.value = false;
+  }
+}
+
+const useDetPedido = useStoreDetallePedido();
+async function crearDetPedido(detPedido) {
+  try {
+    detPedido.idPedido = usePedidos.pedido._id
+    const response = await useDetPedido.getAll(detPedido);
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 <template>
   <main>
-    <q-form @submit="onSubmit" class="q-gutter-md">
+    <q-form class="q-gutter-md">
       <section>
         <article>
           <div>
@@ -253,7 +300,7 @@ function quitarProducto(index) {
                 <span>Ficha: </span>
                 <q-select
                   outlined
-                  v-model:model-value="data.ficha"
+                  v-model:model-value="data.idFicha"
                   use-input
                   input-debounce="0"
                   label="Codigo Ficha"
@@ -278,8 +325,11 @@ function quitarProducto(index) {
         </article>
         <article>
           <span>Seleccionar productos:</span>
-          <div class="q-pa-md">
+          <div id="contTopLotes">
+            <span>Lotes</span>
             <q-btn @click="verTodosProductos">Ver todos los productos</q-btn>
+          </div>
+          <div class="q-pa-md">
             <q-carousel
               v-model="slide"
               transition-prev="slide-right"
@@ -313,8 +363,9 @@ function quitarProducto(index) {
                       height: 100%;
                     "
                     @click="mostrarLotes(lote._id, lote.nombre)"
-                    >{{ lote.nombre }}</button
                   >
+                    {{ lote.nombre }}
+                  </button>
                   <!-- <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/mountains.jpg" />
                   <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/parallax1.jpg" />
                   <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/material.png" />
@@ -329,18 +380,22 @@ function quitarProducto(index) {
               <td>N°</td>
               <td>Producto</td>
               <td>Unidad Medida</td>
-              <td>Precio neto</td>
               <td>Cantidad</td>
-              <td>Subtotal</td>
               <td>Opciones</td>
             </thead>
             <tr v-for="(producto, index) in productosAgg" :key="producto._id">
               <td>
                 {{ producto.codigo }}
               </td>
-              <td>{{producto.unidadMedida}}</td>
-              <td>{{producto.precioUnitario}}</td>
-              <td>  <q-input outlined v-model="detPedidos[index].cantidad" type="number"></q-input> </td>
+              <td>{{ producto.nombre }}</td>
+              <td>{{ producto.unidadMedida }}</td>
+              <td>
+                <input
+                  outlined
+                  v-model="detPedidos[index].cantidad"
+                  type="number"
+                />
+              </td>
               <td>
                 <q-btn @click="quitarProducto(index)">
                   <q-icon name="close" />
@@ -348,6 +403,10 @@ function quitarProducto(index) {
               </td>
             </tr>
           </table>
+
+          <q-btn type="submit" :loading="loadBtnSolicitar" @click="solicitarPedido"
+            >Solicitar pedido</q-btn
+          >
         </article>
       </section>
     </q-form>
@@ -367,7 +426,12 @@ function quitarProducto(index) {
             v-if="selectLoad.producto"
           />
 
-          <div v-if="!selectLoad.producto && (productoSeleccionar[opcionLote].length<=0)">
+          <div
+            v-if="
+              !selectLoad.producto &&
+              productoSeleccionar[opcionLote].length <= 0
+            "
+          >
             <span>No hay productos disponibles</span>
           </div>
 
@@ -375,7 +439,8 @@ function quitarProducto(index) {
             <div>
               <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
               <q-btn
-                v-for="producto in productoSeleccionar[opcionLote]" :key="producto._id"
+                v-for="producto in productoSeleccionar[opcionLote]"
+                :key="producto._id"
                 @click="aggProductos(producto)"
               >
                 {{ producto.nombre }}
@@ -397,4 +462,21 @@ function quitarProducto(index) {
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+#contTopLotes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Oculta los botones de aumento y disminución en inputs de tipo number */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+</style>
