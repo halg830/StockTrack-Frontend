@@ -142,9 +142,7 @@ const enviarInfo = {
 
 function validarCampos() {
     const arrData = Object.values(data.value);
-    console.log(arrData);
     for (const d of arrData) {
-        console.log(d);
         if (d === null) {
             errorCamposVacios();
             return;
@@ -164,7 +162,6 @@ const in_activar = {
         loadIn_activar.value = true
         try {
             const response = await storeDisLoteFicha.activar(id)
-            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -182,7 +179,6 @@ const in_activar = {
         loadIn_activar.value = true
         try {
             const response = await storeDisLoteFicha.inactivar(id)
-            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -221,7 +217,7 @@ async function getOptionsItemLote(){
     try {
         await storeDisItemLote.getAll();
         const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
-        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: disItemLote.presupuesto, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.presupuesto} - ${disItemLote.idLote.nombre}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
     } catch (error) {
         console.log(error);
     };

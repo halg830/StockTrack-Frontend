@@ -46,6 +46,7 @@ async function getInfo() {
     try {
         loadingTable.value = true
         const response = await storeDisItemLote.getAll()
+        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)

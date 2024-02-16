@@ -219,6 +219,9 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.presupuesto" label="Presupuesto" type="number"
               :rules="[val => !!val || 'Ingrese el presupuesto']"></q-input>
 
+              <q-input outlined v-model="data.year" label="Año" type="text"
+              :rules="[val => !!val || 'Ingrese el Año']"></q-input>
+
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit"
                 color="primary" :label="estado" />
