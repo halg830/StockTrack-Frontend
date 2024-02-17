@@ -163,6 +163,7 @@ function olvidoPassword(){
   position: relative;
   border: 1px solid rgb(96, 96, 96);
   box-shadow: 10px 10px 5px #888888;
+  border-radius: 15px;
 }
 
 .form {
