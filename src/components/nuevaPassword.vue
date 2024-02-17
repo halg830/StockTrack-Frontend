@@ -3,7 +3,7 @@ import { ref } from "vue";
 import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { useStoreUsuario } from "../stores/usuario";
+import { useStoreUsuarios } from "../stores/usuarios.js";
 
 const router = useRouter();
 // Notificación
@@ -17,9 +17,9 @@ function notificar(tipo, msg) {
 }
 
 //Enviar nueva contraseña
-const data = ref({password: ''});
+const data = ref({ password: "" });
 const checkPassword = ref("");
-const useUsuario = useStoreUsuario();
+const useUsuario = useStoreUsuarios();
 const loadNuevaPass = ref(false);
 
 async function nuevaPassword() {
@@ -36,7 +36,7 @@ async function nuevaPassword() {
     }
 
     notificar("positive", "Contraseña actulizada con éxito");
-    router.push("/login");
+    router.push("/");
   } catch (error) {
     console.log(error);
   } finally {
@@ -76,7 +76,7 @@ function validarCampos() {
     <div class="logo-container">Nueva Contraseña</div>
 
     <form class="form" @submit="validarCampos">
-      <div class="form-group" >
+      <div class="form-group">
         <label for="email">Nueva Contraseña</label>
         <q-input
           outlined=""
@@ -85,7 +85,12 @@ function validarCampos() {
           v-model="data.password"
           placeholder="Ingresa la nueva contraseña"
           lazy-rules
-          :rules="[(val) => val != '' || 'Por favor ingrese una contraseña', val=> vali.test(val) || 'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.']"
+          :rules="[
+            (val) => val != '' || 'Por favor ingrese una contraseña',
+            (val) =>
+              vali.test(val) ||
+              'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
+          ]"
         />
       </div>
       <div class="form-group">
@@ -97,7 +102,13 @@ function validarCampos() {
           v-model="checkPassword"
           placeholder="Confirma la contraseña"
           lazy-rules
-          :rules="[(val) => val != '' || 'Por favor confirme su contraseña', (val)=> val===data.password || 'Las contraseñas no coinciden', val=> vali.test(val) || 'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.']"
+          :rules="[
+            (val) => val != '' || 'Por favor confirme su contraseña',
+            (val) => val === data.password || 'Las contraseñas no coinciden',
+            (val) =>
+              vali.test(val) ||
+              'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
+          ]"
         />
       </div>
 
@@ -108,5 +119,4 @@ function validarCampos() {
   </section>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

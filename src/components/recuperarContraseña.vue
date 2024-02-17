@@ -1,95 +1,127 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
+import { useQuasar } from "quasar";
+import { ref } from "vue";
+import { useStoreUsuarios } from "../stores/usuarios.js";
+import VerificarCodigo from "./validarCodigo.vue";
+import Cookies from 'js-cookie'
 
-const email = ref('');
-const showWindow = ref(false);
-const hideWindow = ref(true);
-const router = useRouter();
-
-const onReset = () => {
-  email.value = '';
+// Alertas notify
+const $q = useQuasar();
+function notificar(tipo, msg) {
+  $q.notify({
+    type: tipo,
+    message: msg,
+    position: "top",
+  });
 }
+
+const email = ref("");
+const componenteVerificar = ref(false);
 
 const correoValido = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.value);
-}
+};
 
 function validarCampo() {
   if (correoValido()) {
-    showWindow.value = true;
-    hideWindow.value = false;
+    enviarCodigo();
   }
 }
 
-function home(){
-  router.push('/')
-}
+const useUsuario = useStoreUsuarios();
+async function enviarCodigo() {
+  try {
+    const response = await useUsuario.codigoRecuperar(email.value);
+    console.log(response);
 
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    Cookies.set('correo', email.value, {expires: 1})
+    componenteVerificar.value = true;
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 
 <template>
   <main>
+    <header></header>
 
-    <header>
-    </header>
-
-
-    <section v-if="hideWindow">
+    <section v-if="!componenteVerificar">
       <article id="image">
-        <img src="/src/assets/logoSena.png" alt="">
+        <img src="/src/assets/logoSena.png" alt="" />
       </article>
       <article id="text">
         <div id="text1">
-          <p id="message">Por favor, digite su correo para el proceso de recuperación de contraseña</p>
+          <p id="message">
+            Por favor, digite su correo para el proceso de recuperación de
+            contraseña
+          </p>
         </div>
         <div id="text2">
           <h3>Correo electrónico</h3>
         </div>
         <div id="text3">
-          <q-form @reset="validarCampo" id="inputcorreo">
-            <q-input rounded outlined v-model="email" label="Digite su correo aquí..." lazy-rules hide-bottom-space
+          <q-form @submit="validarCampo" id="inputcorreo">
+            <q-input
+              rounded
+              outlined
+              v-model="email"
+              label="Digite su correo aquí..."
+              lazy-rules
+              hide-bottom-space
               color="dark"
-              :rules="[val => val && val.length > 0 || 'Por favor ingrese su correo', val => val && correoValido() || 'Por favor ingrese un correo valido']" />
-              <q-btn id="buttonpassword" type="submit" class="bg-primary" >Recuperar
-                contraseña</q-btn>
+              :rules="[
+                (val) =>
+                  (val && val.length > 0) || 'Por favor ingrese su correo',
+                (val) =>
+                  (val && correoValido()) ||
+                  'Por favor ingrese un correo valido',
+              ]"
+            />
+            <q-btn id="buttonpassword" type="submit" class="bg-primary"
+              >Recuperar contraseña</q-btn
+            >
           </q-form>
-
         </div>
-
       </article>
     </section>
+
+    <VerificarCodigo v-if="componenteVerificar" />
 
     <section v-if="showWindow" id="sectiontwo">
       <article id="image">
-        <img src="/src/assets/logoSena.png" alt="">
+        <img src="/src/assets/logoSena.png" alt="" />
       </article>
       <article id="stext">
         <div id="stext1">
-          <p class="text-h2" id="smessage">¡El proceso de restablecimiento de contraseña ha sido exitoso!</p>
+          <p class="text-h2" id="smessage">
+            ¡El proceso de restablecimiento de contraseña ha sido exitoso!
+          </p>
         </div>
         <div id="stext2">
-          <p class="text-h4">En los próximos minutos le enviaremos a
-            {{ email }} las instrucciones para ingresar una nueva contraseña</p>
-          <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
+          <p class="text-h4"></p>
+          <q-btn
+            id="sbuttonpassword"
+            type="submit"
+            class="bg-primary"
+            @click="home()"
+            >Ir al inicio</q-btn
+          >
         </div>
       </article>
-
-
     </section>
 
-    <footer>
-    </footer>
-
-    
+    <footer></footer>
   </main>
-  
 </template>
-
-
-
 
 <style scoped>
 main {
@@ -103,13 +135,12 @@ main {
 section {
   width: 100%;
   height: 100%;
-
 }
 
 header,
 footer {
   width: 100%;
-  background-color: #EEEEEE;
+  background-color: #eeeeee;
   height: 7vh;
 }
 
@@ -131,7 +162,6 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 #text1 {
@@ -197,13 +227,11 @@ img {
   text-align: center;
   width: 60%;
   font-weight: 700;
-  
 }
 
 #stext2 {
   width: 50%;
   text-align: center;
-  
 }
 
 #sbuttonpassword {
@@ -228,7 +256,6 @@ img {
 }
 
 @media screen and (min-width: 0px) and (max-width: 389px) {
-
   #inputcorreo {
     width: 230px;
   }

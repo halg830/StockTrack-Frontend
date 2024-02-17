@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import { useQuasar } from "quasar";
-import { useStoreUsuarios } from "../stores/usuario.js";
-import NuevaPassword from "./nuevaContraseña.vue";
+import { useStoreUsuarios } from "../stores/usuarios.js";
+import NuevaPassword from "./nuevaPassword.vue";
 import Cookies from "js-cookie";
 
 // Notificación
@@ -65,7 +65,10 @@ function validarCampos() {
           placeholder="Ingresa el código"
           v-model="codigo"
           lazy-rules
-          :rules="[(val) => val != '' || 'Por favor ingrese el código', (val) => val != null || 'Por favor ingrese el código']"
+          :rules="[
+            (val) => val != '' || 'Por favor ingrese el código',
+            (val) => val != null || 'Por favor ingrese el código',
+          ]"
         />
       </div>
 

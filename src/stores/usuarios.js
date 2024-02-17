@@ -50,6 +50,54 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
+  const codigoRecuperar = async (correo) => {
+    try {
+      const response = await axios.get(`${modelo}/codigo-recuperar/${correo}`);
+      console.log(response);
+
+      return response;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const confirmarCodigo = async (codigo) => {
+    try {
+      const response = await axios.get(`${modelo}/confirmar-codigo/${codigo}`);
+      console.log(response);
+
+      return response;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const login = async (data) => {
     try {
       const response = await axios.post(`${modelo}/login`, data);
@@ -147,6 +195,31 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
+  const nuevaPassword = async (data) => {
+    try {
+      const response = await axios.put(`${modelo}/nueva-password`, data);
+      console.log(response);
+
+      return response;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        notificar("negative", "Por favor vuelva a iniciar sesión");
+        router.push("/");
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const activar = async (id) => {
     try {
       const response = await axios.put(`${modelo}/activar/${id}`);
@@ -197,10 +270,13 @@ export const useStoreUsuarios = defineStore(modelo, () => {
 
   return {
     getAll,
+    codigoRecuperar,
+    confirmarCodigo,
     login,
     token,
     rol,
     cambiarPassword,
+    nuevaPassword,
     agregar,
     editar,
     activar,
