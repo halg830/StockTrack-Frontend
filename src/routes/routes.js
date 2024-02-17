@@ -21,13 +21,13 @@ import editarPerfil from '../components/editarPerfil.vue';
 
 const routes = [
   {path: '/', component: Login},
+  {path: '/recuperar-password', component: recuperarContra},
   {path: '/nav', component: Nav, children:[
-    {path:'', redirect:'/home'},
+    {path:'/nav', redirect:'/home'},
     {path: '/home', component: Home},
     {path: '/fichas', component: Ficha},
     {path: '/cuentas', component: Cuentas},
     {path: '/nueva-password', component: NuevaContra},
-    {path: '/recuperar-password', component: recuperarContra},
     {path: '/solicitar-pedido', component: solicitar},
     {path: '/listado', component: GestionProductos},
     {path: '/lotes', component: Lote},
