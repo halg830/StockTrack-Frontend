@@ -40,7 +40,8 @@ export const useStoreUsuarios = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         salir();
         return null;
@@ -83,7 +84,8 @@ export const useStoreUsuarios = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         notificar("negative", "Por favor vuelva a iniciar sesión");
         router.push("/");
@@ -107,7 +109,8 @@ export const useStoreUsuarios = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         notificar("negative", "Por favor vuelva a iniciar sesión");
         router.push("/");
@@ -133,7 +136,8 @@ export const useStoreUsuarios = defineStore(modelo, () => {
       }
       if (
         error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido"
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
       ) {
         notificar("negative", "Por favor vuelva a iniciar sesión");
         router.push("/");
@@ -155,7 +159,11 @@ export const useStoreUsuarios = defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -175,7 +183,11 @@ export const useStoreUsuarios = defineStore(modelo, () => {
         return null;
       }
 
-      if (error.response.data.error === "Token no valido") {
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
         salir();
         return null;
       }
@@ -183,5 +195,15 @@ export const useStoreUsuarios = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, login, token, rol, cambiarPassword, agregar, editar, activar, inactivar };
+  return {
+    getAll,
+    login,
+    token,
+    rol,
+    cambiarPassword,
+    agregar,
+    editar,
+    activar,
+    inactivar,
+  };
 });
