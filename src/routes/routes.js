@@ -29,7 +29,7 @@ const routes = [
     {path: '/cuentas', component: Cuentas},
     {path: '/nueva-password', component: NuevaContra},
     {path: '/solicitar-pedido', component: solicitar},
-    {path: '/listado', component: GestionProductos},
+    {path: '/productos', component: GestionProductos},
     {path: '/lotes', component: Lote},
     {path: '/programas', component: Programa},
     {path: '/areas', component: Area},

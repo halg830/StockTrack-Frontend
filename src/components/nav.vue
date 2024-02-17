@@ -40,18 +40,17 @@ function cerrarSesion() {
 }
 const opciones = {
   admin: [
-    { label: 'Prueba', o: ['nueva-password', 'recuperar-password'] },
-    { label: 'Administración General', o: ['fichas', 'lotes', 'programas', 'cuentas', 'areas', 'distribucion-presupuesto', 'distribucion-item-lote', 'distribucion-lote-ficha'] },
+    { label: 'Administración General', o: [ 'fichas', 'lotes', 'areas', 'productos', 'cuentas'], e: ['Fichas', 'Lotes', 'Programas', 'Areas', 'Productos', 'Cuentas'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
-    { label: 'Productos', o: ['listado'] },
+    { label: 'Presupuestos', o: ['programas', 'distribucion-item-lote', 'distribucion-lote-ficha'], e: ['Items', 'Item y lote', 'Lote y ficha'] },
   ],
   instructor: [
-    { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: ['Formato de devolución', 'Historial'] },
-    { label: 'Pedidos', o: ['solicitar-pedido', 'estado', 'historial-pedido'], e: ['Generar Pedido', 'Estado', 'Historial'] },
+    // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: ['Formato de devolución', 'Historial'] },
+    { label: 'Pedidos', o: ['solicitar-pedido', 'historial-pedido'], e: ['Generar Pedido', 'Historial'] },
   ],
 
   bodega: [
-    { label: 'Productos', o: ['registro-devoluciones', 'Historial'], e: ['Registro de devolución', 'Historial'] },
+    // { label: 'Productos', o: ['registro-devoluciones', 'Historial'], e: ['Registro de devolución', 'Historial'] },
     { label: 'Pedidos', o: ['historial', 'listado'] },
   ]
 }

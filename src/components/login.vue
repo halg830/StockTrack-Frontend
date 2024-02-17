@@ -92,7 +92,7 @@ function olvidoPassword(){
           <q-input
             filled
             v-model="data.identificacion"
-            label="Numero de documento"
+            label="Número de documento"
             lazy-rules
             type="number"
             :rules="[
