@@ -40,7 +40,7 @@ function cerrarSesion() {
 }
 const opciones = {
   admin: [
-    { label: 'Administración General', o: [ 'fichas', 'lotes', 'areas', 'productos', 'cuentas'], e: ['Fichas', 'Lotes', 'Programas', 'Areas', 'Productos', 'Cuentas'] },
+    { label: 'Administración General', o: [ 'fichas', 'lotes', 'areas', 'productos', 'cuentas'], e: ['Fichas', 'Lotes', 'Areas', 'Productos', 'Cuentas'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     { label: 'Presupuestos', o: ['programas', 'distribucion-item-lote', 'distribucion-lote-ficha'], e: ['Items', 'Item y lote', 'Lote y ficha'] },
   ],

@@ -94,7 +94,7 @@ function olvidoPassword(){
             v-model="data.identificacion"
             label="Número de documento"
             lazy-rules
-            type="number"
+            mask="##########"
             :rules="[
               (val) =>
                 (val && val.length > 0) || 'Por favor ingrese su documento',

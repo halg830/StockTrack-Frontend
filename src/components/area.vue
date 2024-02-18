@@ -235,7 +235,7 @@ function buscarIndexLocal(id) {
 
       </template>
       <template v-slot:top-right>
-        <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+        <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
           placeholder="Buscar cualquier campo" id="boxBuscar">
           <template v-slot:append>
             <q-icon name="search" />

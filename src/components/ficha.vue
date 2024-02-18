@@ -143,17 +143,19 @@ const enviarInfo = {
 }
 
 function validarCampos() {
-    const arrData = Object.values(data.value);
+    const arrData = Object.entries(data.value);
     console.log(arrData);
     for (const d of arrData) {
         console.log(d);
-        if (d === null) {
-            errorCamposVacios();
+        if(d[0]==='abreviatura') continue
+
+        if (d[1] === null) {
+            notificar('negative', 'Por favor complete todos los campos');
             return;
         }
-        if (typeof d === "string") {
-            if (d.trim() === "") {
-                errorCamposVacios();
+        if (typeof d[1] === "string") {
+            if (d[1].trim() === "") {
+                notificar('negative', 'Por favor complete todos los campos');
                 return;
             }
         }
@@ -254,6 +256,8 @@ watch(data, () => {
                             val => !/\d/.test(val) || 'No se permiten números en el nombre'
                         ]" />
 
+                        <q-input filled v-model="data.abreviatura" label="Abreviatura (opcional)" />
+
                         <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules
                             :options=niveles
                             :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
@@ -303,7 +307,7 @@ watch(data, () => {
 
             </template>
             <template v-slot:top-right>
-                <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+                <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
                     placeholder="Buscar cualquier campo" id="boxBuscar">
                     <template v-slot:append>
                         <q-icon name="search" />

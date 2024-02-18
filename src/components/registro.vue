@@ -274,10 +274,10 @@ function buscarIndexLocal(id) {
             </div>
 
             <div style="max-width: 500px">
-              <q-input filled v-model="data.identificacion" label="Identificación" bottom-slots type="number"
+              <q-input filled v-model="data.identificacion" label="Identificación" bottom-slots
                 input-class="input" :rules="[
                   (val) => !!val.trim() || 'Ingrese una identificación',
-                ]" :oninput="limitarLongitud('identificacion', 10)">
+                ]" :oninput="limitarLongitud('identificacion', 10)" mask="##########">
               </q-input>
             </div>
 
@@ -292,7 +292,7 @@ function buscarIndexLocal(id) {
             </div>
 
             <div style="max-width: 500px">
-              <q-input filled v-model="data.telefono" type="Number" label="Telefono" bottom-slots
+              <q-input filled v-model="data.telefono" mask="##########" label="Telefono" bottom-slots
                 :rules="[(val) => !!val.trim() || 'Ingrese un teléfono']" :oninput="limitarLongitud('telefono', 10)">
               </q-input>
             </div>
@@ -361,7 +361,7 @@ function buscarIndexLocal(id) {
         </q-btn>
       </template>
       <template v-slot:top-right>
-        <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+        <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
           placeholder="Buscar cualquier campo" id="boxBuscar">
           <template v-slot:append>
             <q-icon name="search" />
