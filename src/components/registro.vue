@@ -3,6 +3,11 @@ import { ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import helpersGenerales from "../helpers/generales.js";
+import Cookies from 'js-cookie'
+
+const diosito = "65748e6f21aa6ded71e490f4"
+const logeado = Cookies.get('usuario')
+const usuarioLogeado = JSON.parse(logeado)
 
 // Alertas notify
 const $q = useQuasar();
@@ -380,7 +385,9 @@ function buscarIndexLocal(id) {
       ? in_activar.inactivar(props.row._id)
       : in_activar.activar(props.row._id);
   props.row.estado = 'load';
-  " />
+  " 
+  :disabled="props.row._id===diosito || props.row._id === usuarioLogeado._id"
+  />
         </q-td>
       </template>
       <template v-slot:body-cell-opciones="props">
