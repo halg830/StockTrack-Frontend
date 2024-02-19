@@ -1,9 +1,9 @@
 <script setup>
-import { ref, watch} from 'vue';
+import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreItem } from '../stores/item.js'
 import helpersGenerales from '../helpers/generales';
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 
 // Variables modal
@@ -38,6 +38,7 @@ const columns = [
     label: 'Presupuesto Diponible',
     align: 'center',
     field: (row) => helpersGenerales.formatearMoneda(row.presupuestoDisponible)
+
   },
   {
     name: 'year',
@@ -215,11 +216,6 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
-
-watch(data, () => {
-    console.log(data.value);
-});
-
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -233,13 +229,13 @@ watch(data, () => {
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input outlined v-model="data.nombre" label="Nombre" type="text"
+            <q-input filled v-model="data.nombre" label="Nombre" type="text"
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
-            <q-input outlined v-model="data.presupuesto" label="Presupuesto" mask="##########"
+            <q-input filled v-model="data.presupuesto" label="Presupuesto" mask="##########"
               :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
 
-              <q-input outlined v-model="data.year" label="Año" mask="##########"
+              <q-input filled v-model="data.year" label="Año" mask="##########"
               :rules="[ val => !!val || 'Ingrese el Año (solo números)',
                         val => val.length < 5 && val.length > 3 || 'El año debe contener 4 dígitos']"></q-input>
 

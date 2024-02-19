@@ -32,7 +32,6 @@ const data = ref({});
 
 
 const columns = [
-    { name: "idLote", label: "Codigo Lote", field: (row) => row.idLote.codigo, sortable: true, align: "left" },
     { name: "idLote", label: "Nombre Lote", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
     { name: "presupuesto", label: "Presupuesto Asignado", field: "presupuesto", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
@@ -97,7 +96,7 @@ const enviarInfo = {
             console.log(info);
 
             const response = await storeDisItemLote.agregar(info)
-
+            getInfo();
             ajustarPresupuesto(response);
             getOptionsItem();
             if (!response) return
@@ -128,7 +127,6 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.splice(buscarIndexLocal(response._id), 1, response);
             getInfo();
             modal.value = false
             notificar('positive', 'Editado exitosamente')
@@ -246,6 +244,30 @@ async function getOptionsItem() {
     };
 };
 
+const opcionesFiltro = ref({
+    lotes: optionsLotes.value,
+    items: optionsPresupuesto.value
+})
+
+function filterFn(val, update) {
+  val=val.trim()
+  if (val === '') {
+    update(() => {
+      opcionesFiltro.value.lotes = optionsLotes.value
+      opcionesFiltro.value.items = optionsPresupuesto.value
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    opcionesFiltro.value.lotes = optionsLotes.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.items = optionsPresupuesto.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+
+  })
+}
+
+
 </script>
 
 
@@ -262,11 +284,38 @@ async function getOptionsItem() {
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
 
-                        <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules
-                            :options="optionsPresupuesto" :rules="[val => !!val || 'Seleccione el item']" />
+                        <!-- <q-select filled v-model:model-value="data.idItem" label="Presupuesto item" lazy-rules
+                            :options="optionsPresupuesto" :rules="[val => !!val || 'Seleccione el item']" /> -->
+                        
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0" @filter="filterFn"  v-model="data.idItem" label="Item" 
+                            lazy-rules :options="opcionesFiltro.items"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un item']" >
+                            <template v-slot:no-option>
+                                
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                  Sin resultados
+                                </q-item-section>
+                              </q-item>
+                            </template>
+                        </q-select>
 
-                        <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
-                            :rules="[val => !!val || 'Seleccione un lote']" />
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0" @filter="filterFn"  v-model="data.idLote" label="Lote" 
+                            lazy-rules :options="opcionesFiltro.lotes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
+                            <template v-slot:no-option>
+                                
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                  Sin resultados
+                                </q-item-section>
+                              </q-item>
+                            </template>
+                        </q-select>
+                        <!-- <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
+                            :rules="[val => !!val || 'Seleccione un lote']" /> -->
 
                         <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules :rules="[
                             val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
