@@ -1,12 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch} from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreItem } from '../stores/item.js'
 import helpersGenerales from '../helpers/generales';
+import { format } from "date-fns";
+
 
 // Variables modal
 const modal = ref(false)
-const loadModal = ref(false)
+const loadingModal = ref(false)
 
 // Alertas notify
 const $q = useQuasar()
@@ -30,12 +32,18 @@ const columns = [
     name: 'presupuesto',
     label: 'Presupuesto',
     align: 'center',
-    field: 'presupuesto'
+    field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
   },{
     name: 'presupuestoDisponible',
     label: 'Presupuesto Diponible',
     align: 'center',
-    field: 'presupuestoDisponible'
+    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoDisponible)
+  },
+  {
+    name: 'year',
+    label: 'Año',
+    align: 'center',
+    field: (row) => `${format(new Date(row.year), "yyyy")}`
   },
   {
     name: 'estado',
@@ -89,7 +97,9 @@ const opciones = {
     modal.value = true
   },
   editar: (info) => {
-    data.value = { ...info }
+    data.value = { ...info,
+      year: format(new Date(info.year), "yyyy"),
+    }
     estado.value = 'editar'
     modal.value = true
   }
@@ -99,7 +109,7 @@ const data = ref({})
 const enviarInfo = {
   agregar: async () => {
     try {
-      loadModal.value = true
+      loadingModal.value = true
 
       const response = await useItem.agregar(data.value)
       console.log(response);
@@ -116,11 +126,11 @@ const enviarInfo = {
     } catch (error) {
       console.log(error);
     } finally {
-      loadModal.value = false
+      loadingModal.value = false
     }
   },
   editar: async () => {
-    loadModal.value = true
+    loadingModal.value = true
     try {
       console.log(data.value);
       const response = await useItem.editar(data.value._id, data.value);
@@ -136,7 +146,7 @@ const enviarInfo = {
     } catch (error) {
       console.log(error);
     } finally {
-      loadModal.value = false;
+      loadingModal.value = false;
     }
   }
 }
@@ -205,6 +215,11 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
+
+watch(data, () => {
+    console.log(data.value);
+});
+
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -212,7 +227,7 @@ function buscarIndexLocal(id) {
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} programa</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Programa</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
@@ -221,11 +236,12 @@ function buscarIndexLocal(id) {
             <q-input outlined v-model="data.nombre" label="Nombre" type="text"
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
-            <q-input outlined v-model="data.presupuesto" label="Presupuesto" type="number"
-              :rules="[val => !!val || 'Ingrese el presupuesto']"></q-input>
+            <q-input outlined v-model="data.presupuesto" label="Presupuesto" mask="##########"
+              :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
 
-              <q-input outlined v-model="data.year" label="Año" type="text"
-              :rules="[val => !!val || 'Ingrese el Año']"></q-input>
+              <q-input outlined v-model="data.year" label="Año" mask="##########"
+              :rules="[ val => !!val || 'Ingrese el Año (solo números)',
+                        val => val.length < 5 && val.length > 3 || 'El año debe contener 4 dígitos']"></q-input>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -238,11 +254,11 @@ function buscarIndexLocal(id) {
     <!-- TABLA -->
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Programas" style="width: 90%;"
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Items" style="width: 90%;"
       no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Programas</h4>
+          <h4 id="titleTable">Items</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>

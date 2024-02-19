@@ -1,7 +1,7 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStoreItem } from '../stores/item.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
@@ -34,7 +34,8 @@ const data = ref({});
 const columns = [
     { name: "idLote", label: "Codigo Lote", field: (row) => row.idLote.codigo, sortable: true, align: "left" },
     { name: "idLote", label: "Nombre Lote", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
-    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "presupuesto", label: "Presupuesto Asignado", field: "presupuesto", sortable: true, align: "left" },
+    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
     { name: "idItem", label: "Item Nombre", field: (row) => row.idItem.nombre, sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
@@ -85,8 +86,7 @@ const opciones = {
         modal.value = true;
     }
 }
-getOptionsLote();
-getOptionsItem();
+
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -99,18 +99,16 @@ const enviarInfo = {
             const response = await storeDisItemLote.agregar(info)
 
             ajustarPresupuesto(response);
-            // const ajustarPresupuesto = await storeItem.ajustarPresupuesto(response.idItem._id, info.presupuesto)
+            getOptionsItem();
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
-            }
+            } 
             rows.value.unshift(response);
-            // getInfo();
-
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
-
+            
         } catch (error) {
             console.log(error);
         } finally {
@@ -131,7 +129,7 @@ const enviarInfo = {
                 return
             }
             // rows.value.splice(buscarIndexLocal(response._id), 1, response);
-            getInfo()
+            getInfo();
             modal.value = false
             notificar('positive', 'Editado exitosamente')
         } catch (error) {
@@ -143,7 +141,6 @@ const enviarInfo = {
 }
 
 async function ajustarPresupuesto(data) {
-    console.log("data", data);
     try {
         const response = await storeItem.ajustarPresupuesto(data.idItem._id, {presupuesto : data.presupuesto})
         if (!response) return
@@ -225,12 +222,15 @@ async function getOptionsLote() {
         await storeLotes.getAll();
         const lotesActivos = storeLotes.lotes.filter(lote => lote.estado === true);
 
-        optionsLotes.value = lotesActivos.map((lote) => { return { label: `${lote.nombre} - ${lote.codigo}`, value: lote._id, disable: lote.estado === 0 } });
+        optionsLotes.value = lotesActivos.map((lote) => { return { label: `${lote.nombre}`, value: lote._id, disable: lote.estado === 0 } });
 
     } catch (error) {
         console.log(error);
     };
 };
+
+getOptionsLote();
+getOptionsItem();
 
 let optionsPresupuesto = ref([]);
 
@@ -239,17 +239,12 @@ async function getOptionsItem() {
         await storeItem.getAll();
         const presupuestosActivos = storeItem.items.filter(item => item.estado === true);
 
-        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: `${item.nombre} - ${item.presupuesto}`, value: item._id, disable: item.estado === 0 } });
+        optionsPresupuesto.value = presupuestosActivos.map((item) => { return { label: `${item.nombre} - P. Disponible: ${item.presupuestoDisponible}`, value: item._id, disable: item.estado === 0 } });
 
     } catch (error) {
         console.log(error);
     };
 };
-
-watch(data, () => {
-    console.log(data);
-});
-
 
 </script>
 

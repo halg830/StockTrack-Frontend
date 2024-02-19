@@ -35,10 +35,9 @@ const columns = [
     { name: "idFicha", label: "Codigo Ficha", field: (row) => row.idFicha.codigo, sortable: true, align: "left" },
     { name: "idFicha", label: "Nombre Ficha" , field: (row) => row.idFicha.nombre, sortable: true, align: "left" },
     { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
-    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionPresupuesto.idItem.nombre, align: "left" },
-    { name: "idItem", label: "Item Presupuesto", field: (row) => row.idDistribucionPresupuesto.idItem.presupuesto, align: "left" },
+    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
     { name: "idLote", label: "Lote Nombre", field: (row) => row.idDistribucionPresupuesto.idLote.nombre, align: "left" },
-    { name: "idLote", label: "Lote Presupuesto", field: (row) => row.idDistribucionPresupuesto.presupuesto, align: "left" },
+    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionPresupuesto.idItem.nombre, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -97,14 +96,14 @@ const enviarInfo = {
             };
             const response = await storeDisLoteFicha.agregar(info)
             console.log(response);
-
+            ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.unshift(response)
-            getInfo();
+            rows.value.unshift(response);
+            // getInfo();
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -194,6 +193,21 @@ const in_activar = {
     }
 }
 
+async function ajustarPresupuesto(data) {
+    try {
+        const response = await storeDisItemLote.ajustarPresupuesto(data.idDistribucionPresupuesto, {presupuesto : data.presupuesto})
+        if (!response) return
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+        notificar('positive', 'Presupuesto Actualizado')
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+ 
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
@@ -205,7 +219,7 @@ async function getoptionsFicha() {
         await storeFichas.getAll();
         const fichasActicas = storeFichas.fichas.filter(ficha => ficha.estado === true);
 
-        optionsFichas.value = fichasActicas.map((ficha) => { return { label: ficha.nombre, value: ficha._id, disable: ficha.estado === 0 } });
+        optionsFichas.value = fichasActicas.map((ficha) => { return { label: `${ficha.nombre} - ${ficha.codigo}`, value: ficha._id, disable: ficha.estado === 0 } });
 
     } catch (error) {
         console.log(error);
@@ -217,7 +231,7 @@ async function getOptionsItemLote(){
     try {
         await storeDisItemLote.getAll();
         const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
-        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.presupuesto} - ${disItemLote.idLote.nombre}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.idLote.nombre} - P. Disponible: ${disItemLote.presupuesto}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
     } catch (error) {
         console.log(error);
     };

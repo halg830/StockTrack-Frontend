@@ -79,6 +79,29 @@ export const useStoreDisItemLote = defineStore(modelo, () => {
     }
   };
 
+  const ajustarPresupuesto = async(id, presupuesto) =>{
+    try {
+      console.log("Responde:", id, presupuesto);
+      const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
   const editar = async (id, data) => {
     try {
       const response = await axios.put(`${modelo}/editar/${id}`, data);
@@ -151,5 +174,5 @@ export const useStoreDisItemLote = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, distribucionesItemLote };
+  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, distribucionesItemLote };
 });
