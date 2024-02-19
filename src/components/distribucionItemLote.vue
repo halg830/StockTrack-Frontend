@@ -3,13 +3,13 @@
 import { useQuasar } from 'quasar';
 import { ref, watch } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
-import { useStorePrograma } from '../stores/programa.js';
+import { useStoreItem } from '../stores/item.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
 // import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
 const $q = useQuasar();
-const storeItem = useStorePrograma();
+const storeItem = useStoreItem();
 const storeLotes = useStoreLotes();
 const storeDisItemLote = useStoreDisItemLote();
 

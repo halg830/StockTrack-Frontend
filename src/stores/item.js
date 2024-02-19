@@ -3,12 +3,12 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { useStoreUsuarios } from "./usuarios.js";
+// import { useStoreUsuarios } from "./usuarios.js";
 import Cookies from "js-cookie";
 
 const modelo = "item";
 
-export const useStorePrograma = defineStore(modelo, () => {
+export const useStoreItem= defineStore(modelo, () => {
   function obtenerToken() {
     console.log(Cookies.get("x-token"));
     return Cookies.get("x-token");

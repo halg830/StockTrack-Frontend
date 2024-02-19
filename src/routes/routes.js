@@ -9,7 +9,7 @@ import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
 import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/lote.vue'
-import Programa from '../components/programa.vue'
+import Item from '../components/item.vue'
 import Area from '../components/area.vue'
 import formatoDevolucion from '../components/formatoDevoluciones.vue'
 import historial from '../components/historialDevolucion.vue'
@@ -31,7 +31,7 @@ const routes = [
     {path: '/solicitar-pedido', component: solicitar},
     {path: '/productos', component: GestionProductos},
     {path: '/lotes', component: Lote},
-    {path: '/programas', component: Programa},
+    {path: '/item', component: Item},
     {path: '/areas', component: Area},
     {path: '/formato-devolucion', component: formatoDevolucion},
     {path: '/historial', component: historial},

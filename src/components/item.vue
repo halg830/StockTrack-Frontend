@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStorePrograma } from '../stores/programa.js'
+import { useStoreItem } from '../stores/item.js'
 import helpersGenerales from '../helpers/generales';
 
 // Variables modal
@@ -55,12 +55,12 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const usePrograma = useStorePrograma()
+const useItem = useStoreItem()
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await usePrograma.getAll()
+    const response = await useItem.getAll()
     console.log(response);
 
     if (!response) return;
@@ -101,7 +101,7 @@ const enviarInfo = {
     try {
       loadModal.value = true
 
-      const response = await usePrograma.agregar(data.value)
+      const response = await useItem.agregar(data.value)
       console.log(response);
 
       if (!response) return
@@ -123,7 +123,7 @@ const enviarInfo = {
     loadModal.value = true
     try {
       console.log(data.value);
-      const response = await usePrograma.editar(data.value._id, data.value);
+      const response = await useItem.editar(data.value._id, data.value);
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -166,7 +166,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await usePrograma.activar(id)
+      const response = await useItem.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -184,7 +184,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await usePrograma.inactivar(id)
+      const response = await useItem.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
