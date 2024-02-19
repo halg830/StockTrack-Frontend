@@ -33,10 +33,11 @@ const data = ref({
     area: { value: null },
 
 });
+const date = ref('')
 
 
 const columns = [
-    { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
+    { name: "nombre", label: "Nombre / Abreviatura", field: val=> val.nombre + (val.abreviatura ? ` / ${val.abreviatura}` : ''), sortable: true, align: "left" },
     { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
     { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
     { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
@@ -125,13 +126,13 @@ const enviarInfo = {
                 ...data.value, idArea: data.value.area.value
             };
             const response = await storeFichas.editar(data.value._id, info);
+            console.log(response);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.splice(buscarIndexLocal(response._id), 1, response);
-            getInfo()
+            rows.value.splice(buscarIndexLocal(response._id), 1, response);
             modal.value = false
             notificar('positive', 'Editado exitosamente')
         } catch (error) {
@@ -230,7 +231,24 @@ watch(data, () => {
     console.log(data);
 });
 
+const opcionesFiltro = ref({
+    areas: optionsArea.value
+})
 
+function filterFn(val, update) {
+  val=val.trim()
+  if (val === '') {
+    update(() => {
+      opcionesFiltro.value.areas = optionsArea.value
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    opcionesFiltro.value.areas = optionsArea.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+  })
+}
 </script>
 
 
@@ -262,12 +280,46 @@ watch(data, () => {
                             :options=niveles
                             :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
 
-                        <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules :rules="[
+                        <!-- <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules :rules="[
                             val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio',
                             // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
-                        ]" />
+                        ]" /> -->
 
-                        <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules :rules="[
+    <q-input filled v-model="data.fechaInicio" mask="date" :rules="[val => !!val || 'Seleccione la fecha de inicio']" label="Fecha inicio">
+      <template v-slot:append>
+        <q-icon name="event" class="cursor-pointer">
+          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="data.fechaInicio">
+              <div class="row items-center justify-end">
+                <q-btn v-close-popup label="Close" color="primary" flat />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
+
+    <q-input filled v-model="data.fechaFin" mask="date" :rules="[val => !!val || 'Seleccione la Fecha de Finalización',
+                            val => {
+                                const startDate = new Date(data.fechaInicio);
+                                const endDate = new Date(val);
+                                const sixMonthsLater = new Date(startDate);
+                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
+                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
+                            }]" label="Fecha fin">
+      <template v-slot:append>
+        <q-icon name="event" class="cursor-pointer">
+          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="data.fechaFin">
+              <div class="row items-center justify-end">
+                <q-btn v-close-popup label="Close" color="primary" flat />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
+                        <!-- <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules :rules="[
                             val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
                             val => {
                                 const startDate = new Date(data.fechaInicio);
@@ -276,10 +328,20 @@ watch(data, () => {
                                 sixMonthsLater.setMonth(startDate.getMonth() + 6);
                                 return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
                             }
-                        ]" />
+                        ]" /> -->
 
-                        <q-select filled v-model:model-value="data.area" label="Area" lazy-rules :options=optionsArea
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" />
+                        <q-select filled use-input behavior="menu" hide-selected
+        fill-input
+        input-debounce="0" @filter="filterFn"  v-model="data.area" label="Area" lazy-rules :options="opcionesFiltro.areas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" >
+                            <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">
+              Sin resultados
+            </q-item-section>
+          </q-item>
+        </template>
+                        </q-select>
 
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end; background-color: ;">
