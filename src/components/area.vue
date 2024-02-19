@@ -91,7 +91,7 @@ const enviarInfo = {
 
       const response = await useAreas.agregar(data.value);
       console.log(response);
-
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error);
@@ -114,6 +114,7 @@ const enviarInfo = {
       console.log(data.value);
       const response = await useAreas.editar(data.value._id, data.value);
       console.log(response);
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)

@@ -100,13 +100,14 @@ const enviarInfo = {
             };
             const response = await storeFichas.agregar(info)
             console.log(response);
+            getInfo();
 
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
-            rows.value.unshift(response)
+            
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -126,6 +127,8 @@ const enviarInfo = {
             };
             const response = await storeFichas.editar(data.value._id, info);
             console.log(response);
+            getInfo();
+
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)

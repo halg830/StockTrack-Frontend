@@ -78,7 +78,7 @@ async function getInfo() {
       return
     }
 
-    rows.value = response
+    rows.value = response.reverse();
 
   } catch (error) {
     console.log(error);
@@ -114,7 +114,7 @@ const enviarInfo = {
 
       const response = await useItem.agregar(data.value)
       console.log(response);
-
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -136,6 +136,7 @@ const enviarInfo = {
       console.log(data.value);
       const response = await useItem.editar(data.value._id, data.value);
       console.log(response);
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)

@@ -96,6 +96,7 @@ const enviarInfo = {
             };
             const response = await storeDisLoteFicha.agregar(info)
             console.log(response);
+            getInfo();
             ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -127,7 +128,6 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.splice(buscarIndexLocal(response._id), 1, response);
             getInfo()
             modal.value = false
             notificar('positive', 'Editado exitosamente')

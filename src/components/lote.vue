@@ -77,13 +77,12 @@ const enviarInfo = {
 
       const response = await useLotes.agregar(data.value);
       console.log(response);
-
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error);
         return
       };
-      rows.value.unshift(response);
 
       modal.value = false;
       notificar('positive', 'Guardado exitosamente');
@@ -100,6 +99,7 @@ const enviarInfo = {
       console.log(data.value);
       const response = await useLotes.editar(data.value._id, data.value);
       console.log(response);
+      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
