@@ -106,8 +106,7 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            // rows.value.unshift(response)
-            getInfo();
+            rows.value.unshift(response)
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')

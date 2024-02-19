@@ -262,6 +262,26 @@ getOptionsLote()
 
 //Select consumible
 const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', value: false }])
+
+//Filtro select lote
+const opcionesFiltro = ref({
+    lotes: optionsLote.value
+})
+
+function filterFn(val, update) {
+  val=val.trim()
+  if (val === '') {
+    update(() => {
+      opcionesFiltro.value.lotes = optionsLote.value
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    opcionesFiltro.value.lotes = optionsLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+  })
+}
 </script>
 
 <template>
@@ -285,7 +305,7 @@ const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', val
                         </div>
 
                         <q-input outlined v-model="data.descripcion" label="Descripción" type="textarea"
-                            :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
+                            :rules="[val => !!val || 'Ingrese una descripción']" ></q-input>
 
                         <q-select outlined v-model="data.unidadMedida" label="Unidad medida" behavior="menu"
                             :options="unidadesMedida"></q-select>
@@ -302,8 +322,18 @@ const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', val
                             :options="optionsConsumible"
                             :rules="[val => val !== null && val !== '' || 'Seleccione una opción']" />
 
-                        <q-select outlined v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLote"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" />
+                            <q-select outlined use-input behavior="menu" hide-selected
+        fill-input
+        input-debounce="0" @filter="filterFn"  v-model="data.idLote" label="Lote" lazy-rules :options="opcionesFiltro.lotes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
+                            <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">
+              Sin resultados
+            </q-item-section>
+          </q-item>
+        </template>
+                        </q-select>
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end; background-color: ;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado">
