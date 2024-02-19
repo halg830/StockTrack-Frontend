@@ -71,13 +71,16 @@ const opciones = {
         modal.value = true;
     },
     editar: (info) => {
+        console.log("info:",info);
         data.value = {
             ...info,
-            fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"),
-            fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            area: {
-                label: `${info.idArea.nombre}`,
-                value: String(info.idArea._id)
+            idDistribucionPresupuesto: {
+                label: `${info.idDistribucionPresupuesto.idLote.nombre} - P. Disponible: ${info.idDistribucionPresupuesto.presupuestoDisponible}`,
+                value: String(info.idDistribucionPresupuesto._id)
+            },
+            idFicha:{
+                label:`${info.idFicha.nombre} - ${info.idFicha.codigo}`,
+                value: String(info.idFicha._id)
             }
         };
         estado.value = 'editar';
@@ -94,8 +97,18 @@ const enviarInfo = {
             let info = {
                 ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
+            const selectedLote = storeDisItemLote.distribucionesItemLote.find(disLote => disLote._id === info.idDistribucionPresupuesto);
+            if (!selectedLote) {
+                notificar('negative', 'No existe esta Distribución');
+                return
+            }
+
+            if (parseFloat(info.presupuesto) > parseFloat(selectedLote.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+                return;
+            }
+
             const response = await storeDisLoteFicha.agregar(info)
-            console.log(response);
             getInfo();
             ajustarPresupuesto(info);
             if (!response) return
@@ -103,8 +116,7 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            rows.value.unshift(response);
-            // getInfo();
+            getInfo();
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')

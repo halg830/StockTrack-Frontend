@@ -91,9 +91,22 @@ const enviarInfo = {
         try {
             loadingModal.value = true
             let info = {
-                ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
+                ...data.value,
+                idLote: data.value.idLote.value,
+                idItem: data.value.idItem.value
             };
             console.log(info);
+
+            const selectedItem = storeItem.items.find(item => item._id === info.idItem);
+            if (!selectedItem) {
+                notificar('negative', 'El item seleccionado no existe');
+                return;
+            }
+
+            if (parseFloat(info.presupuesto) > parseFloat(selectedItem.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Item');
+                return;
+            }
 
             const response = await storeDisItemLote.agregar(info)
             getInfo();
@@ -115,12 +128,23 @@ const enviarInfo = {
         }
     },
     editar: async () => {
-
         loadingModal.value = true
         try {
             let info = {
                 ...data.value, idLote: data.value.idLote.value, idItem: data.value.idItem.value
             };
+
+            const selectedItem = storeItem.items.find(item => item._id === info.idItem);
+            if (!selectedItem) {
+                notificar('negative', 'El item seleccionado no existe.');
+                return;
+            }
+
+            if (parseFloat(info.presupuesto) > parseFloat(selectedItem.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del item.');
+                return;
+            }
+
             const response = await storeDisItemLote.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -137,6 +161,7 @@ const enviarInfo = {
         }
     }
 }
+
 
 async function ajustarPresupuesto(data) {
     try {
@@ -183,7 +208,6 @@ const in_activar = {
                 return
             }
             rows.value.splice(buscarIndexLocal(response._id), 1, response)
-            getInfo()
         } catch (error) {
             console.log(error);
         } finally {
@@ -317,17 +341,16 @@ function filterFn(val, update) {
                         <!-- <q-select filled v-model:model-value="data.idLote" label="Lote" lazy-rules :options="optionsLotes"
                             :rules="[val => !!val || 'Seleccione un lote']" /> -->
 
-                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
+                        <q-input filled v-model="data.presupuesto" mask="##########" label="Presupuesto" lazy-rules :rules="[
+                            //val => val.length == 0|| 'Digite el presupuesto (Solo números)',
                             val => /^\d+$/.test(val) || 'Ingrese solo números'
                         ]" />
 
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
-                                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
-                        </div>
-
+                              color="primary" :label="estado" />
+                          </div>
                     </q-form>
                 </q-card-section>
             </q-card>
