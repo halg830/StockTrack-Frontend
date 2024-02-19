@@ -57,14 +57,13 @@ async function enviarCodigo() {
     <section v-if="!componenteVerificar">
       <article id="image">
         <img src="/src/assets/logoSena.png" alt="" />
-      </article>
-      <article id="text">
-        <div id="text1">
-          <p id="message">
+        <p id="message">
             Por favor, digite su correo para el proceso de recuperación de
             contraseña
           </p>
-        </div>
+      </article>
+      
+      <article id="text">
         <div id="text2">
           <h3>Correo electrónico</h3>
         </div>
@@ -130,6 +129,8 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  
+  
 }
 
 section {
@@ -148,6 +149,9 @@ footer {
   margin-left: 20px;
   margin-top: 20px;
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 95%;
 }
 
 img {
@@ -166,9 +170,6 @@ img {
 
 #text1 {
   width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #text2 {
@@ -178,7 +179,10 @@ img {
 }
 
 #message {
+  margin-left: 150px;
+  width: 60%;
   text-align: center;
+  font-size: 35px;
 }
 
 #text3 {
@@ -200,8 +204,11 @@ img {
   border-radius: 25px;
   border: 2px solid black;
   cursor: pointer;
-  width: 450px;
+  width: 100%;
+  margin-top: 40px;
 }
+
+
 
 #validation {
   color: red;

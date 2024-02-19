@@ -54,32 +54,94 @@ function validarCampos() {
 </script>
 
 <template>
+  <header></header>
+  
   <section class="form-container" v-if="!componenteNuevaPass">
+    <div class="logo">
+    <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 145px;">
+  </div>
     <q-form class="form" @submit="validarCampos">
+      
       <div class="form-group">
-        <label for="email">Ingresa el código de verificación</label>
-        <q-input
-          outlined
-          type="number"
-          id="email"
-          placeholder="Ingresa el código"
-          v-model="codigo"
-          lazy-rules
-          :rules="[
+        <div id="text">
+        <label for="email" class="text-h4">Por favor digite el código de verificación</label>
+      </div>
+        <q-input outlined type="number" id="email" placeholder="Ingrese el código aqui..." class="inputcorreo" v-model="codigo"
+          lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[
             (val) => val != '' || 'Por favor ingrese el código',
             (val) => val != null || 'Por favor ingrese el código',
-          ]"
-        />
+          ]" />
+        <q-btn id="buttonpassword" class="bg-primary" type="submit" :loading="loadVerificar">
+          Enviar
+        </q-btn>
       </div>
 
-      <q-btn class="form-submit-btn" type="submit" :loading="loadVerificar">
-        Enviar Código
-      </q-btn>
+
     </q-form>
   </section>
   <section v-if="componenteNuevaPass">
     <NuevaPassword></NuevaPassword>
   </section>
+  <footer></footer>
 </template>
 
-<style scoped></style>
+<style scoped>
+.form-container {
+  width: 100%;
+  height: 100vh;
+  background-image: url(../assets/fondo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.logo {
+  padding: 10px;
+  width: 100%;
+  height: 5vh;
+}
+
+.form {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ 
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 35%;
+  height: 50%;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  border: 2px solid black;
+  gap: 50px;
+  box-shadow: 25px 20px 5px #888888;
+}
+
+#text {
+  text-align: center;
+}
+
+#buttonpassword {
+  color: white;
+  font-weight: bolder;
+  border: 2px solid black;
+  width: 30%;
+  font-size: larger;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.inputcorreo {
+  width: 60%;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+</style>

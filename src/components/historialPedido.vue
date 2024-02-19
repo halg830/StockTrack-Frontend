@@ -180,50 +180,66 @@ function realizarPedido() {
         <q-dialog v-model="modal">
             <q-card class="modal">
                 <q-card-section class="q-gutter-md">
-                    <q-form class="q-gutter-md" >
-                        <div style="display: flex; justify-content: center">
-                            <h1>Detalle pedido</h1>
-                            <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                    <q-form class="q-gutter-md">
+                        <div class="q-gutter-md row  items-center" style="width: 100%;">
+                            <div>
+                                <img src="../assets/Stocktrack.jpg" alt="Imagen" class="img1">
+                                
+                            </div>
+                            <div>
+                                <h2 class="title-details">StockTrack</h2>
+                            </div>
+                            <q-card-actions  class="q-gutter-md row  justify-end">
+                                <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                            </q-card-actions>
                         </div>
-                        <div style="display: flex; flex-wrap: wrap;">
-                            <div style="flex: 1; margin-right: 20px;">
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Número pedido: </p>
-                                <p class="text-h5">{{ pedidoSeleccionado ? pedidoSeleccionado.numero : '' }}</p>
-                            </div>
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Instructor: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
-                            </div>
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Código Ficha: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.codigo : '' }}</p>
-                            </div>
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Ficha: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.nombre : '' }}</p>
-                            </div>
-                        </div>
-                        <div style="flex: 1;">
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Estado: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.estado ? 'Aprobado' : 'En revisión') : '' }}
-                                </p>
-                            </div>
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Entregado: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.entregado ? 'Sí' : 'No') : '' }}</p>
-                            </div>
 
-                            <div class="text">
-                                <p class="text-h5 text-weight-bold">Fecha Creación: </p>
-                                <p class="text-h5" id="text">{{ pedidoSeleccionado ? formatearFecha(pedidoSeleccionado.createAT) : '' }}</p>
+                        <div style="display: flex; flex-wrap: wrap;" id="container-details">
+                            <div style="flex: 1; margin-right: 20px; margin-left: 5%;">
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Número pedido: </p>
+                                    <p class="text-h5">{{ pedidoSeleccionado ? pedidoSeleccionado.numero : '' }}</p>
+                                </div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Instructor: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
+                                </div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Código Ficha: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.codigo :
+                                        '' }}</p>
+                                </div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Ficha: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.nombre :
+                                        '' }}</p>
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Estado: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.estado ?
+                                        'Aprobado' : 'En revisión') : '' }}
+                                    </p>
+                                </div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Entregado: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? (pedidoSeleccionado.entregado ?
+                                        'Sí' : 'No') : '' }}</p>
+                                </div>
+
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Fecha Creación: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        formatearFecha(pedidoSeleccionado.createAT) : '' }}</p>
+                                </div>
                             </div>
                         </div>
-                        </div>
-                      
-                        <div class="q-pa-md" style="flex-basis: 100%;">
-                            <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom>
+
+                        <div class="q-pa-sm" style="flex-basis: 100%;">
+                            <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom
+                                class="table-details">
                             </q-table>
                         </div>
                     </q-form>
@@ -382,15 +398,73 @@ main {
 
 
 
-.text{
+.text {
     display: flex;
     align-items: center;
 }
 
-#text{
+#text {
     margin-left: 12px;
 }
 
+.img1 {
+    border-radius: 50%;
+    max-width: 100px;
+}
+
+#container-details {
+    width: 98%;
+    padding: 20px;
+    display: flex;
+    border: 3px solid black;
+}
+
+.table-details {
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.table-details thead {
+    background-color: #f2f2f2;
+}
+
+.table-details th {
+    font-weight: bold;
+    text-align: center;
+}
+
+.table-details td,
+.table-details th {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-details td:last-child,
+.table-details th:last-child {
+    border-right: none;
+}
+
+.table-details th {
+    font-size: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 10px; 
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
 
 
 </style>

@@ -40,9 +40,9 @@ function home() {
 //Formulario
 const useUsuario = useStoreUsuarios()
 const data = ref({
-      password,
-      newPassword, confirmPassword
-    })
+  password,
+  newPassword, confirmPassword
+})
 async function cambiarPassword() {
   try {
     const response = await useUsuario.cambiarPassword(data.value)
@@ -70,32 +70,31 @@ function notificar(tipo, msg) {
   });
 }
 
-const productos = ref([]);
 </script>
 
 <template>
   <main>
-
     <section id="sectionone" v-if="hideOne">
 
       <article id="text">
-        <div id="text1">
           <p id="message">Diligencie todos los campos para cambiar su contraseña:</p>
-        </div>
       </article>
 
       <article id="sectiontwo">
-        <div id="text2">
-          <q-form @reset="onReset" id="inputcorreo" class="q-gutter-md" @submit="cambiarPassword">
-            <q-input v-model="password" filled :type="isPw ? 'password' : 'text'" label="Digite su contraseña actual"
+        <q-form @reset="onReset" class="q-gutter-lg" @submit="cambiarPassword">
+          <div class="cajas">
+            <label class="text-h6 text-weight-bold" for="">Contraseña actual 🟥</label>
+            <q-input v-model="password" class="inputpassword" filled :type="isPw ? 'password' : 'text'" label="Contraseña actual aquí..."
               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña']">
               <template v-slot:append>
                 <q-icon :name="isPw ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPw = !isPw" />
               </template>
             </q-input>
-
-            <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'" label="Digite una contraseña nueva"
+          </div>
+          <div class="cajas">
+            <label class="text-h6 text-weight-bold" for="">Nueva contraseña 🟥</label>
+            <q-input v-model="newPassword" class="inputpassword" filled :type="isPwd ? 'password' : 'text'" label="Contraseña nueva aquí..."
               lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
               val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
               val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial (@, #, / )',
@@ -104,19 +103,25 @@ const productos = ref([]);
                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
               </template>
             </q-input>
-            <q-input v-model="confirmPassword" filled :type="isPwdb ? 'password' : 'text'" label="Confirme nueva contraseña"
-              lazy-rules hide-bottom-space color="dark" bg-color="white"
+          </div>
+          <div class="cajas">
+            <label class="text-h6 text-weight-bold" for="">Confirmar contraseña 🟥</label>
+            <q-input v-model="confirmPassword" class="inputpassword" filled :type="isPwdb ? 'password' : 'text'"
+              label="Confirmar contraseña nueva..." lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
               <template v-slot:append>
-                <q-icon :name="isPwdb ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwdb = !isPwdb" />
+                <q-icon :name="isPwdb ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                  @click="isPwdb = !isPwdb" />
               </template>
             </q-input>
-            <div id="text3">
-              <q-btn id="buttonpassword" type="submit" class="bg-primary">Cambiar
-                Contraseña</q-btn>
-            </div>
-          </q-form>
-        </div>
+          </div>
+
+          <div id="text3">
+            <q-btn id="buttonpassword" type="submit" class="bg-primary">Cambiar
+              Contraseña</q-btn>
+          </div>
+        </q-form>
+
 
       </article>
     </section>
@@ -142,47 +147,35 @@ const productos = ref([]);
 
 
 <style scoped>
+
 main {
   width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-
-}
-
-header,
-footer {
-  width: 100%;
-  background-color: #EEEEEE;
-  height: 9vh;
+  height: 87vh;
 }
 
 #sectionone {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  justify-content: center;
+  height: 80vh;
   width: 100%;
 }
-
 
 #sectiontwo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 40%;
-  height: 70%;
-  gap: 50px;
+  align-items: center;
+  width: 45%;
+  height: 80%;
   background-color: rgb(245, 245, 245);
+  border-radius: 20px;
+  border: 2px solid black;
+  text-align: center;
 }
 
-img {
-  border-radius: 100%;
-  width: 200px;
-  height: 200px;
-}
+
 
 #text {
   font-family: Arial, Helvetica, sans-serif;
@@ -190,35 +183,16 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   width: 100%;
 }
 
-#text1 {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.cajas{
+  width: 100%;
 }
-
-#text2 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#message {
-  text-align: center;
-}
-
-#text3 {
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
-  align-items: center;
-}
-
-#inputcorreo {
-  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+.inputpassword{
+  width: 100%;
+  
 }
 
 #buttonpassword {
@@ -228,6 +202,7 @@ img {
   font-size: 20px;
   border-radius: 25px;
   cursor: pointer;
+  margin-top: 20px;
 }
 
 #validation {
@@ -278,38 +253,4 @@ img {
   width: 200px;
 }
 
-@media screen and (min-width: 521px) and (max-width: 815px) {
-  #inputcorreo {
-    width: 220px;
-  }
-
-  #buttonpassword {
-    width: 220px;
-    font-size: 20px;
-  }
-}
-
-
-@media screen and (min-width: 390px) and (max-width: 520px) {
-  #inputcorreo {
-    width: 208px;
-  }
-
-  #buttonpassword {
-    width: 200px;
-    font-size: 15px;
-  }
-}
-
-@media screen and (min-width: 0px) and (max-width: 389px) {
-
-  #inputcorreo {
-    width: 150px;
-  }
-
-  #buttonpassword {
-    width: 150px;
-    font-size: 10px;
-  }
-}
 </style>

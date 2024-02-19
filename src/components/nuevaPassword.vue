@@ -72,51 +72,93 @@ function validarCampos() {
 </script>
 
 <template>
-  <section class="form-container">
-    <div class="logo-container">Nueva Contraseña</div>
-
-    <form class="form" @submit="validarCampos">
+  <section class="form-containe">
+    <div class="logo">
+      <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 145px;">
+    </div>
+    <form class="form2" @submit="validarCampos">
       <div class="form-group">
-        <label for="email">Nueva Contraseña</label>
-        <q-input
-          outlined=""
-          type="password"
-          id="email"
-          v-model="data.password"
-          placeholder="Ingresa la nueva contraseña"
-          lazy-rules
-          :rules="[
+        
+          <label class="text-h6" for="email" >Por favor, ingrese la nueva contraseña</label>
+        <q-input  class="inputpassword" outlined="" color="dark" bg-color="white" type="password" id="email" v-model="data.password" placeholder="Nueva contraseña aqui..."
+          lazy-rules :rules="[
             (val) => val != '' || 'Por favor ingrese una contraseña',
             (val) =>
               vali.test(val) ||
               'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-          ]"
-        />
-      </div>
-      <div class="form-group">
-        <label style="margin-top: 20px" for="email">Confirmar Contraseña</label>
-        <q-input
-          outlined
-          type="password"
-          id="email"
-          v-model="checkPassword"
-          placeholder="Confirma la contraseña"
-          lazy-rules
-          :rules="[
-            (val) => val != '' || 'Por favor confirme su contraseña',
-            (val) => val === data.password || 'Las contraseñas no coinciden',
-            (val) =>
-              vali.test(val) ||
-              'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-          ]"
-        />
-      </div>
+          ]" />
+      
+        
+        
+          <label class="text-h6" for="email">Confirmar Contraseña</label>
+          <q-input outlined class="inputpassword" color="dark" bg-color="white" type="password" id="email"  v-model="checkPassword"
+            placeholder="Confirma contraseña aqui..." lazy-rules :rules="[
+              (val) => val != '' || 'Por favor confirme su contraseña',
+              (val) => val === data.password || 'Las contraseñas no coinciden',
+              (val) =>
+                vali.test(val) ||
+                'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
+            ]" />
+       
 
-      <q-btn class="form-submit-btn" :loading="loadNuevaPass" type="submit">
-        Cambiar Contraseña
-      </q-btn>
+        <q-btn class="bg-primary" id="buttonpassword"   :loading="loadNuevaPass" type="submit">
+          Cambiar Contraseña
+        </q-btn>
+      </div>
     </form>
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+.form-containe{
+  background-image: url(../assets/fondo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+}
+.form2 {
+  width: 100%;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 30%;
+  height: 80%;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  margin-bottom: 50px;
+  gap: 20px;
+  border: 2px solid black;
+  text-align: center;
+  box-shadow: 25px 20px 5px #888888;
+}
+
+#buttonpassword {
+  color: white;
+  font-weight: bolder;
+  border: 2px solid black;
+  width: 55%;
+  font-size: 15px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.inputpassword {
+  width: 70%;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+
+
+</style>
