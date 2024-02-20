@@ -114,7 +114,7 @@ main {
   background-image: url(../assets/fondo.png);
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position:center;
   overflow-y: hidden;
 }
 
@@ -136,7 +136,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  height: 80%;
   width: 100%;
 }
 

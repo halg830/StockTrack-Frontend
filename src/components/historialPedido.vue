@@ -273,8 +273,7 @@ function realizarPedido() {
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
-                        <button @click="verDetallesPedido(props.row._id)" class="editBtn">🗒️
-                        </button>
+                        <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary">  </q-btn>
                     </q-td>
                 </template>
             </q-table>

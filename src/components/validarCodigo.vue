@@ -54,20 +54,18 @@ function validarCampos() {
 </script>
 
 <template>
-
-  
   <section class="form-container" v-if="!componenteNuevaPass">
     <div class="logo">
-    <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 145px;">
-  </div>
+      <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 145px;">
+    </div>
     <q-form class="form" @submit="validarCampos">
-      
+
       <div class="form-group">
         <div id="text">
-        <label for="email" class="text-h4">Por favor, digite el código de verificación.</label>
-      </div>
-        <q-input outlined type="number" id="email"  class="inputcorreo" v-model="codigo"
-          lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[
+          <label for="email" class="text">Por favor, digite el código de verificación.</label>
+        </div>
+        <q-input outlined type="number" id="email" class="inputcorreo" v-model="codigo" lazy-rules hide-bottom-space
+          color="dark" bg-color="white" :rules="[
             (val) => val != '' || 'Por favor ingrese el código',
             (val) => val != null || 'Por favor ingrese el código',
           ]" />
@@ -87,7 +85,7 @@ function validarCampos() {
 <style scoped>
 .form-container {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   overflow-y: hidden;
 }
 
@@ -101,10 +99,9 @@ function validarCampos() {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
- 
+
 }
 
 .form-group {
@@ -113,31 +110,72 @@ function validarCampos() {
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 35%;
-  height: 50%;
+  width: 33vw;
+  height: 40vh;
   background-color: #f5f5f5;
   border-radius: 20px;
   border: 2px solid black;
   gap: 50px;
   box-shadow: 25px 20px 5px #888888;
+
 }
 
 #text {
   text-align: center;
+  font-size: 2vw;
 }
+
 
 #buttonpassword {
   color: white;
   font-weight: bolder;
   border: 2px solid black;
-  width: 30%;
+  width: 10vw;
   font-size: larger;
   border-radius: 25px;
   cursor: pointer;
 }
 
 .inputcorreo {
-  width: 60%;
+  width: 20vw;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+@media screen and (max-width: 1000px) and (min-width: 550px) {
+
+  .form-group {
+    width: 40vw;
+  }
+
+  #text {
+    font-size: 3.3vw;
+  }
+
+  .inputcorreo {
+    width: 30vw;
+  }
+
+  #buttonpassword {
+    width: 22vw;
+  }
+}
+
+@media screen and (max-width: 549px) and (min-width: 100px) {
+
+.form-group {
+  width: 60vw ;
+}
+
+#text {
+  font-size: 5vw;
+}
+
+.inputcorreo {
+  width: 50vw;
+}
+
+#buttonpassword {
+  width: 30vw;
+}
 }
 </style>
