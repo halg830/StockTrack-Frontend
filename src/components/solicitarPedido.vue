@@ -274,7 +274,7 @@ async function crearDetPedido(detPedido) {
 }
 </script>
 <template class="container">
-  <main class="target">
+  <div class="card">
     <q-form style="margin: 50px;" class="q-gutter-md">
       <section>
         <article>
@@ -283,7 +283,7 @@ async function crearDetPedido(detPedido) {
             <span class="spanns">N° pedido: </span>
           </div>
           <div>
-            <div>
+            <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center;">
               <div class="input-cont">
                 <span>Instructor: </span>
                 <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
@@ -308,10 +308,8 @@ async function crearDetPedido(detPedido) {
           </div>
         </article>
         <article>
-          <span>Seleccionar productos:</span>
           <div id="contTopLotes">
-            <span>Lotes</span>
-            <q-btn @click="verTodosProductos">Ver todos los productos</q-btn>
+            <q-btn style="margin: 0 auto;" @click="verTodosProductos">Ver todos los productos</q-btn>
           </div>
           <div class="q-pa-md">
             <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
@@ -401,12 +399,16 @@ async function crearDetPedido(detPedido) {
         </q-card-section>
       </q-card>
     </q-dialog>
-  </main>
+    </div>
 </template>
 
 <style scoped>
+.shadow-2 {
+    box-shadow: none;
+}
 .tabla {
   width: 100%;
+ margin: 0 auto;
 }
 
 td {
@@ -418,13 +420,12 @@ td {
   justify-content: center;
 }
 
-.target {
-  width: 60%;
-  background-color: darkgrey;
+.card {
   margin: 0 auto;
-  margin-top: 100px;
-  border-radius: 5px;
+  width: 60%;
   height: 700px;
+  background: rgb(236, 236, 236);
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 
