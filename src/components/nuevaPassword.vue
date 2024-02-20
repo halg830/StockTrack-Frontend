@@ -78,30 +78,30 @@ function validarCampos() {
     </div>
     <form class="form2" @submit="validarCampos">
       <div class="form-group">
-        
-          <label class="text-h6" for="email" >Por favor, ingrese la nueva contraseña</label>
-        <q-input  class="inputpassword" outlined="" color="dark" bg-color="white" type="password" id="email" v-model="data.password" placeholder="Nueva contraseña aqui..."
-          lazy-rules :rules="[
+
+        <label class="text-h6" for="email">Por favor, ingrese la nueva contraseña</label>
+        <q-input class="inputpassword" outlined="" color="dark" bg-color="white" type="password" id="email"
+          v-model="data.password"  lazy-rules :rules="[
             (val) => val != '' || 'Por favor ingrese una contraseña',
             (val) =>
               vali.test(val) ||
               'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
           ]" />
-      
-        
-        
-          <label class="text-h6" for="email">Confirmar Contraseña</label>
-          <q-input outlined class="inputpassword" color="dark" bg-color="white" type="password" id="email"  v-model="checkPassword"
-            placeholder="Confirma contraseña aqui..." lazy-rules :rules="[
-              (val) => val != '' || 'Por favor confirme su contraseña',
-              (val) => val === data.password || 'Las contraseñas no coinciden',
-              (val) =>
-                vali.test(val) ||
-                'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-            ]" />
-       
 
-        <q-btn class="bg-primary" id="buttonpassword"   :loading="loadNuevaPass" type="submit">
+
+
+        <label class="text-h6" for="email">Confirmar Contraseña</label>
+        <q-input outlined class="inputpassword" color="dark" bg-color="white" type="password" id="email"
+          v-model="checkPassword" lazy-rules :rules="[
+            (val) => val != '' || 'Por favor confirme su contraseña',
+            (val) => val === data.password || 'Las contraseñas no coinciden',
+            (val) =>
+              vali.test(val) ||
+              'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
+          ]" />
+
+
+        <q-btn class="bg-primary" id="buttonpassword" :loading="loadNuevaPass" type="submit">
           Cambiar Contraseña
         </q-btn>
       </div>
@@ -111,13 +111,7 @@ function validarCampos() {
 
 <style scoped>
 
-.form-containe{
-  background-image: url(../assets/fondo.png);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  
-}
+
 .form2 {
   width: 100%;
   height: 70vh;
@@ -125,10 +119,10 @@ function validarCampos() {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
+
 }
 
-.form-group{
+.form-group {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -158,7 +152,4 @@ function validarCampos() {
   width: 70%;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
-
-
-
 </style>

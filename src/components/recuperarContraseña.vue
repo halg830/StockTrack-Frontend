@@ -42,7 +42,7 @@ async function enviarCodigo() {
       return;
     }
 
-    Cookies.set('correo', email.value, {expires: 1})
+    Cookies.set('correo', email.value, { expires: 1 })
     componenteVerificar.value = true;
   } catch (error) {
     console.log(error);
@@ -52,44 +52,35 @@ async function enviarCodigo() {
 
 <template>
   <main>
-    <header></header>
-
-    <section v-if="!componenteVerificar">
+    <section v-if="!componenteVerificar" class="sectionone">
       <article id="image">
         <img src="/src/assets/logoSena.png" alt="" />
         <p id="message">
-            Por favor, digite su correo para el proceso de recuperación de
-            contraseña
-          </p>
+          Por favor, digite su correo para el proceso de recuperación de
+          contraseña.
+        </p>
       </article>
-      
+
       <article id="text">
-        <div id="text2">
-          <h3>Correo electrónico</h3>
-        </div>
-        <div id="text3">
-          <q-form @submit="validarCampo" id="inputcorreo">
-            <q-input
-              rounded
-              outlined
-              v-model="email"
-              label="Digite su correo aquí..."
-              lazy-rules
-              hide-bottom-space
-              color="dark"
-              :rules="[
+        <div class="prueba">
+          <div id="text2">
+            <h3>Correo electrónico</h3>
+            <div id="text3">
+            <q-form @submit="validarCampo" id="inputcorreo">
+              <q-input class="inputcorreo" outlined v-model="email" lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[
                 (val) =>
                   (val && val.length > 0) || 'Por favor ingrese su correo',
                 (val) =>
                   (val && correoValido()) ||
                   'Por favor ingrese un correo valido',
-              ]"
-            />
-            <q-btn id="buttonpassword" type="submit" class="bg-primary"
-              >Recuperar contraseña</q-btn
-            >
-          </q-form>
+              ]" />
+              <q-btn id="buttonpassword" type="submit" class="bg-primary">Recuperar contraseña</q-btn>
+            </q-form>
+          </div>
+          </div>
+         
         </div>
+
       </article>
     </section>
 
@@ -107,18 +98,10 @@ async function enviarCodigo() {
         </div>
         <div id="stext2">
           <p class="text-h4"></p>
-          <q-btn
-            id="sbuttonpassword"
-            type="submit"
-            class="bg-primary"
-            @click="home()"
-            >Ir al inicio</q-btn
-          >
+          <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
         </div>
       </article>
     </section>
-
-    <footer></footer>
   </main>
 </template>
 
@@ -128,59 +111,63 @@ main {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  
-  
+  background-image: url(../assets/fondo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow-y: hidden;
 }
 
 section {
   width: 100%;
-  height: 100%;
-}
-
-header,
-footer {
-  width: 100%;
-  background-color: #eeeeee;
-  height: 7vh;
+  height: 100vh;
 }
 
 #image {
-  margin-left: 20px;
-  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 95%;
+  width: 100%;
+  text-align: center;
 }
 
-img {
-  border-radius: 100%;
-  width: 200px;
-  height: 200px;
-}
 
 #text {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100%;
+  width: 100%;
 }
 
-#text1 {
-  width: 50%;
+.prueba{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  border: 2px solid black;
+  gap: 50px;
+  box-shadow: 25px 20px 5px #888888;
+  width: 35%;
+  height: 50%;
+  text-align: center;
 }
+
 
 #text2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
+  height: 100%;
 }
 
 #message {
-  margin-left: 150px;
-  width: 60%;
+  margin-left: 3%;
+  display: flex;
+  width: 100%;
   text-align: center;
   font-size: 35px;
 }
@@ -188,12 +175,17 @@ img {
 #text3 {
   display: flex;
   flex-direction: column;
-  gap: 60px;
   align-items: center;
+  width: 80%;
 }
 
+.inputcorreo{
+  width: 100%;
+}
+
+
 #inputcorreo {
-  width: 408px;
+  width: 100%;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
@@ -252,23 +244,15 @@ img {
   width: 200px;
 }
 
-@media screen and (min-width: 390px) and (max-width: 520px) {
-  #inputcorreo {
-    width: 288px;
+@media screen and (min-width: 100px) and (max-width: 900px) {
+  #image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
   }
 
-  #buttonpassword {
-    width: 390px;
-  }
 }
 
-@media screen and (min-width: 0px) and (max-width: 389px) {
-  #inputcorreo {
-    width: 230px;
-  }
-
-  #buttonpassword {
-    width: 300px;
-  }
-}
 </style>

@@ -84,7 +84,7 @@ function notificar(tipo, msg) {
         <q-form @reset="onReset" class="q-gutter-lg" @submit="cambiarPassword">
           <div class="cajas">
             <label class="text-h6 text-weight-bold" for="">Contraseña actual 🟥</label>
-            <q-input v-model="password" class="inputpassword" filled :type="isPw ? 'password' : 'text'" label="Contraseña actual aquí..."
+            <q-input v-model="password" class="inputpassword" filled :type="isPw ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña']">
               <template v-slot:append>
@@ -94,7 +94,7 @@ function notificar(tipo, msg) {
           </div>
           <div class="cajas">
             <label class="text-h6 text-weight-bold" for="">Nueva contraseña 🟥</label>
-            <q-input v-model="newPassword" class="inputpassword" filled :type="isPwd ? 'password' : 'text'" label="Contraseña nueva aquí..."
+            <q-input v-model="newPassword" class="inputpassword" filled :type="isPwd ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
               val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
               val => val && /[@#\/]/.test(val) || 'La contraseña debe contener al menos un carácter especial (@, #, / )',
@@ -107,7 +107,7 @@ function notificar(tipo, msg) {
           <div class="cajas">
             <label class="text-h6 text-weight-bold" for="">Confirmar contraseña 🟥</label>
             <q-input v-model="confirmPassword" class="inputpassword" filled :type="isPwdb ? 'password' : 'text'"
-              label="Confirmar contraseña nueva..." lazy-rules hide-bottom-space color="dark" bg-color="white"
+               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
               <template v-slot:append>
                 <q-icon :name="isPwdb ? 'visibility_off' : 'visibility'" class="cursor-pointer"
@@ -188,10 +188,13 @@ main {
 }
 
 .cajas{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
 }
 .inputpassword{
-  width: 100%;
+  width: 95%;
   
 }
 

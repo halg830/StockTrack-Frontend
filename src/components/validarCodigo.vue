@@ -54,7 +54,7 @@ function validarCampos() {
 </script>
 
 <template>
-  <header></header>
+
   
   <section class="form-container" v-if="!componenteNuevaPass">
     <div class="logo">
@@ -64,9 +64,9 @@ function validarCampos() {
       
       <div class="form-group">
         <div id="text">
-        <label for="email" class="text-h4">Por favor digite el código de verificación</label>
+        <label for="email" class="text-h4">Por favor, digite el código de verificación.</label>
       </div>
-        <q-input outlined type="number" id="email" placeholder="Ingrese el código aqui..." class="inputcorreo" v-model="codigo"
+        <q-input outlined type="number" id="email"  class="inputcorreo" v-model="codigo"
           lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[
             (val) => val != '' || 'Por favor ingrese el código',
             (val) => val != null || 'Por favor ingrese el código',
@@ -82,17 +82,13 @@ function validarCampos() {
   <section v-if="componenteNuevaPass">
     <NuevaPassword></NuevaPassword>
   </section>
-  <footer></footer>
 </template>
 
 <style scoped>
 .form-container {
   width: 100%;
-  height: 100vh;
-  background-image: url(../assets/fondo.png);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
+  height: 100%;
+  overflow-y: hidden;
 }
 
 .logo {
