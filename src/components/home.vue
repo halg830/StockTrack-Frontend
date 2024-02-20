@@ -8,11 +8,11 @@
         </div>
 
         <div class="section">
-            <h5>Lleva un seguimiento de tu inventario, controla la entrada y salida de los productos</h5>
+            <h5>Lleva un seguimiento de tu inventario, controla la entrada y salida de los materiales de formación</h5>
         </div>
 
         <div class="section">
-            <q-btn class="btn-administrar" color="green-7" text-color="white" label="Administrar" />
+            <q-btn class="btn-administrar" color="green-7" text-color="white" label="Administrar" to="/fichas"/>
             <q-btn class="btn-saber-mas" color="grey" label="Saber más" />
         </div>
     </div>

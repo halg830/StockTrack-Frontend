@@ -55,11 +55,22 @@ const opciones = {
   ]
 }
 
+const mobile = window.innerWidth < 650
+const leftDrawerOpen = ref(false)
+function toggleLeftDrawer () {
+        leftDrawerOpen.value = !leftDrawerOpen.value
+      }
 
+function irHome(){
+  router.push('/home')
+}
 </script>
 <template>
   <div class="stocktrackHome">
-    <nav class="header">
+    
+
+    <q-layout view="hHh lpR fFf" >
+      <nav class="header" v-if="!mobile">
       <div class="logo">
         <router-link to="/home" class="boton-home">
           <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
@@ -102,9 +113,62 @@ const opciones = {
       </q-dialog>
     </nav>
 
-    <section>
-      <router-view></router-view>
-    </section>
+    <div v-if="mobile">
+      <q-header bordered class="bg-primary text-white">
+        <q-toolbar>
+          <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+          <q-toolbar-title>
+            StockTrack
+          </q-toolbar-title>
+          <q-avatar to="/home" @click="irHome">
+          <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
+          </q-avatar>
+        </q-toolbar>
+      </q-header>
+      
+      <q-drawer v-model="leftDrawerOpen" side="left" overlay behavior="mobile" bordered show-if-above
+        :width="200"
+        :breakpoint="400">
+        <q-scroll-area style="height: calc(100% - 175px); margin-top: 175px; border-right: 1px solid #ddd">
+          <q-list padding>
+            <q-expansion-item v-for="(opcion, index) in opciones[rol]" :key="index"
+        expand-separator
+        :label="opcion.label"
+      >
+      <q-item clickable v-ripple v-for="(o, i) in opcion.o" :key="i" style="margin-left: 15px;" :to="'/' + o">
+                <q-item-section >
+                  {{ opcion.e ? opcion.e[i] : helpersGenerales.primeraMayus(o) }}
+                </q-item-section>
+              </q-item>
+      </q-expansion-item>
+          </q-list>
+        </q-scroll-area>
+
+        <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 175px">
+          <div class="absolute-bottom bg-transparent">
+            <q-avatar size="56px" class="q-mb-sm">
+              <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+            </q-avatar>
+            <div class="text-weight-bold">{{ usuario.nombre }} {{ usuario.apellido }}</div>
+            <div>{{ helpersGenerales.primeraMayus(usuario.rol) }}</div>
+            <q-btn @click="Perfil" color="secondary">
+              <q-icon name="edit" size="25px" />
+            </q-btn>
+            <q-btn @click="cerrarSesion" color="secondary">
+              <q-icon name="logout" size="25px" />
+            </q-btn>
+
+          </div>
+        </q-img>
+      </q-drawer>
+
+    </div>
+
+<q-page-container>
+      <router-view />
+    </q-page-container>
+
+</q-layout>
   </div>
 </template>
 
