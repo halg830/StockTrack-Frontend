@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'; // Agregar esta línea
 import Cookies from 'js-cookie'
 import helpersGenerales from '../helpers/generales.js'
 import { useStoreUsuarios } from '../stores/usuarios';
+import logoSena from '../assets/logoSena.png'
 
 const profileDialog = ref(false);
 const router = useRouter(); // Agregar esta línea
@@ -73,7 +74,7 @@ function irHome(){
       <nav class="header" v-if="!mobile">
       <div class="logo">
         <router-link to="/home" class="boton-home">
-          <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
+          <img :src="logoSena" alt="" srcset="" style="max-width: 100px;">
         </router-link>
       </div>
 
@@ -121,7 +122,7 @@ function irHome(){
             StockTrack
           </q-toolbar-title>
           <q-avatar to="/home" @click="irHome">
-          <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 100px;">
+          <img :src="logoSena" alt="" srcset="" style="max-width: 100px;">
           </q-avatar>
         </q-toolbar>
       </q-header>
