@@ -55,6 +55,30 @@ export const useStorePedidos = defineStore(modelo, () => {
     }
   };
 
+  const getNumPedido = async()=>{
+    try {
+      const response = await axios.get(`${modelo}/obtener-numero`)
+      console.log(response);
+      return response.data
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        notificar("negative", "Por favor vuelva a iniciar sesión");
+        router.push("/");
+        return null;
+      }
+      return error.response.data;
+    }
+  }
+
   const pedido = ref({})
   const agregar = async (data) => {
     try {
@@ -82,5 +106,5 @@ export const useStorePedidos = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, pedidos, pedido}
+  return { getAll, getNumPedido, agregar, pedidos, pedido}
 })

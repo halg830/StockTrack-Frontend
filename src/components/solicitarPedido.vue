@@ -18,6 +18,28 @@ function notificar(tipo, msg, posicion = "top") {
   });
 }
 
+//
+const usePedidos = useStorePedidos();
+const numPedido = ref(0)
+async function obtenerNumPedido(){
+  try {
+    const response = await usePedidos.getNumPedido();
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    numPedido.value = response
+  } catch (error) {
+    console.log(error);
+  }
+}
+obtenerNumPedido();
+
 //Data modal
 const data = ref({
   idInstructorEncargado: obtenerInstructor(),
@@ -256,7 +278,6 @@ function buscarIndexLocal(id) {
 
 //Solicitar pedido
 const loadBtnSolicitar = ref(false);
-const usePedidos = useStorePedidos();
 async function solicitarPedido() {
   try {
     loadBtnSolicitar.value = true;
@@ -309,8 +330,8 @@ async function crearDetPedido(detPedido) {
       <section>
         <article>
           <div>
-            <span class="spanns">Fecha: {{ data.fechaCreacion }}</span>
-            <span class="spanns">N° pedido: </span>
+            <span class="spanns">Fecha: {{ fechaActual()}}</span>
+            <span class="spanns">N° pedido: {{ numPedido}}</span>
           </div>
           <div>
             <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
