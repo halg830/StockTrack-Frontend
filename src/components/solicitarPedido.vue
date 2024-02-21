@@ -283,7 +283,7 @@ async function crearDetPedido(detPedido) {
             <span class="spanns">N° pedido: </span>
           </div>
           <div>
-            <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center;">
+            <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
               <div class="input-cont">
                 <span>Instructor: </span>
                 <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
@@ -309,7 +309,7 @@ async function crearDetPedido(detPedido) {
         </article>
         <article>
           <div id="contTopLotes">
-            <q-btn style="margin: 0 auto;" @click="verTodosProductos">Ver todos los productos</q-btn>
+            <q-btn style="margin: 0 auto; margin-top: 50px;" @click="verTodosProductos">Ver todos los productos</q-btn>
           </div>
           <div class="q-pa-md">
             <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
@@ -317,7 +317,7 @@ async function crearDetPedido(detPedido) {
               draggable="false">
               <q-carousel-slide :name="index + 1" class="column no-wrap  "
                 v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
-                <div style="background-color: transparent;"
+                <div style="background-color: transparent; margin-left: 50px;"
                   class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
                   <button class="image" v-for="lote in loteGrupo" :key="lote._id" style="
                       background-color: white;
@@ -361,7 +361,7 @@ async function crearDetPedido(detPedido) {
             </tr>
           </table>
           <div style="display: flex; flex-direction: row-reverse; ">
-            <q-btn class="solicitar-pedido" style="display: flex; " type="submit" :loading="loadBtnSolicitar"
+            <q-btn class="solicitar-pedido" style="display: flex; margin-right: 100px;margin-top: 25px; " type="submit" :loading="loadBtnSolicitar"
               @click="solicitarPedido">Solicitar pedido</q-btn>
           </div>
         </article>
@@ -409,6 +409,7 @@ async function crearDetPedido(detPedido) {
 .tabla {
   width: 100%;
  margin: 0 auto;
+ margin-left: 50px;
 }
 
 td {
