@@ -335,7 +335,7 @@ async function crearDetPedido(detPedido) {
               </q-carousel-slide>
             </q-carousel>
           </div>
-
+          <div class="overfow">
           <table class="tabla">
             <thead>
               <td>N°</td>
@@ -360,8 +360,10 @@ async function crearDetPedido(detPedido) {
               </td>
             </tr>
           </table>
+        </div>
+
           <div style="display: flex; flex-direction: row-reverse; ">
-            <q-btn class="solicitar-pedido" style="display: flex; margin-right: 100px;margin-top: 25px; " type="submit" :loading="loadBtnSolicitar"
+            <q-btn class="solicitar-pedido" style="margin-top: 50px; margin: 1 auto;" type="submit" :loading="loadBtnSolicitar"
               @click="solicitarPedido">Solicitar pedido</q-btn>
           </div>
         </article>
@@ -403,6 +405,12 @@ async function crearDetPedido(detPedido) {
 </template>
 
 <style scoped>
+
+.overfow{
+  height: 200px;
+  overflow-y: scroll;
+  overflow-x: scroll;
+}
 .shadow-2 {
     box-shadow: none;
 }
@@ -412,6 +420,7 @@ async function crearDetPedido(detPedido) {
  margin-left: 50px;
 }
 
+
 td {
   margin: 50px;
 }
@@ -419,14 +428,16 @@ td {
 .container {
   width: 100%;
   justify-content: center;
+  
 }
 
 .card {
   margin: 0 auto;
   width: 60%;
-  height: 700px;
+  height: 780px;
   background: rgb(236, 236, 236);
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  margin-top: -45px;
 }
 
 
