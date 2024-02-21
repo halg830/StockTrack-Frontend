@@ -157,7 +157,16 @@ async function obtenerProductos() {
       return;
     }
 
-    productoSeleccionar.value.todos = response;
+    const productos = response.filter((producto) => producto.estado === true);
+
+    const productosIcon = productos.map(producto=>{
+     const agg = buscarIndexLocal(producto._id)
+     if(agg>=0) producto.icon = 'check'
+
+     return producto
+    })
+
+    productoSeleccionar.value.todos = productosIcon;
   } catch (error) {
     console.log(error);
   } finally {
@@ -165,6 +174,7 @@ async function obtenerProductos() {
   }
 }
 
+const productosAgg = ref([]); //Productos agregados
 async function obtenerProductosPorLote(idLote, nombre) {
   try {
     selectLoad.value.producto = true;
@@ -180,8 +190,15 @@ async function obtenerProductosPorLote(idLote, nombre) {
 
     const productos = response.filter((producto) => producto.estado === true);
 
-    productoSeleccionar.value[nombre] = productos;
-    console.log(productoSeleccionar.value[nombre].length);
+    const productosIcon = productos.map(producto=>{
+     const agg = buscarIndexLocal(producto._id)
+     if(agg>=0) producto.icon = 'check'
+
+     return producto
+    })
+
+    productoSeleccionar.value[nombre] = productosIcon;
+    console.log(productoSeleccionar.value[nombre]);
   } catch (error) {
     console.log(error);
   } finally {
@@ -211,9 +228,18 @@ function mostrarLotes(idLote, nombre) {
 
 //Manejo de productos
 const detPedidos = ref([]);
-const productosAgg = ref([]); //Productos agregados
 function aggProductos(producto) {
+  producto.icon='check'
   console.log(producto);
+  const agregado = buscarIndexLocal(producto._id)
+  if(agregado >= 0){
+    delete producto.icon
+    productosAgg.value.splice(agregado,1)
+  notificar("negative", "Producto eliminado de la lista");
+
+    return
+  }
+  
   productosAgg.value.push({ ...producto });
   detPedidos.value.push({ idProducto: producto._id, cantidad: 1 });
   notificar("positive", "Producto agregado a la lista");
@@ -222,6 +248,10 @@ function aggProductos(producto) {
 function quitarProducto(index) {
   productosAgg.value.splice(index, 1);
   notificar("negative", "Producto eliminado", "bottom");
+}
+
+function buscarIndexLocal(id) {
+  return productosAgg.value.findIndex((producto) => producto._id === id);
 }
 
 //Solicitar pedido
@@ -339,12 +369,14 @@ async function crearDetPedido(detPedido) {
           <table class="tabla">
             <thead>
               <td>N°</td>
+              <td>Código</td>
               <td>Producto</td>
               <td>Unidad Medida</td>
               <td>Cantidad</td>
               <td>Opciones</td>
             </thead>
             <tr v-for="(producto, index) in productosAgg" :key="producto._id">
+              <td> {{ index+1 }}</td>
               <td>
                 {{ producto.codigo }}
               </td>
@@ -390,8 +422,8 @@ async function crearDetPedido(detPedido) {
             <div>
               <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
               <q-btn v-for="producto in productoSeleccionar[opcionLote]" :key="producto._id"
-                @click="aggProductos(producto)">
-                {{ producto.nombre }}
+                @click="aggProductos(producto);">
+                {{ producto.nombre }} <q-icon v-if="producto.icon" :name="producto.icon" />
               </q-btn>
             </div>
             <div style="display: flex; width: 96%; justify-content: flex-end">
@@ -409,7 +441,6 @@ async function crearDetPedido(detPedido) {
 .overfow{
   height: 200px;
   overflow-y: scroll;
-  overflow-x: scroll;
 }
 .shadow-2 {
     box-shadow: none;
@@ -417,7 +448,7 @@ async function crearDetPedido(detPedido) {
 .tabla {
   width: 100%;
  margin: 0 auto;
- margin-left: 50px;
+
 }
 
 
