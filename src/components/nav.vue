@@ -68,8 +68,6 @@ function irHome(){
 </script>
 <template>
   <div class="stocktrackHome">
-    
-
     <q-layout view="hHh lpR fFf" >
       <nav class="header" v-if="!mobile">
       <div class="logo">

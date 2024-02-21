@@ -1,4 +1,6 @@
 <script setup>
+import Cookies from 'js-cookie'
+const rol = Cookies.get('rol');
 
 </script>
 <template>
@@ -12,7 +14,7 @@
         </div>
 
         <div class="section">
-            <q-btn class="btn-administrar" color="green-7" text-color="white" label="Administrar" to="/fichas"/>
+            <q-btn class="btn-administrar" color="green-7" text-color="white" :label="rol=='admin' ? 'Administrar' : 'Generar pedido'" :to="rol=='admin' ? '/fichas' : '/solicitar-pedido'"/>
             <q-btn class="btn-saber-mas" color="grey" label="Saber más" />
         </div>
     </div>

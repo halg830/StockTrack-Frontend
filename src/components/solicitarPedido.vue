@@ -157,7 +157,16 @@ async function obtenerProductos() {
       return;
     }
 
-    productoSeleccionar.value.todos = response;
+    const productos = response.filter((producto) => producto.estado === true);
+
+    const productosIcon = productos.map(producto=>{
+     const agg = buscarIndexLocal(producto._id)
+     if(agg>=0) producto.icon = 'check'
+
+     return producto
+    })
+
+    productoSeleccionar.value.todos = productosIcon;
   } catch (error) {
     console.log(error);
   } finally {
@@ -165,6 +174,7 @@ async function obtenerProductos() {
   }
 }
 
+const productosAgg = ref([]); //Productos agregados
 async function obtenerProductosPorLote(idLote, nombre) {
   try {
     selectLoad.value.producto = true;
@@ -180,8 +190,15 @@ async function obtenerProductosPorLote(idLote, nombre) {
 
     const productos = response.filter((producto) => producto.estado === true);
 
-    productoSeleccionar.value[nombre] = productos;
-    console.log(productoSeleccionar.value[nombre].length);
+    const productosIcon = productos.map(producto=>{
+     const agg = buscarIndexLocal(producto._id)
+     if(agg>=0) producto.icon = 'check'
+
+     return producto
+    })
+
+    productoSeleccionar.value[nombre] = productosIcon;
+    console.log(productoSeleccionar.value[nombre]);
   } catch (error) {
     console.log(error);
   } finally {
@@ -211,9 +228,18 @@ function mostrarLotes(idLote, nombre) {
 
 //Manejo de productos
 const detPedidos = ref([]);
-const productosAgg = ref([]); //Productos agregados
 function aggProductos(producto) {
+  producto.icon='check'
   console.log(producto);
+  const agregado = buscarIndexLocal(producto._id)
+  if(agregado >= 0){
+    delete producto.icon
+    productosAgg.value.splice(agregado,1)
+  notificar("negative", "Producto eliminado de la lista");
+
+    return
+  }
+  
   productosAgg.value.push({ ...producto });
   detPedidos.value.push({ idProducto: producto._id, cantidad: 1 });
   notificar("positive", "Producto agregado a la lista");
@@ -222,6 +248,10 @@ function aggProductos(producto) {
 function quitarProducto(index) {
   productosAgg.value.splice(index, 1);
   notificar("negative", "Producto eliminado", "bottom");
+}
+
+function buscarIndexLocal(id) {
+  return productosAgg.value.findIndex((producto) => producto._id === id);
 }
 
 //Solicitar pedido
@@ -283,7 +313,7 @@ async function crearDetPedido(detPedido) {
             <span class="spanns">N° pedido: </span>
           </div>
           <div>
-            <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center;">
+            <div class="inputs" style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
               <div class="input-cont">
                 <span>Instructor: </span>
                 <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
@@ -309,7 +339,7 @@ async function crearDetPedido(detPedido) {
         </article>
         <article>
           <div id="contTopLotes">
-            <q-btn style="margin: 0 auto;" @click="verTodosProductos">Ver todos los productos</q-btn>
+            <q-btn style="margin: 0 auto; margin-top: 50px;" @click="verTodosProductos">Ver todos los productos</q-btn>
           </div>
           <div class="q-pa-md">
             <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
@@ -317,7 +347,7 @@ async function crearDetPedido(detPedido) {
               draggable="false">
               <q-carousel-slide :name="index + 1" class="column no-wrap  "
                 v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
-                <div style="background-color: transparent;"
+                <div style="background-color: transparent; margin-left: 50px;"
                   class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
                   <button class="image" v-for="lote in loteGrupo" :key="lote._id" style="
                       background-color: white;
@@ -335,16 +365,18 @@ async function crearDetPedido(detPedido) {
               </q-carousel-slide>
             </q-carousel>
           </div>
-
+          <div class="overfow">
           <table class="tabla">
             <thead>
               <td>N°</td>
+              <td>Código</td>
               <td>Producto</td>
               <td>Unidad Medida</td>
               <td>Cantidad</td>
               <td>Opciones</td>
             </thead>
             <tr v-for="(producto, index) in productosAgg" :key="producto._id">
+              <td> {{ index+1 }}</td>
               <td>
                 {{ producto.codigo }}
               </td>
@@ -360,8 +392,10 @@ async function crearDetPedido(detPedido) {
               </td>
             </tr>
           </table>
+        </div>
+
           <div style="display: flex; flex-direction: row-reverse; ">
-            <q-btn class="solicitar-pedido" style="display: flex; " type="submit" :loading="loadBtnSolicitar"
+            <q-btn class="solicitar-pedido" style="margin-top: 50px; margin: 1 auto;" type="submit" :loading="loadBtnSolicitar"
               @click="solicitarPedido">Solicitar pedido</q-btn>
           </div>
         </article>
@@ -388,8 +422,8 @@ async function crearDetPedido(detPedido) {
             <div>
               <!-- Agregar animacion de agregado en el btn y que se quede con el icon de agregado, quitar notify -->
               <q-btn v-for="producto in productoSeleccionar[opcionLote]" :key="producto._id"
-                @click="aggProductos(producto)">
-                {{ producto.nombre }}
+                @click="aggProductos(producto);">
+                {{ producto.nombre }} <q-icon v-if="producto.icon" :name="producto.icon" />
               </q-btn>
             </div>
             <div style="display: flex; width: 96%; justify-content: flex-end">
@@ -403,13 +437,20 @@ async function crearDetPedido(detPedido) {
 </template>
 
 <style scoped>
+
+.overfow{
+  height: 200px;
+  overflow-y: scroll;
+}
 .shadow-2 {
     box-shadow: none;
 }
 .tabla {
   width: 100%;
  margin: 0 auto;
+
 }
+
 
 td {
   margin: 50px;
@@ -418,14 +459,16 @@ td {
 .container {
   width: 100%;
   justify-content: center;
+  
 }
 
 .card {
   margin: 0 auto;
   width: 60%;
-  height: 700px;
+  height: 780px;
   background: rgb(236, 236, 236);
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  margin-top: -45px;
 }
 
 
