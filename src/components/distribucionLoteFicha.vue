@@ -48,6 +48,7 @@ async function getInfo() {
     try {
         loadingTable.value = true
         const response = await storeDisLoteFicha.getAll()
+        getOptionsItemLote();
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -109,7 +110,6 @@ const enviarInfo = {
             }
 
             const response = await storeDisLoteFicha.agregar(info)
-            getInfo();
             ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -134,6 +134,16 @@ const enviarInfo = {
             let info = {
                 ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
+            const selectedLote = storeDisItemLote.distribucionesItemLote.find(disLote => disLote._id === info.idDistribucionPresupuesto);
+            if (!selectedLote) {
+                notificar('negative', 'No existe esta Distribución');
+                return
+            }
+
+            if (parseFloat(info.presupuesto) > parseFloat(selectedLote.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+                return;
+            }
             const response = await storeDisLoteFicha.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -243,7 +253,7 @@ async function getOptionsItemLote(){
     try {
         await storeDisItemLote.getAll();
         const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
-        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.idLote.nombre} - P. Disponible: ${disItemLote.presupuesto}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.idLote.nombre} - P. Disponible: ${disItemLote.presupuestoDisponible}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
     } catch (error) {
         console.log(error);
     };
