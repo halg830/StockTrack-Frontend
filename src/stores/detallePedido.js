@@ -8,11 +8,7 @@ import Cookies from "js-cookie";
 const modelo = "detallePedido";
 
 export const useStoreDetallePedido = defineStore(modelo, () => {
-  function obtenerToken() {
-    console.log(Cookies.get("x-token"));
-    return Cookies.get("x-token");
-  }
-
+  
   axios.defaults.headers.common["x-token"] = obtenerToken();
 
   const $q = useQuasar();

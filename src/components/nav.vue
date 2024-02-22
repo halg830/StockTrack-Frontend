@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // Agregar esta línea
-import Cookies from 'js-cookie'
 import helpersGenerales from '../helpers/generales.js'
 import { useStoreUsuarios } from '../stores/usuarios';
 import logoSena from '../assets/logoSena.png'
@@ -22,9 +21,8 @@ const logout = () => {
 const closeProfileDialog = () => {
   profileDialog.value = false;
 };
-
-const rol = Cookies.get('rol');
-const usuario = JSON.parse(Cookies.get('usuario'));
+const useUsuario = useStoreUsuarios()
+const rol = useUsuario.usuario.rol
 
 //Editar Perfil
 function Perfil() {
@@ -33,10 +31,9 @@ function Perfil() {
 }
 
 function cerrarSesion() {
-  Cookies.remove('x-token')
-  Cookies.remove('id')
-  Cookies.remove('rol')
-  Cookies.remove('usuario')
+  useUsuario.token = ''
+  useUsuario.usuario = ''
+  useUsuario.id = ''
 
   router.push('/')
 }
@@ -100,7 +97,7 @@ function irHome() {
                 <p style="margin: 0 3px 0px">INFORMACIÓN DE USUARIO</p>
               </div>
               <div style="display: flex; align-items: center; justify-content: center;">
-                <img :src="usuario.fotoPerfil" alt="Foto de perfil"
+                <img :src="usuario.fotoPerfil ?? ''" alt="Foto de perfil"
                   style="width: 100px; height: 100px; border-radius: 50%;">
               </div>
               <div v-if="usuario">

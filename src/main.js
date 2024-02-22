@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { router } from "./routes/routes.js";
 import { createPinia } from "pinia";
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import axios from "axios";
 import { Quasar, Dialog, Notify } from "quasar";
 import "@quasar/extras/material-icons/material-icons.css";
@@ -11,6 +12,7 @@ import App from "./App.vue";
 axios.defaults.baseURL = "https://stocktrack-backend.onrender.com/api/";
 
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate)
 const myApp = createApp(App);
 
 myApp.use(Quasar, {
