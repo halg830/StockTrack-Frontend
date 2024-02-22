@@ -8,12 +8,22 @@ const router = useRouter();
 
 const userData = ref(JSON.parse(Cookies.get('usuario')));
 
+const storeUsuarios = useStoreUsuarios();
+
+
 function guardarCambios() {
-    // Aquí iría la lógica para guardar los cambios en el backend
+    storeUsuarios.editar(userData.value._id, {
+        _id: userData.value._id,
+        nombre: userData.value.nombre,
+        apellido: userData.value.apellido,
+        identificacion: userData.value.identificacion,
+        correo: userData.value.correo,
+        telefono: userData.value.telefono
+    });
 }
 
 function cambiarContraseña() {
-    router.push('/nueva-password')
+    router.push('/nueva-password');
 }
 </script>
 
@@ -26,7 +36,6 @@ function cambiarContraseña() {
             <q-input v-model="userData.identificacion" label="Identificación" readonly style="width: 300px;"/>
             <q-input v-model="userData.correo" label="Correo" style="width: 300px;" />
             <q-input v-model="userData.telefono" label="Teléfono" style="width: 300px;" />
-            <q-input v-model="userData.fotoPerfil" label="Foto de perfil" style="width: 300px;" />
             <q-btn @click="guardarCambios" style="margin-top: 20px;">Guardar cambios</q-btn>
             <q-btn @click="cambiarContraseña" style="margin-top: 20px;">Cambiar Contraseña</q-btn>
         </div>
