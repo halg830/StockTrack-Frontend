@@ -280,7 +280,7 @@ function filterFn(val, update) {
 
                         <q-select filled v-model="data.nivelFormacion" label="Nivel de Formación" lazy-rules
                             :options=niveles
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un nivel de Formación']" />
+                            :rules="[val => val != null && val != '' || 'Seleccione un nivel de Formación']" />
 
                         <!-- <q-input filled v-model="data.fechaInicio" type="date" label="Fecha Inicio" lazy-rules :rules="[
                             val => val !== null && val !== '' || 'Seleccione la Fecha de Inicio',
