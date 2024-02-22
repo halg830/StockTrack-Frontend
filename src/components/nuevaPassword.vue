@@ -36,10 +36,10 @@ async function nuevaPassword() {
     if (response.status != 200) {
       notificar("negative", response.error);
       return;
+    } else if (response.tatus === 200) {
+      showOne.value = false;
+      showTwo.value = true;
     }
-    showOne.value = false;
-    showTwo.value = true;
-    
     notificar("positive", "Contraseña actulizada con éxito");
   } catch (error) {
     console.log(error);
@@ -119,13 +119,13 @@ function validarCampos() {
       </div>
       <article id="stext">
         <div id="stext11">
-          <p  id="smessage">¡La contraseña ha sido cambiada exitosamente!</p> 
-        <div id="stext2">
-          <p id="smessage2">Ahora puede ingresar al sistema</p>
-          <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="router.push('/')">Ir al inicio</q-btn>
+          <p id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
+          <div id="stext2">
+            <p id="smessage2">Ahora puede ingresar al sistema</p>
+            <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="router.push('/')">Ir al inicio</q-btn>
+          </div>
         </div>
-        </div>
-       
+
       </article>
 
     </section>
@@ -186,7 +186,7 @@ function validarCampos() {
   height: 100vh;
 }
 
-#stext11{
+#stext11 {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -206,7 +206,7 @@ function validarCampos() {
   font-weight: bolder;
 }
 
-#smessage2{
+#smessage2 {
   font-size: 2vw;
 }
 
@@ -225,62 +225,69 @@ function validarCampos() {
 }
 
 @media screen and (min-width: 751px) and (max-width: 1000px) {
-  #stext11{
+  #stext11 {
     width: 50vw;
   }
+
   #smessage {
-  font-size: 4vw;
-}
-  #smessage2{
-  font-size: 3vw;
+    font-size: 4vw;
+  }
+
+  #smessage2 {
+    font-size: 3vw;
+  }
+
+  #sbuttonpassword {
+    font-size: 2vw;
+    width: 70%;
+  }
 }
 
-#sbuttonpassword {
-  font-size: 2vw;
-  width: 70%;
-}
-}
 
-
-@media screen and (min-width: 400px) and (max-width: 750px){
+@media screen and (min-width: 400px) and (max-width: 750px) {
 
   .form-group {
     width: 50%;
   }
-  #stext11{
+
+  #stext11 {
     width: 60vw;
   }
+
   #smessage {
-  font-size: 5vw;
-}
-  #smessage2{
-  font-size: 4vw;
+    font-size: 5vw;
+  }
+
+  #smessage2 {
+    font-size: 4vw;
+  }
+
+  #sbuttonpassword {
+    font-size: 2vw;
+    width: 80%;
+  }
 }
 
-#sbuttonpassword {
-  font-size: 2vw;
-  width: 80%;
-}
-}
+@media screen and (min-width: 100px) and (max-width: 399px) {
 
-@media screen and (min-width: 100px) and (max-width: 399px){
+  .form-group {
+    width: 80%;
+  }
 
-.form-group {
-  width: 80%;
-}
-#stext11{
+  #stext11 {
     width: 70vw;
   }
-  #smessage {
-  font-size: 6vw;
-}
-  #smessage2{
-  font-size: 5vw;
-}
 
-#sbuttonpassword {
-  font-size: 3vw;
-  width: 90%;
-}
-}
-</style>
+  #smessage {
+    font-size: 6vw;
+  }
+
+  #smessage2 {
+    font-size: 5vw;
+  }
+
+  #sbuttonpassword {
+    font-size: 3vw;
+    width: 90%;
+  }
+}</style>
