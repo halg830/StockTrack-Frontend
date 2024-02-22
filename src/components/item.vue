@@ -30,7 +30,7 @@ const columns = [
   },
   {
     name: 'presupuesto',
-    label: 'Presupuesto',
+    label: 'Presupuesto Inicialllllllllllll',
     align: 'center',
     field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
   },{
@@ -270,7 +270,7 @@ function buscarIndexLocal(id) {
         </q-input>
       </template>
       <template v-slot:body-cell-estado="props">
-        <q-td :props="props" class="botones">
+        <q-td :props="props" class="estados">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
             ? 'Activo'
             : !props.row.estado
@@ -289,6 +289,7 @@ function buscarIndexLocal(id) {
               </path>
             </svg>
           </button>
+          <button class="btn-go">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
@@ -299,7 +300,13 @@ function buscarIndexLocal(id) {
   margin: auto;
 }
 
-
+.botones{
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
 .editBtn {
   width: 55px;
   height: 55px;
@@ -314,7 +321,7 @@ function buscarIndexLocal(id) {
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
-  margin: 0 auto;
+  margin: 0 10px;
 }
 
 .editBtn::before {
@@ -369,6 +376,38 @@ function buscarIndexLocal(id) {
   transform: scaleX(1);
   left: 0px;
   transform-origin: right;
+}
+
+.btn-go {
+ width: 9em;
+ height: 55px;
+ border-radius: 15px;   
+ font-size: 15px;
+ font-family: inherit;
+ border: none;
+ position: relative;
+ overflow: hidden;
+ z-index: 1;
+ box-shadow: 6px 6px 12px #c5c5c5,
+             -6px -6px 12px #ffffff;
+}
+
+.btn-go::before {
+ content: '';
+ width: 0;
+ height: 55px;
+ border-radius: 15px;
+ position: absolute;
+ top: 0;
+ left: 0;
+ background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+ transition: .5s ease;
+ display: block;
+ z-index: -1;
+}
+
+.btn-go:hover::before {
+ width: 9em;
 }
 </style>
 
