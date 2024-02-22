@@ -4,6 +4,7 @@ import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import NuevaPassword from "./nuevaPassword.vue";
 import Cookies from "js-cookie";
+import logoSena from '../assets/logoSena.png'
 
 // Notificación
 const $q = useQuasar();
@@ -56,7 +57,7 @@ function validarCampos() {
 <template>
   <section class="form-container" v-if="!componenteNuevaPass">
     <div class="logo">
-      <img src="/src/assets/logoSena.png" alt="" srcset="" style="max-width: 145px;">
+      <img :src="logoSena" alt="" srcset="" style="max-width: 145px;">
     </div>
     <q-form class="form" @submit="validarCampos">
 

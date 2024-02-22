@@ -5,6 +5,7 @@ import { useStorePedidos } from '../stores/pedido.js';
 import { useStoreDetallePedido } from '../stores/detallePedido.js'
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
+import logoSena from '../assets/logoSena.png'
 
 const rows = ref([]);
 const rowsdetails = ref([]);
@@ -181,17 +182,18 @@ function realizarPedido() {
             <q-card class="modal">
                 <q-card-section class="q-gutter-md">
                     <q-form class="q-gutter-md">
-                        <div class="q-gutter-md row  items-center" style="width: 100%;">
+                        <div class="row justify-center items-center" style="width: 100%;">
                             <div>
-                                <img src="../assets/Stocktrack.jpg" alt="Imagen" class="img1">
+                                <img :src="logoSena" alt="Imagen" class="img1">
                                 
                             </div>
-                            <div>
-                                <h2 class="title-details">StockTrack</h2>
-                            </div>
-                            <q-card-actions  class="q-gutter-md row  justify-end">
+                            <div  class="title-modal">
+                                <h3 class="title-details">Servicio Nacional de Aprendizaje</h3>
+                                <q-card-actions  class="q-gutter-md row  justify-end">
                                 <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                             </q-card-actions>
+                            </div>
+                           
                         </div>
 
                         <div style="display: flex; flex-wrap: wrap;" id="container-details">
@@ -362,7 +364,11 @@ main {
     transition: all 0.2s;
     transform-origin: bottom;
 }
-
+.title-modal{
+    width: 85%;
+    display: flex;
+    justify-content: space-between;
+}
 .editBtn:hover svg {
     transform: rotate(-15deg) translateX(5px);
 }
@@ -408,7 +414,7 @@ main {
 
 .img1 {
     border-radius: 50%;
-    max-width: 100px;
+    max-width: 175px;
 }
 
 #container-details {
