@@ -70,12 +70,12 @@ const columns = ref([
 ]);
 
 const columnsdetails = ref([
-    {
-        name: 'numProducto',
-        label: 'Nro',
-        align: 'center',
-        field: 'numProducto'
-    },
+    // {
+    //     name: 'numProducto',
+    //     label: 'Nro',
+    //     align: 'center',
+    //     field: 'numero'
+    // },
     {
         name: 'codigo',
         label: 'Item',
