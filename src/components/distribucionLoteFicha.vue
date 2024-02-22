@@ -259,6 +259,29 @@ async function getOptionsItemLote(){
     };
 }
 
+const opcionesFiltro = ref({
+    lotes: optionsItemLote.value,
+    fichas: optionsFichas.value
+})
+
+function filterFn(val, update) {
+  val=val.trim()
+  if (val === '') {
+    update(() => {
+      opcionesFiltro.value.lotes = optionsItemLote.value
+      opcionesFiltro.value.fichas = optionsFichas.value
+    })
+    return
+  }
+
+  update(() => {
+    const needle = val.toLowerCase()
+    opcionesFiltro.value.lotes = optionsItemLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.fichas = optionsFichas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+
+  })
+}
+
 
 </script>
 
@@ -276,10 +299,33 @@ async function getOptionsItemLote(){
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
 
-                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Lote" lazy-rules :options="optionsItemLote"
-                            :rules="[val => !!val  || 'Seleccione un Lote']" />
-                        <q-select filled v-model:model-value="data.idFicha"  label="Ficha" lazy-rules :options="optionsFichas"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" />
+                       
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionPresupuesto" label="Lote" 
+                            lazy-rules :options="opcionesFiltro.lotes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
+                            <template v-slot:no-option>
+                                
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                  Sin resultados
+                                </q-item-section>
+                              </q-item>
+                            </template>
+                        </q-select>
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionPresupuesto" label="Ficha" 
+                            lazy-rules :options="opcionesFiltro.fichas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" >
+                            <template v-slot:no-option>
+                                
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                Sin resultados
+                                </q-item-section>
+                            </q-item>
+                            </template>
+                        </q-select>
                         <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
                             :rules="[
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
