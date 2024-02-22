@@ -4,9 +4,12 @@ import { ref } from "vue";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import VerificarCodigo from "./validarCodigo.vue";
 import Cookies from 'js-cookie'
+import logoSena from '../assets/logoSena.png'
+import { useRouter } from 'vue-router'; 
 
 // Alertas notify
 const $q = useQuasar();
+const router = useRouter();
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
@@ -48,13 +51,17 @@ async function enviarCodigo() {
     console.log(error);
   }
 }
+
+function home(){
+  router.push('/')
+}
 </script>
 
 <template>
   <main>
     <section v-if="!componenteVerificar" class="sectionone">
       <article id="image">
-        <img src="/src/assets/logoSena.png" alt="" />
+        <img :src="logoSena" alt="" @click="home" style="cursor: pointer;"/>
         <p id="message">
           Por favor, digite su correo para el proceso de recuperación de
           contraseña.
@@ -88,7 +95,7 @@ async function enviarCodigo() {
 
     <section v-if="showWindow" id="sectiontwo">
       <article id="image">
-        <img src="/src/assets/logoSena.png" alt="" />
+        <img :src="logoSena" alt="" />
       </article>
       <article id="stext">
         <div id="stext1">
@@ -114,7 +121,7 @@ main {
   background-image: url(../assets/fondo.png);
   background-size: cover;
   background-repeat: no-repeat;
-  background-position:center;
+  background-position: center;
   overflow-y: hidden;
 }
 
@@ -126,7 +133,7 @@ section {
 #image {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   width: 100%;
   text-align: center;
 }
@@ -136,7 +143,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 80%;
+  height: 100%;
   width: 100%;
 }
 
@@ -169,15 +176,10 @@ section {
   display: flex;
   width: 100%;
   text-align: center;
-  font-size: 35px;
+  font-size: 240%;
 }
 
-#text3 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-}
+
 
 .inputcorreo{
   width: 100%;
@@ -244,15 +246,34 @@ section {
   width: 200px;
 }
 
-@media screen and (min-width: 100px) and (max-width: 900px) {
+@media screen and (min-width: 601px) and (max-width: 960px) {
   #image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
     width: 100%;
   }
+  .prueba{
+    width: 55%;
+  }
+}
 
+@media screen and (min-width: 100px) and (max-width: 600px) {
+  #image {
+    flex-direction: column;
+    width: 100%;
+  }
+  .prueba{
+    width: 90%;
+    height: 50%;
+  }
+
+  #message {
+  font-size: 180%;
+}
+#buttonpassword {
+  margin-top: 30px;
+  font-size: 130%;
+  width: 80%
+}
 }
 
 </style>
