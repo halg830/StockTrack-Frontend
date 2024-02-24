@@ -3,7 +3,10 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreItem } from '../stores/item.js'
 import helpersGenerales from '../helpers/generales';
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 
 // Variables modal
@@ -33,7 +36,8 @@ const columns = [
     label: 'Presupuesto Inicialllllllllllll',
     align: 'center',
     field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
-  },{
+  },
+  {
     name: 'presupuestoDisponible',
     label: 'Presupuesto Diponible',
     align: 'center',
@@ -217,6 +221,10 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
+const goLotes = (idDistribucion) => {
+  router.push(`/distribucion-item-lote/${idDistribucion}`);
+};
+
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -289,7 +297,7 @@ function buscarIndexLocal(id) {
               </path>
             </svg>
           </button>
-          <button class="btn-go">Lotes <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goLotes(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
