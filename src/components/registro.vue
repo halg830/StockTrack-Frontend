@@ -3,11 +3,10 @@ import { ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import helpersGenerales from "../helpers/generales.js";
-import Cookies from 'js-cookie'
 
 const diosito = "65748e6f21aa6ded71e490f4"
-const logeado = Cookies.get('usuario')
-const usuarioLogeado = JSON.parse(logeado)
+const useUsuario = useStoreUsuarios();
+const usuarioLogeado = useUsuario.usuario
 
 // Alertas notify
 const $q = useQuasar();
@@ -86,7 +85,6 @@ const opcionesSelect = {
 };
 
 // Get datos tabla
-const useUsuario = useStoreUsuarios();
 const loadTable = ref(false);
 async function getInfo() {
   try {

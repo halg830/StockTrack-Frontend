@@ -1,6 +1,7 @@
 <script setup>
-import Cookies from 'js-cookie'
-const rol = Cookies.get('rol');
+import { useStoreUsuarios } from '../stores/usuarios';
+const useUsuario = useStoreUsuarios()
+const rol = useUsuario.usuario.rol
 
 </script>
 <template>

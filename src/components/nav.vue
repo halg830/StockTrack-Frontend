@@ -22,7 +22,8 @@ const closeProfileDialog = () => {
   profileDialog.value = false;
 };
 const useUsuario = useStoreUsuarios()
-const rol = useUsuario.usuario.rol
+const usuario = useUsuario.usuario
+const rol = usuario.rol
 
 //Editar Perfil
 function Perfil() {

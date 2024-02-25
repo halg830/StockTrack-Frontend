@@ -115,7 +115,7 @@ export const useStoreUsuarios = defineStore(
         const response = await axios.post(`${modelo}/login`, data);
         console.log(response);
 
-        token.value = response.token;
+        token.value = response.data.token;
         usuario.value = response.data.usuario;
 
         return response;

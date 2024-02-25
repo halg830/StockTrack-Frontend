@@ -1,14 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import Cookies from 'js-cookie'
 import { useStoreUsuarios } from '../stores/usuarios';
 
 const router = useRouter();
 
-const userData = ref(JSON.parse(Cookies.get('usuario')));
 
 const storeUsuarios = useStoreUsuarios();
+const userData = storeUsuarios.usuario
 
 
 function guardarCambios() {

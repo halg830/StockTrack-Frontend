@@ -3,17 +3,16 @@ import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { ref } from "vue";
-import Cookies from "js-cookie";
+import { useStoreUsuarios } from "./usuarios";
 
 const modelo = "asignacion";
 
 export const useStoreDisLoteFicha= defineStore(modelo, () => {
-  function obtenerToken() {
-    console.log(Cookies.get("x-token"));
-    return Cookies.get("x-token");
-  }
+  function insertarToken(){
+    const useUsuario = useStoreUsuarios()
 
-  axios.defaults.headers.common["x-token"] = obtenerToken();
+    axios.defaults.headers.common["x-token"] = useUsuario.token
+  }
 
   const $q = useQuasar();
   function notificar(tipo, msg) {
@@ -32,6 +31,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
   const distribucionLoteFicha = ref([]);
   const getAll = async () => {
     try {
+      insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log("d", response.data);
       distribucionLoteFicha.value = response.data;
@@ -56,6 +56,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
 
   const agregar = async (data) => {
     try {
+      insertarToken()
       const response = await axios.post(`${modelo}/agregar`, data);
       console.log(response);
 
@@ -81,6 +82,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
 
   const editar = async (id, data) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/editar/${id}`, data);
       console.log(response);
       return response.data;
@@ -105,6 +107,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
 
   const activar = async (id) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/activar/${id}`);
       console.log(response);
       return response.data;
@@ -129,6 +132,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
 
   const inactivar = async (id) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/inactivar/${id}`);
       console.log(response);
       return response.data;

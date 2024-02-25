@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from "vue";
-import Cookies from "js-cookie";
 import { useStoreFichas } from "../stores/ficha.js";
 import { useStoreLotes } from "../stores/lote.js";
 import { useStoreProductos } from "../stores/productos.js";
 import { useStorePedidos } from "../stores/pedido.js";
 import { useStoreDetallePedido } from "../stores/detallePedido.js";
+import { useStoreUsuarios } from "../stores/usuarios";
 import { useQuasar } from "quasar";
 
 // Alertas notify
@@ -56,9 +56,9 @@ function fechaActual() {
   return formatoFecha;
 }
 
+const useUsuario = useStoreUsuarios()
 function obtenerInstructor() {
-  const usuario = Cookies.get("usuario");
-  const objUsuario = JSON.parse(usuario);
+  const objUsuario = useUsuario.usuario
   console.log(objUsuario);
   return {
     label: objUsuario.nombre + " " + objUsuario.apellido,

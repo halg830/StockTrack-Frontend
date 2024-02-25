@@ -3,13 +3,17 @@ import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { ref } from "vue";
-import Cookies from "js-cookie";
+import { useStoreUsuarios } from "./usuarios";
 
 const modelo = "detallePedido";
 
 export const useStoreDetallePedido = defineStore(modelo, () => {
   
-  axios.defaults.headers.common["x-token"] = obtenerToken();
+  function insertarToken(){
+    const useUsuario = useStoreUsuarios()
+
+    axios.defaults.headers.common["x-token"] = useUsuario.token
+  }
 
   const $q = useQuasar();
   function notificar(tipo, msg) {
@@ -29,6 +33,7 @@ export const useStoreDetallePedido = defineStore(modelo, () => {
 
   const getAll = async () => {
     try {
+      insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
       
@@ -53,6 +58,7 @@ export const useStoreDetallePedido = defineStore(modelo, () => {
 
   const getPorPedido =async(idPedido)=>{
     try {
+      insertarToken()
       const response = await axios.get(`${modelo}/getPorPedido/${idPedido}`)
       console.log(response);
       return response.data
@@ -76,6 +82,7 @@ export const useStoreDetallePedido = defineStore(modelo, () => {
 
   const agregar = async (data) => {
     try {
+      insertarToken()
       const response = await axios.post(`${modelo}/agregar`, data);
       console.log(response.data);
 

@@ -12,11 +12,7 @@ import App from "./App.vue";
 axios.defaults.baseURL = "https://stocktrack-backend.onrender.com/api/";
 
 const pinia = createPinia();
-// pinia.use(piniaPluginPersistedstate)
-
-pinia.use(piniaPluginPersistedstate({
-  storage: sessionStorage,
-}));
+pinia.use(piniaPluginPersistedstate)
 
 const myApp = createApp(App);
 

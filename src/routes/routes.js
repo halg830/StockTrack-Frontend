@@ -17,39 +17,37 @@ import historialPedido from '../components/historialPedido.vue'
 import distribucionItemLote from '../components/distribucionItemLote.vue';
 import distribucionLoteFicha from '../components/distribucionLoteFicha.vue';
 import editarPerfil from '../components/editarPerfil.vue';
-import useUsuarioStore from '../stores/usuarios.js'
+import {useStoreUsuarios} from '../stores/usuarios.js'
 
-const auth = (to, from, next) => {
-  if (checkAuth()) {
-      const userUsuario = useUsuarioStore()
-      const rol = userUsuario.rol
-      if (!to.meta.rol.includes(rol)) {
-          return next({ name: 'login' })
-      }
-      next()
-  } else {
-      return next({ name: 'login' })
-  }
-}
+// const checkAuth = () => {
+//   const useUsuario = useStoreUsuarios()
 
-const checkAuth = () => {
-  const useUsuario = useUsuarioStore()
+//   const token = useUsuario.token
 
-  const token = useUsuario.token
+//   if (!token) return false
+//   return true
+// };
 
-  if (useUsuario.login == "" || useUsuario.login === undefined) {
-      return false;
-  }
-  if (!token) return false
-  return true
-};
+// const auth = (to, from, next) => {
+//   if (checkAuth()) {
+//       const useUsuario = useStoreUsuarios()
+//       const rol = useUsuario.usuario.rol
+//       console.log(rol);
+//       if (!to.meta.rol.includes(rol)) {
+//           return next({ name: '' })
+//       }
+//       next()
+//   } else {
+//       return next({ name: '' })
+//   }
+// }
 
 const routes = [
   {path: '/', component: Login},
   {path: '/recuperar-password', component: recuperarContra},
   {path: '/nav', component: Nav, children:[
     {path:'/nav', redirect:'/home'},
-    {path: '/home', component: Home , name: "home", beforeEnter: auth, meta: { rol: ['admin', 'bodega', 'instructor'] } },
+    {path: '/home', component: Home },
     {path: '/fichas', component: Ficha},
     {path: '/cuentas', component: Cuentas},
     {path: '/nueva-password', component: NuevaContra},

@@ -3,18 +3,16 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-// import { useStoreUsuarios } from "./usuarios.js";
-import Cookies from "js-cookie";
+import { useStoreUsuarios } from "./usuarios";
 
 const modelo = "item";
 
 export const useStoreItem= defineStore(modelo, () => {
-  function obtenerToken() {
-    console.log(Cookies.get("x-token"));
-    return Cookies.get("x-token");
-  }
+  function insertarToken(){
+    const useUsuario = useStoreUsuarios()
 
-  axios.defaults.headers.common["x-token"] = obtenerToken();
+    axios.defaults.headers.common["x-token"] = useUsuario.token
+  }
 
   const $q = useQuasar();
   function notificar(tipo, msg) {
@@ -33,6 +31,7 @@ export const useStoreItem= defineStore(modelo, () => {
   const items = ref([]);
   const getAll = async () => {
     try {
+      insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
       items.value = response.data;
@@ -57,6 +56,7 @@ export const useStoreItem= defineStore(modelo, () => {
 
   const agregar = async (data) => {
     try {
+      insertarToken()
       const response = await axios.post(`${modelo}/agregar`, data);
       console.log(response.data._id);
 
@@ -82,6 +82,7 @@ export const useStoreItem= defineStore(modelo, () => {
 
   const editar = async (id, data) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/editar/${id}`, data);
       console.log(response);
       return response.data;
@@ -106,6 +107,7 @@ export const useStoreItem= defineStore(modelo, () => {
 
   const ajustarPresupuesto = async(id, presupuesto) =>{
     try {
+      insertarToken()
       console.log("Responde:", id, presupuesto);
       const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
       console.log(response);
@@ -131,6 +133,7 @@ export const useStoreItem= defineStore(modelo, () => {
 
   const activar = async (id) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/activar/${id}`);
       console.log(response);
       return response.data;
@@ -155,6 +158,7 @@ export const useStoreItem= defineStore(modelo, () => {
 
   const inactivar = async (id) => {
     try {
+      insertarToken()
       const response = await axios.put(`${modelo}/inactivar/${id}`);
       console.log(response);
       return response.data;

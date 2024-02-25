@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from "vue";
-import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import { useQuasar } from "quasar";
@@ -51,13 +50,6 @@ async function login() {
       notificar("negative", response.error);
       return;
     }
-
-    // Cookies.set("x-token", response.data.token, { expires: 1 });
-    // Cookies.set("id", response.data.usuario._id, { expires: 1 });
-    // Cookies.set("rol", response.data.usuario.rol, { expires: 1 });
-    // Cookies.set("usuario", JSON.stringify(response.data.usuario), {
-    //   expires: 1,
-    // });
 
     router.push("/nav");
   } catch (error) {
