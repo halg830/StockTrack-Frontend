@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 import helpersGenerales from "../helpers/generales.js";
@@ -117,7 +117,7 @@ const opciones = {
     modal.value = true;
   },
   editar: (info) => {
-    data.value = { ...info };
+    data.value = { ...info, rol: helpersGenerales.primeraMayus(info.rol) };
     estado.value = "editar";
     modal.value = true;
   },
@@ -225,13 +225,14 @@ const in_activar = {
       loadIn_activar.value = false;
     }
   },
-  inactivar: async (id) => {
+  inactivar: async (btn) => {
     loadIn_activar.value = true;
     try {
-      const response = await useUsuario.inactivar(id);
+      const response = await useUsuario.inactivar(btn._id);
       console.log(response);
       if (!response) return;
       if (response.error) {
+        btn.estado = 1
         notificar("negative", response.error);
         return;
       }
@@ -265,28 +266,28 @@ function buscarIndexLocal(id) {
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
             <div style="max-width: 500px">
-              <q-input filled v-model="data.nombre" label="Nombre" bottom-slots
-                :rules="[(val) => !!val.trim() || 'Ingrese un nombre']">
+              <q-input filled v-model.trim="data.nombre" label="Nombre" bottom-slots
+                :rules="[(val) => !!val || 'Ingrese un nombre']">
               </q-input>
             </div>
 
             <div style="max-width: 500px">
-              <q-input filled v-model="data.apellido" label="Apellidos" bottom-slots
-                :rules="[(val) => !!val.trim() || 'Ingrese un apellido']">
+              <q-input filled v-model.trim="data.apellido" label="Apellidos" bottom-slots
+                :rules="[(val) => !!val || 'Ingrese un apellido']">
               </q-input>
             </div>
 
             <div style="max-width: 500px">
               <q-input filled v-model="data.identificacion" label="Identificación" bottom-slots
                 input-class="input" :rules="[
-                  (val) => !!val.trim() || 'Ingrese una identificación',
+                  (val) => !!val || 'Ingrese una identificación',
                 ]" :oninput="limitarLongitud('identificacion', 10)" mask="##########">
               </q-input>
             </div>
 
             <div style="max-width: 500px">
-              <q-input filled v-model="data.correo" label="Correo" bottom-slots :rules="[
-                (val) => !!val.trim() || 'Ingrese un correo',
+              <q-input filled v-model.trim="data.correo" label="Correo" bottom-slots :rules="[
+                (val) => !!val || 'Ingrese un correo',
                 (val) =>
                   regexCorreo.test(val) ||
                   'Por favor ingrese un correo válido',
@@ -296,7 +297,7 @@ function buscarIndexLocal(id) {
 
             <div style="max-width: 500px">
               <q-input filled v-model="data.telefono" mask="##########" label="Telefono" bottom-slots
-                :rules="[(val) => !!val.trim() || 'Ingrese un teléfono']" :oninput="limitarLongitud('telefono', 10)">
+                :rules="[(val) => !!val || 'Ingrese un teléfono']" :oninput="limitarLongitud('telefono', 10)">
               </q-input>
             </div>
             <div style="max-width: 500px">
@@ -312,9 +313,9 @@ function buscarIndexLocal(id) {
               </q-select>
             </div>
             <div style="max-width: 500px" v-if="estado === 'agregar'">
-              <q-input filled v-model="data.password" :type="clicks.password ? 'password' : 'text'" label="Contraseña"
+              <q-input filled v-model.trim="data.password" :type="clicks.password ? 'password' : 'text'" label="Contraseña"
                 bottom-slots :rules="[
-                  (val) => !!val.trim() || 'Ingrese una contraseña',
+                  (val) => !!val|| 'Ingrese una contraseña',
                   (val) =>
                     vali.test(val) ||
                     'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
@@ -326,9 +327,9 @@ function buscarIndexLocal(id) {
               </q-input>
             </div>
             <div style="max-width: 500px" v-if="estado === 'agregar'">
-              <q-input filled v-model="confirmPassword" :type="clicks.newPassword ? 'password' : 'text'"
+              <q-input filled v-model.trim="confirmPassword" :type="clicks.newPassword ? 'password' : 'text'"
                 label="Confirme su contraseña" bottom-slots :rules="[
-                  (val) => !!val.trim() || 'Confirme la contraseña',
+                  (val) => !!val || 'Confirme la contraseña',
                   (val) =>
                     val === data.password || 'Las contraseñas no coinciden',
                   (val) =>
@@ -355,11 +356,11 @@ function buscarIndexLocal(id) {
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter.trim()" rows-per-page-label="Visualización de filas" page="2"
       :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda." wrap-cells="false"
-      label="Usuarios" no-data-label="No hay programa registrados." class="my-sticky-header-column-table"
+      label="Usuarios" no-data-label="No hay usuarios registrados." class="my-sticky-header-column-table"
       style="width: 90%">
       <template v-slot:top-left>
         <h4 id="titleTable">Usuarios</h4>
-        <q-btn @click="opciones.agregar" color="primary">
+        <q-btn @click="opciones.agregar" color="primary" style="margin-left: 10px;">
           <q-icon name="add" color="white" center />
         </q-btn>
       </template>
@@ -380,11 +381,11 @@ function buscarIndexLocal(id) {
               : '‎  ‎   ‎   ‎   ‎ '
             " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small" @click="
     props.row.estado
-      ? in_activar.inactivar(props.row._id)
+      ? in_activar.inactivar(props.row)
       : in_activar.activar(props.row._id);
   props.row.estado = 'load';
   " 
-  :disabled="props.row._id===diosito || props.row._id === usuarioLogeado._id"
+  :disabled="props.row._id === usuarioLogeado._id"
   />
         </q-td>
       </template>
@@ -407,6 +408,9 @@ function buscarIndexLocal(id) {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Kanit:wght@500&display=swap");
+#titleTable{
+  margin: auto;
+}
 
 .editBtn {
   width: 55px;
