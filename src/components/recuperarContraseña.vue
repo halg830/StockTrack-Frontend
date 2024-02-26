@@ -61,7 +61,7 @@ function home() {
   <main>
     <section v-if="!componenteVerificar">
       <article id="image">
-        <img :src="logoSena" alt="" @click="home" style="cursor: pointer;" />
+        <img :src="logoSena" alt="" @click="home" style="max-width: 145px;cursor: pointer;" />
         <p id="message">
           Por favor, digite su correo para el proceso de recuperación de
           contraseña.
@@ -71,7 +71,7 @@ function home() {
       <article id="text">
         <div class="prueba">
           <div id="text2">
-            <div>
+            <div >
               <h3>Correo electrónico</h3>
             </div>
 
@@ -107,14 +107,13 @@ function home() {
 <style scoped>
 main {
   width: 100%;
-  max-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-image: url(../assets/fondo.png);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  overflow-y: hidden;
 }
 
 section {
@@ -134,7 +133,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  max-height: 100vh;
   width: 100%;
 }
 
@@ -148,8 +147,8 @@ section {
   box-shadow: 25px 20px 5px #888888;
   width: 80%;
   max-width: 600px;
-  height: 38vh;
-  max-height: 500px;
+  height: 43vh;
+  max-height: 50vh;
   margin: 20px;
   gap: 20px;
 }
@@ -222,7 +221,8 @@ section {
     align-items: center;
     text-align: center;
     width: 90%;
-    padding-bottom: 100%;
+    height: 100vh;
+    box-shadow: none;
   }
   .correo{
     max-width: 90%;

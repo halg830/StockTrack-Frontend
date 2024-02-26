@@ -52,12 +52,16 @@ function validarCampos() {
 
   confirmarCodigo();
 }
+
+function home() {
+  router.push('/')
+}
 </script>
 
 <template>
   <section class="form-container" v-if="!componenteNuevaPass">
     <div class="logo">
-      <img :src="logoSena" alt="" srcset="" style="max-width: 145px;">
+      <img :src="logoSena" alt="" srcset="" @click="home" style="max-width: 145px; cursor: pointer;">
     </div>
     <q-form class="form" @submit="validarCampos">
 
@@ -87,18 +91,17 @@ function validarCampos() {
 .form-container {
   width: 100%;
   height: 100vh;
-  overflow-y: hidden;
 }
 
 .logo {
   padding: 10px;
   width: 100%;
-  height: 5vh;
+  height: 5%;
 }
 
 .form {
   width: 100%;
-  height: 100%;
+  height: 95%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -112,25 +115,25 @@ function validarCampos() {
   align-items: center;
   text-align: center;
   width: 33vw;
-  height: 40vh;
+  padding: 20px;
+  min-height: 40vh;
   background-color: #f5f5f5;
   border-radius: 20px;
-  border: 2px solid black;
   gap: 50px;
   box-shadow: 25px 20px 5px #888888;
-
 }
 
 #text {
   text-align: center;
-  font-size: 2vw;
+  font-size: 200%;
+  width: 100%;
+  max-height: 100%;
 }
 
 
 #buttonpassword {
   color: white;
   font-weight: bolder;
-  border: 2px solid black;
   width: 10vw;
   font-size: larger;
   border-radius: 25px;
@@ -143,34 +146,23 @@ function validarCampos() {
 }
 
 @media screen and (max-width: 1000px) and (min-width: 550px) {
-
   .form-group {
     width: 40vw;
+    padding: 15px;
   }
-
-  #text {
-    font-size: 3.3vw;
-  }
-
   .inputcorreo {
     width: 30vw;
   }
-
   #buttonpassword {
     width: 22vw;
   }
 }
 
 @media screen and (max-width: 549px) and (min-width: 100px) {
-
 .form-group {
   width: 60vw ;
+  padding: 10px;
 }
-
-#text {
-  font-size: 5vw;
-}
-
 .inputcorreo {
   width: 50vw;
 }
@@ -178,5 +170,15 @@ function validarCampos() {
 #buttonpassword {
   width: 30vw;
 }
+}
+
+@media screen and (max-height: 660px) {
+  .form-container{
+    display: flex;
+    flex-direction: column;
+  }
+  .form-group {
+    padding: 15px; 
+  }
 }
 </style>

@@ -7,6 +7,8 @@ import { useStoreUsuarios } from "../stores/usuarios.js";
 import logoSena from '../assets/logoSena.png'
 
 const router = useRouter();
+const isPwVisible = ref(false);
+const isCheckPwVisible = ref(false);
 const showOne = ref(true);
 const showTwo = ref(false);
 // Notificación
@@ -36,15 +38,15 @@ async function nuevaPassword() {
     if (response.status != 200) {
       notificar("negative", response.error);
       return;
-    } else if (response.tatus === 200) {
-      showOne.value = false;
-      showTwo.value = true;
     }
     notificar("positive", "Contraseña actulizada con éxito");
   } catch (error) {
     console.log(error);
   } finally {
     loadNuevaPass.value = false;
+    showOne.value = false;
+    showTwo.value = true;
+
   }
 }
 
@@ -73,37 +75,53 @@ function validarCampos() {
 
   nuevaPassword();
 }
+
+function home() {
+  router.push('/')
+}
 </script>
 
 <template>
   <main>
     <section class="form-containe" v-if="showOne">
       <div class="logo">
-        <img :src="logoSena" alt="" srcset="" style="max-width: 145px;">
+        <img :src="logoSena" alt="" srcset="" @click="home" style="max-width: 145px; cursor: pointer;">
       </div>
       <form class="form2" @submit="validarCampos">
         <div class="form-group">
 
           <label class="text-h6" for="email">Por favor, ingrese la nueva contraseña</label>
-          <q-input class="inputpassword" outlined="" color="dark" bg-color="white" type="password" id="email"
-            v-model="data.password" lazy-rules :rules="[
+          <q-input class="inputpassword" outlined color="dark" bg-color="white" :type="isPwVisible ? 'text' : 'password'"
+            id="email" v-model="data.password" lazy-rules :rules="[
               (val) => val != '' || 'Por favor ingrese una contraseña',
               (val) =>
                 vali.test(val) ||
                 'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-            ]" />
+            ]">
+            <template v-slot:append>
+              <q-icon :name="isPwVisible ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                @click="isPwVisible = !isPwVisible" />
+            </template>
+          </q-input>
 
 
 
           <label class="text-h6" for="email">Confirmar Contraseña</label>
-          <q-input outlined class="inputpassword" color="dark" bg-color="white" type="password" id="email"
-            v-model="checkPassword" lazy-rules :rules="[
+          <q-input outlined class="inputpassword" color="dark" bg-color="white"
+            :type="isCheckPwVisible ? 'text' : 'password'" id="confirm-password" v-model="checkPassword" lazy-rules
+            :rules="[
               (val) => val != '' || 'Por favor confirme su contraseña',
               (val) => val === data.password || 'Las contraseñas no coinciden',
               (val) =>
                 vali.test(val) ||
                 'La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.',
-            ]" />
+            ]">
+            <template v-slot:append>
+              <q-icon :name="isCheckPwVisible ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                @click="isCheckPwVisible = !isCheckPwVisible" />
+            </template>
+          </q-input>
+
 
 
           <q-btn class="bg-primary" id="buttonpassword" :loading="loadNuevaPass" type="submit">
@@ -133,9 +151,16 @@ function validarCampos() {
 </template>
 
 <style scoped>
+.form-containe {
+  width: 100%;
+  height: 100vh;
+}
+
+
 .form2 {
   width: 100%;
-  height: 70vh;
+  height: 75%;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -147,21 +172,19 @@ function validarCampos() {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
   width: 30%;
-  height: 80%;
+  padding: 20px;
   background-color: #f5f5f5;
   border-radius: 20px;
   margin-bottom: 50px;
   gap: 20px;
-  border: 2px solid black;
-  text-align: center;
   box-shadow: 25px 20px 5px #888888;
 }
 
 #buttonpassword {
   color: white;
   font-weight: bolder;
-  border: 2px solid black;
   width: 55%;
   font-size: 115%;
   border-radius: 25px;
@@ -174,7 +197,8 @@ function validarCampos() {
 }
 
 #second {
-  height: 100%;
+  width: 100%;
+  height: 100vh;
 }
 
 #stext {
@@ -183,7 +207,7 @@ function validarCampos() {
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 #stext11 {
@@ -193,101 +217,62 @@ function validarCampos() {
   align-items: center;
   background-color: #f5f5f5;
   box-shadow: 25px 20px 5px #888888;
-  border: 2px solid black;
-  width: 40vw;
-  height: 55vh;
+  width: 40%;
+  padding: 25px;
+  min-height: 40vh;
   gap: 50px;
 }
 
-
 #smessage {
   text-align: center;
-  font-size: 3vw;
+  font-size: 315%;
   font-weight: bolder;
 }
 
 #smessage2 {
-  font-size: 2vw;
+  font-size: 150%;
 }
 
 #stext2 {
   width: 50%;
   text-align: center;
-
 }
 
 #sbuttonpassword {
   color: white;
   font-weight: bolder;
-  font-size: 1vw;
+  font-size: 120%;
   border-radius: 25px;
-  width: 50%;
+  width: 70%;
 }
 
-@media screen and (min-width: 751px) and (max-width: 1000px) {
+@media screen and (max-width: 900px) and (min-width: 550px) {
+  .form-group {
+    width: 55%;
+  }
+
   #stext11 {
-    width: 50vw;
-  }
-
-  #smessage {
-    font-size: 4vw;
-  }
-
-  #smessage2 {
-    font-size: 3vw;
-  }
-
-  #sbuttonpassword {
-    font-size: 2vw;
     width: 70%;
+    padding: 30px;
   }
 }
 
-
-@media screen and (min-width: 400px) and (max-width: 750px) {
-
-  .form-group {
-    width: 50%;
-  }
-
-  #stext11 {
-    width: 60vw;
-  }
-
-  #smessage {
-    font-size: 5vw;
-  }
-
-  #smessage2 {
-    font-size: 4vw;
-  }
-
-  #sbuttonpassword {
-    font-size: 2vw;
-    width: 80%;
-  }
-}
-
-@media screen and (min-width: 100px) and (max-width: 399px) {
-
+@media screen and (max-width: 549px) and (min-width: 100px) {
   .form-group {
     width: 80%;
   }
 
   #stext11 {
-    width: 70vw;
+    width: 70%;
+    padding-top: 30px;
   }
 
   #smessage {
-    font-size: 6vw;
-  }
-
-  #smessage2 {
-    font-size: 5vw;
+    font-size: 250%;
   }
 
   #sbuttonpassword {
-    font-size: 3vw;
-    width: 90%;
+    width: 100%;
   }
-}</style>
+}
+</style>
