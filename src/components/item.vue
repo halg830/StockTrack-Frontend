@@ -222,7 +222,7 @@ function buscarIndexLocal(id) {
 }
 
 const goLotes = (idDistribucion) => {
-  router.push(`/distribucion-item-lote/${idDistribucion}`);
+  router.push(`/lote/${idDistribucion}`);
 };
 
 </script>

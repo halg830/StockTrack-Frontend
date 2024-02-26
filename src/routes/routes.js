@@ -43,25 +43,26 @@ import {useStoreUsuarios} from '../stores/usuarios.js'
 // }
 
 const routes = [
-  {path: '/', component: Login},
-  {path: '/recuperar-password', component: recuperarContra},
-  {path: '/nav', component: Nav, children:[
-    {path:'/nav', redirect:'/home'},
-    {path: '/home', component: Home },
-    {path: '/fichas', component: Ficha},
-    {path: '/cuentas', component: Cuentas},
-    {path: '/nueva-password', component: NuevaContra},
-    {path: '/solicitar-pedido', component: solicitar},
-    {path: '/productos', component: GestionProductos},
-    {path: '/lotes', component: Lote},
-    {path: '/item', component: Item},
-    {path: '/areas', component: Area},
-    {path: '/formato-devolucion', component: formatoDevolucion},
-    {path: '/historial', component: historial},
-    {path: '/historial-pedido', component: historialPedido},
-    {path: '/distribucion-item-lote', component: distribucionItemLote},
-    {path: '/distribucion-lote-ficha', component: distribucionLoteFicha},
-    {path: '/editar-perfil', component: editarPerfil}
+  { path: '/', component: Login},
+  { path: '/recuperar-password', component: recuperarContra},
+  { path: '/nav', component: Nav, children:[
+    { path:'/nav', redirect:'/home'},
+    { path: '/home', component: Home },
+    { path: '/fichas', component: Ficha},
+    { path: '/cuentas', component: Cuentas},
+    { path: '/nueva-password', component: NuevaContra},
+    { path: '/solicitar-pedido', component: solicitar},
+    { path: '/productos', component: GestionProductos},
+    { path: '/lotes', component: Lote},
+    { path: '/lotes/:idDistribucion', name: 'LoteConID', component: Lote, props: true },
+    { path: '/item', component: Item},
+    { path: '/areas', component: Area},
+    { path: '/formato-devolucion', component: formatoDevolucion},
+    { path: '/historial', component: historial},
+    { path: '/historial-pedido', component: historialPedido},
+    { path: '/distribucion-item-lote', component: distribucionItemLote},
+    { path: '/distribucion-lote-ficha', component: distribucionLoteFicha},
+    { path: '/editar-perfil', component: editarPerfil}
   ]}
 ]
 

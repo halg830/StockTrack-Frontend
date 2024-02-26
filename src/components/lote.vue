@@ -1,9 +1,25 @@
 <script setup>
-import { ref } from 'vue'
+import { ref , onMounted} from 'vue'
 import { useQuasar } from 'quasar';
 import helpersGenerales from '../helpers/generales';
 import { useStoreLotes } from '../stores/lote.js';
-// import { format } from "date-fns";
+import { useStore } from 'vuex';
+import { useRouter, useRoute } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
+
+
+const idDistribucion = ref('');
+
+const lote = async () => {
+  idDistribucion.value = route.params.idDistribucion;
+
+  await store.dispatch('lote', idDistribucion.value);
+};
+
+onMounted(lote);
 
 const useLotes = useStoreLotes();
 const loadingTable = ref(false);
