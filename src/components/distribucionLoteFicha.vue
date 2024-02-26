@@ -47,7 +47,7 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-        const response = await storeDisLoteFicha.getAll()
+        const response = await storeDisLoteFicha.getById()
         getOptionsItemLote();
         if (!response) return;
         if (response.error) {

@@ -53,6 +53,30 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
       return error.response.data;
     }
   };
+  const getById = async (idDistribucionPresupuesto) => {
+    try {
+      insertarToken()
+      const response = await axios.get(`${modelo}/distribucion/${idDistribucionPresupuesto}`);
+      console.log("d", response.data);
+      distribucionLoteFicha.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
 
   const agregar = async (data) => {
     try {
@@ -155,5 +179,5 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, distribucionLoteFicha };
+  return { getAll, agregar, editar, activar, inactivar, getById, distribucionLoteFicha };
 });

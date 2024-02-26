@@ -33,7 +33,7 @@ const columns = [
   },
   {
     name: 'presupuesto',
-    label: 'Presupuesto Inicialllllllllllll',
+    label: 'Presupuesto Inicial',
     align: 'center',
     field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
   },
@@ -221,8 +221,8 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
-const goLotes = (idDistribucion) => {
-  router.push(`/lote/${idDistribucion}`);
+const goItemLote = (idDistribucion) => {
+  router.push(`/distribucion-item-lote/${idDistribucion}`);
 };
 
 </script>
@@ -297,7 +297,7 @@ const goLotes = (idDistribucion) => {
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goLotes(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goItemLote(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>

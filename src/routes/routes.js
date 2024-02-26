@@ -54,14 +54,15 @@ const routes = [
     { path: '/solicitar-pedido', component: solicitar},
     { path: '/productos', component: GestionProductos},
     { path: '/lotes', component: Lote},
-    { path: '/lotes/:idDistribucion', name: 'LoteConID', component: Lote, props: true },
     { path: '/item', component: Item},
     { path: '/areas', component: Area},
     { path: '/formato-devolucion', component: formatoDevolucion},
     { path: '/historial', component: historial},
     { path: '/historial-pedido', component: historialPedido},
     { path: '/distribucion-item-lote', component: distribucionItemLote},
+    { path: '/distribucion-item-lote/:idDistribucion', name: 'LoteConID', component: distribucionItemLote, props: true },
     { path: '/distribucion-lote-ficha', component: distribucionLoteFicha},
+    { path: '/distribucion-lote-fichaidDistribucionPresupuesto', name: 'Fichas', component: distribucionLoteFicha},
     { path: '/editar-perfil', component: editarPerfil}
   ]}
 ]

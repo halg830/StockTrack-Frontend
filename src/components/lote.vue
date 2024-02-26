@@ -3,23 +3,6 @@ import { ref , onMounted} from 'vue'
 import { useQuasar } from 'quasar';
 import helpersGenerales from '../helpers/generales';
 import { useStoreLotes } from '../stores/lote.js';
-import { useStore } from 'vuex';
-import { useRouter, useRoute } from 'vue-router';
-
-const route = useRoute();
-const router = useRouter();
-const store = useStore();
-
-
-const idDistribucion = ref('');
-
-const lote = async () => {
-  idDistribucion.value = route.params.idDistribucion;
-
-  await store.dispatch('lote', idDistribucion.value);
-};
-
-onMounted(lote);
 
 const useLotes = useStoreLotes();
 const loadingTable = ref(false);
@@ -209,8 +192,8 @@ function buscarIndexLocal(id) {
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model="data.nombre" label="Nombre Lote" lazy-rules
-              :rules="[val => val && val.length > 0 || 'Digite el nombre']" />
+            <q-input filled v-model.trim="data.nombre" label="Nombre Lote" 
+              :rules="[val => !!val || 'Digite el nombre']" />
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
