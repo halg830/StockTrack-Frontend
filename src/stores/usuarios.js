@@ -113,11 +113,12 @@ export const useStoreUsuarios = defineStore(
     const login = async (data) => {
       try {
         const response = await axios.post(`${modelo}/login`, data);
-        console.log(response);
+        console.log("Hola soy login", response);
 
         token.value = response.data.token;
         usuario.value = response.data.usuario;
-
+        id.value = response.data.usuario._id;
+        
         return response;
       } catch (error) {
         console.log(error);
@@ -184,10 +185,7 @@ export const useStoreUsuarios = defineStore(
     const cambiarPassword = async (data) => {
       try {
         insertarToken();
-        const response = await axios.put(
-          `${modelo}/cambioPassword/${id.value}`,
-          data
-        );
+        const response = await axios.put(`${modelo}/cambioPassword/${id.value}`, data);
         console.log(response);
 
         return response.data;

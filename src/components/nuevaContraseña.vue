@@ -11,6 +11,7 @@ const isPw = ref(true);
 const password = ref('')
 const newPassword = ref('');
 const confirmPassword = ref('');
+const loadingContraseña = ref(false);
 const hideOne = ref(true);
 const showTwo = ref(false);
 const onReset = () => {
@@ -18,6 +19,8 @@ const onReset = () => {
   newPassword.value = '';
   confirmPassword.value = '';
 }
+
+
 
 const isPasswordValid = (value) => {
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@#$%^&+=/()])[A-Za-z\d@#$%^&+=/()]{8,}$/;
@@ -44,8 +47,10 @@ const data = ref({
   newPassword, confirmPassword
 })
 async function cambiarPassword() {
+  loadingContraseña.value = true;
   try {
     const response = await useUsuario.cambiarPassword(data.value)
+    loadingContraseña.value = false;
     console.log(response);
 
     if (!response) return
@@ -83,7 +88,7 @@ function notificar(tipo, msg) {
       <article id="sectiontwo">
         <q-form @reset="onReset" class="q-gutter-lg" @submit="cambiarPassword">
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Contraseña actual 🟥</label>
+            <label class="text-h6 text-weight-bold" for="">Contraseña actual </label>
             <q-input v-model="password" class="inputpassword" filled :type="isPw ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña']">
@@ -93,7 +98,7 @@ function notificar(tipo, msg) {
             </q-input>
           </div>
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Nueva contraseña 🟥</label>
+            <label class="text-h6 text-weight-bold" for="">Nueva contraseña </label>
             <q-input v-model="newPassword" class="inputpassword" filled :type="isPwd ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
               val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
@@ -105,7 +110,7 @@ function notificar(tipo, msg) {
             </q-input>
           </div>
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Confirmar contraseña 🟥</label>
+            <label class="text-h6 text-weight-bold" for="">Confirmar contraseña </label>
             <q-input v-model="confirmPassword" class="inputpassword" filled :type="isPwdb ? 'password' : 'text'"
                lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
@@ -117,8 +122,9 @@ function notificar(tipo, msg) {
           </div>
 
           <div id="text3">
-            <q-btn id="buttonpassword" type="submit" class="bg-primary">Cambiar
+            <q-btn id="buttonpassword" type="submit" class="bg-primary" :loading="loadingContraseña">Cambiar
               Contraseña</q-btn>
+              
           </div>
         </q-form>
 
@@ -132,7 +138,7 @@ function notificar(tipo, msg) {
           <p class="text-h2" id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
         </div>
         <div id="stext2">
-          <p class="text-h4">Ahora puede ingresar al sistema</p>
+          <p class="text-h4">Por favor vuelva a iniciar sesión</p>
           <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
         </div>
       </article>
@@ -147,10 +153,9 @@ function notificar(tipo, msg) {
 
 
 <style scoped>
-
 main {
   width: 100%;
-  height: 87vh;
+  height: 100%;
 }
 
 #sectionone {
@@ -167,15 +172,12 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 45%;
-  height: 80%;
+  width: 35vw;
+  min-height: 80%;
   background-color: rgb(245, 245, 245);
   border-radius: 20px;
-  border: 2px solid black;
   text-align: center;
 }
-
-
 
 #text {
   font-family: Arial, Helvetica, sans-serif;
@@ -187,21 +189,13 @@ main {
   width: 100%;
 }
 
-.cajas{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-}
 .inputpassword{
-  width: 95%;
-  
+  width: 100%;
 }
 
 #buttonpassword {
   color: white;
   font-weight: bolder;
-  border: 2px solid black;
   font-size: 20px;
   border-radius: 25px;
   cursor: pointer;

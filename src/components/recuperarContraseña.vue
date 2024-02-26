@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router';
 // Alertas notify
 const $q = useQuasar();
 const router = useRouter();
+const loadingCorreo = ref(false);
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
@@ -27,17 +28,21 @@ const correoValido = () => {
 };
 
 function validarCampo() {
+
   if (correoValido()) {
     enviarCodigo();
+
   }
 }
 
 const useUsuario = useStoreUsuarios();
+
 async function enviarCodigo() {
+  loadingCorreo.value = true;
   try {
     const response = await useUsuario.codigoRecuperar(email.value);
     console.log(response);
-
+    loadingCorreo.value = false;
     if (!response) return;
 
     if (response.error) {
@@ -87,7 +92,7 @@ function home() {
                   ]" />
 
                 <div style="margin-top: 20px;">
-                  <q-btn id="buttonpassword" type="submit" class="bg-primary">Recuperar contraseña</q-btn>
+                  <q-btn id="buttonpassword" type="submit" class="bg-primary" :loading="loadingCorreo">Recuperar contraseña</q-btn>
                 </div>
               </form>
             </div>
@@ -133,7 +138,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-height: 100vh;
+  min-height: 100vh;
   width: 100%;
 }
 
@@ -237,6 +242,14 @@ section {
     font-size: 1rem;
     width: 80%;
   }
+} 
+
+@media screen and (max-height: 710px){
+
+  .prueba {
+    height: 100vh;
+  }
+
 } 
 
 </style>
