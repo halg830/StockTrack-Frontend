@@ -159,6 +159,10 @@ const enviarInfo = {
         notificar("negative", response.error);
         return;
       }
+      if(response._id==useUsuario.usuario._id){
+        useUsuario.usuario = response;
+      }
+
       rows.value.splice(buscarIndexLocal(response._id), 1, response);
       modal.value = false;
       notificar("positive", "Editado exitosamente");

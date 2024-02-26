@@ -19,51 +19,52 @@ import distribucionLoteFicha from '../components/distribucionLoteFicha.vue';
 import editarPerfil from '../components/editarPerfil.vue';
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
-// const checkAuth = () => {
-//   const useUsuario = useStoreUsuarios()
+const checkAuth = () => {
+  const useUsuario = useStoreUsuarios()
 
-//   const token = useUsuario.token
+  const token = useUsuario.token
 
-//   if (!token) return false
-//   return true
-// };
+  if (!token) return false
+  return true
+};
 
-// const auth = (to, from, next) => {
-//   if (checkAuth()) {
-//       const useUsuario = useStoreUsuarios()
-//       const rol = useUsuario.usuario.rol
-//       console.log(rol);
-//       if (!to.meta.rol.includes(rol)) {
-//           return next({ name: '' })
-//       }
-//       next()
-//   } else {
-//       return next({ name: '' })
-//   }
-// }
+const auth = (to, from, next) => {
+  console.log(to);
+  if (checkAuth()) {
+      const useUsuario = useStoreUsuarios()
+      const rol = useUsuario.usuario.rol
+      console.log(rol);
+      if (!to.meta.rol.includes(rol)) {
+          return next({ path: '/' })
+      }
+      next()
+  } else {
+      return next({ path: '/' })
+  }
+}
 
 const routes = [
   { path: '/', component: Login},
   { path: '/recuperar-password', component: recuperarContra},
   { path: '/nav', component: Nav, children:[
     { path:'/nav', redirect:'/home'},
-    { path: '/home', component: Home },
-    { path: '/fichas', component: Ficha},
-    { path: '/cuentas', component: Cuentas},
-    { path: '/nueva-password', component: NuevaContra},
-    { path: '/solicitar-pedido', component: solicitar},
-    { path: '/productos', component: GestionProductos},
-    { path: '/lotes', component: Lote},
-    { path: '/item', component: Item},
-    { path: '/areas', component: Area},
-    { path: '/formato-devolucion', component: formatoDevolucion},
-    { path: '/historial', component: historial},
-    { path: '/historial-pedido', component: historialPedido},
-    { path: '/distribucion-item-lote', component: distribucionItemLote},
-    { path: '/distribucion-item-lote/:idDistribucion', name: 'LoteConID', component: distribucionItemLote, props: true },
-    { path: '/distribucion-lote-ficha', component: distribucionLoteFicha},
-    { path: '/distribucion-lote-fichaidDistribucionPresupuesto', name: 'Fichas', component: distribucionLoteFicha},
-    { path: '/editar-perfil', component: editarPerfil}
+    { path: '/home', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: Home },
+    { path: '/fichas', beforeEnter: auth, meta: {rol: ['admin']}, component: Ficha},
+    { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
+    { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
+    { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['instructor', 'bodega']}, component: solicitar},
+    { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
+    { path: '/lotes', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
+    { path: '/lotes/:idDistribucion', name: 'LoteConID', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
+    { path: '/item', beforeEnter: auth, meta: {rol: ['admin']}, component: Item},
+    { path: '/areas', beforeEnter: auth, meta: {rol: ['admin']}, component: Area},
+    { path: '/formato-devolucion', beforeEnter: auth, meta: {rol: ['bodega']}, component: formatoDevolucion},
+    { path: '/historial', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historial},
+    { path: '/historial-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historialPedido},
+    { path: '/distribucion-item-lote/:idDistribucion', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'LoteConID', component: distribucionItemLote, props: true },
+    { path: '/distribucion-lote-ficha', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: distribucionLoteFicha},
+    { path: '/distribucion-lote-fichaidDistribucionPresupuesto', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'Fichas', component: distribucionLoteFicha},
+    { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
 ]
 
