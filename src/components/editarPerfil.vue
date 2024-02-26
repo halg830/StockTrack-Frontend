@@ -2,23 +2,37 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStoreUsuarios } from '../stores/usuarios';
+import { useQuasar } from "quasar";
+
+const $q = useQuasar();
 
 const router = useRouter();
 
-
 const storeUsuarios = useStoreUsuarios();
-const userData = storeUsuarios.usuario
-
+const userData = ref({...storeUsuarios.usuario});
+const isLoading = ref(false); 
 
 function guardarCambios() {
-    storeUsuarios.editar(userData.value._id, {
-        _id: userData.value._id,
-        nombre: userData.value.nombre,
-        apellido: userData.value.apellido,
-        identificacion: userData.value.identificacion,
-        correo: userData.value.correo,
-        telefono: userData.value.telefono
-    });
+    isLoading.value = true;
+    storeUsuarios.editar(userData.value._id, userData.value)
+        .then((res) => {
+            $q.notify({
+                color: 'positive',
+                message: 'Cambios guardados correctamente',
+                position: 'top'
+            });
+            storeUsuarios.usuario=res
+        })
+        .catch((error) => {
+            $q.notify({
+                color: 'negative',
+                message: `Error al guardar cambios: ${error.message}`,
+                position: 'top'
+            });
+        })
+        .finally(() => {
+            isLoading.value = false;
+        });
 }
 
 function cambiarContraseña() {
@@ -35,7 +49,9 @@ function cambiarContraseña() {
             <q-input v-model="userData.identificacion" label="Identificación" readonly style="width: 300px;"/>
             <q-input v-model="userData.correo" label="Correo" style="width: 300px;" />
             <q-input v-model="userData.telefono" label="Teléfono" style="width: 300px;" />
-            <q-btn @click="guardarCambios" style="margin-top: 20px;">Guardar cambios</q-btn>
+            <q-btn @click="guardarCambios" style="margin-top: 20px;">
+                <q-spinner-hourglass v-if="isLoading" /> Guardar cambios
+            </q-btn>
             <q-btn @click="cambiarContraseña" style="margin-top: 20px;">Cambiar Contraseña</q-btn>
         </div>
     </q-card>
