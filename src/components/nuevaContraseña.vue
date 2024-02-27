@@ -86,9 +86,9 @@ function notificar(tipo, msg) {
       </article>
 
       <article id="sectiontwo">
-        <q-form @reset="onReset" class="q-gutter-lg" @submit="cambiarPassword">
+        <q-form @reset="onReset" class="q-gutter-lg" id="form" @submit="cambiarPassword">
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Contraseña actual </label>
+            <label class="text-h5 text-weight-bold" for="">Contraseña actual </label>
             <q-input v-model="password" class="inputpassword" filled :type="isPw ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña']">
@@ -98,7 +98,7 @@ function notificar(tipo, msg) {
             </q-input>
           </div>
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Nueva contraseña </label>
+            <label class="text-h5 text-weight-bold" for="">Nueva contraseña </label>
             <q-input v-model="newPassword" class="inputpassword" filled :type="isPwd ? 'password' : 'text'" 
               lazy-rules hide-bottom-space color="dark" bg-color="white" :rules="[val => val && val.length >= 8 || 'La contraseña debe tener al menos 8 caracteres',
               val => val && /\d/.test(val) || 'La contraseña debe contener al menos un número',
@@ -110,7 +110,7 @@ function notificar(tipo, msg) {
             </q-input>
           </div>
           <div class="cajas">
-            <label class="text-h6 text-weight-bold" for="">Confirmar contraseña </label>
+            <label class="text-h5 text-weight-bold" for="">Confirmar contraseña </label>
             <q-input v-model="confirmPassword" class="inputpassword" filled :type="isPwdb ? 'password' : 'text'"
                lazy-rules hide-bottom-space color="dark" bg-color="white"
               :rules="[val => val && val.length > 0 || 'Por favor ingrese la contraseña', val => val && val === newPassword || 'Las contraseñas no coinciden']">
@@ -135,10 +135,10 @@ function notificar(tipo, msg) {
     <section v-if="showTwo" id="second">
       <article id="stext">
         <div id="stext1">
-          <p class="text-h2" id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
+          <p  id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
         </div>
         <div id="stext2">
-          <p class="text-h4">Por favor vuelva a iniciar sesión</p>
+          <p id="smessage2">Por favor vuelva a iniciar sesión</p>
           <q-btn id="sbuttonpassword" type="submit" class="bg-primary" @click="home()">Ir al inicio</q-btn>
         </div>
       </article>
@@ -154,17 +154,16 @@ function notificar(tipo, msg) {
 
 <style scoped>
 main {
-  width: 100%;
+  width: 100vw;
   height: 100%;
 }
 
-#sectionone {
+#sectionone, #second {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
-  width: 100%;
+  min-height: 80vh; 
 }
 
 #sectiontwo {
@@ -172,82 +171,72 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 35vw;
+  width: 90%; 
+  max-width: 35vw; 
   min-height: 80%;
   background-color: rgb(245, 245, 245);
   border-radius: 20px;
   text-align: center;
+  padding: 20px; 
 }
 
-#text {
+#text, #stext {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   width: 100%;
+  font-size: 200%;
 }
 
-.inputpassword{
-  width: 100%;
+.inputpassword {
+  width: 100%; 
 }
 
-#buttonpassword {
+#buttonpassword, #sbuttonpassword {
   color: white;
   font-weight: bolder;
-  font-size: 20px;
+  font-size: 120%; 
   border-radius: 25px;
   cursor: pointer;
   margin-top: 20px;
 }
 
-#validation {
-  color: red;
-  font-size: 20px;
-}
-
-#second {
-  height: 100vh;
-}
-
-#stext {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 60px;
-}
-
-#stext1 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#smessage {
-  text-align: center;
-  width: 60%;
-  font-weight: 700;
-
-}
-
-#stext2 {
-  width: 50%;
-  text-align: center;
-
-}
-
-#sbuttonpassword {
-  margin-top: 50px;
-  color: white;
+#smessage{
+  font-size: 200%;
   font-weight: bolder;
-  border: 2px solid black;
-  font-size: 20px;
-  border-radius: 25px;
-  cursor: pointer;
-  width: 200px;
 }
 
+
+@media screen and (min-width: 481px) and (max-width: 769px) {
+  #sectiontwo {
+    width: 70%; 
+    max-width: none; 
+  }
+
+  #text, #stext {
+    font-size: 170%; 
+  }
+
+  #smessage2{
+    font-size: 150%;
+  }
+
+}
+
+@media screen and (min-width: 100px) and (max-width: 480px) {
+  #sectiontwo {
+    width: 80%; 
+    max-width: none; 
+  }
+
+  #smessage{
+    font-size: 130%;
+  }
+
+  #smessage2{
+    font-size: 110%;
+  }
+}
 </style>
