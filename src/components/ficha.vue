@@ -346,7 +346,7 @@ function filterFn(val, update) {
                         </q-select>
 
 
-                        <div style=" display: flex; width: 96%; justify-content: flex-end; background-color: ;">
+                        <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn class="botonenv" :loading="loadingModal" padding="10px" type="submit" color="primary"
                                 :label="estado" />
                         </div>

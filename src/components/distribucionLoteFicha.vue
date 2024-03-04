@@ -295,9 +295,10 @@ function filterFn(val, update) {
 
   })
 }
-// function goToItemLote(){
-//     router.push(`/distribucion-item-lote/${disItemLote.value._id}`);
-// }
+function goToItemLote(){
+    // console.log(disItemLote.value.idItem._id);
+    router.push(`/distribucion-item-lote/${disItemLote.value.idItem._id}`);
+}
 
 </script>
 
