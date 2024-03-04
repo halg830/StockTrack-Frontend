@@ -2,12 +2,14 @@
 import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "../stores/usuarios.js";
+import { useRouter } from 'vue-router';
 import NuevaPassword from "./nuevaPassword.vue";
 import Cookies from "js-cookie";
 import logoSena from '../assets/logoSena.png'
 
 // Notificación
 const $q = useQuasar();
+const router = useRouter();
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
@@ -56,18 +58,19 @@ function validarCampos() {
 function home() {
   router.push('/')
 }
+
 </script>
 
 <template>
   <section class="form-container" v-if="!componenteNuevaPass">
     <div class="logo">
-      <img :src="logoSena" alt="" srcset="" @click="home" style="max-width: 145px; cursor: pointer;">
+      <img :src="logoSena" alt="" @click="home" style="max-width: 145px; cursor: pointer;">
     </div>
     <q-form class="form" @submit="validarCampos">
 
       <div class="form-group">
         <div id="text">
-          <label for="email" class="text">Por favor, digite el código de verificación.</label>
+          <label for="email" class="text">Por favor, digite el código de verificación enviado al correo.</label>
         </div>
         <q-input outlined type="number" id="email" class="inputcorreo" v-model="codigo" lazy-rules hide-bottom-space
           color="dark" bg-color="white" :rules="[
@@ -90,14 +93,10 @@ function home() {
 <style scoped>
 .form-container {
   width: 100%;
-  height: 100vh;
+  height: 60%;
 }
 
-.logo {
-  padding: 10px;
-  width: 100%;
-  height: 5%;
-}
+
 
 .form {
   width: 100%;
