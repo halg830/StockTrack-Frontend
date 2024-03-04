@@ -1,12 +1,25 @@
 <script setup>
 
 import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
 import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
+
+import { useRouter, useRoute } from 'vue-router';
+
+const router = useRouter();
+const route = useRoute();
+
+const idDistribucionPresupuesto = ref([]);
+
+const distribucionLoteFicha = async () => {
+  idDistribucionPresupuesto.value = route.params.idDistribucionPresupuesto;
+};
+
+onMounted(distribucionLoteFicha);
 
 const $q = useQuasar();
 const storeFichas = useStoreFichas();
@@ -46,8 +59,9 @@ const rows = ref([]);
 
 async function getInfo() {
     try {
+        await distribucionLoteFicha();
         loadingTable.value = true
-        const response = await storeDisLoteFicha.getById()
+        const response = await storeDisLoteFicha.getById(idDistribucionPresupuesto.value)
         getOptionsItemLote();
         if (!response) return;
         if (response.error) {
@@ -67,7 +81,12 @@ async function getInfo() {
 getInfo();
 const opciones = {
     agregar: () => {
-        data.value = {};
+        data.value = {
+            idDistribucionPresupuesto:{
+                label: `${optionsItemLote.value[0].label}` ,
+                value: String(optionsItemLote.value[0].value)
+            }
+        };
         estado.value = 'agregar';
         modal.value = true;
     },
@@ -98,13 +117,8 @@ const enviarInfo = {
             let info = {
                 ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
-            const selectedLote = storeDisItemLote.distribucionesItemLote.find(disLote => disLote._id === info.idDistribucionPresupuesto);
-            if (!selectedLote) {
-                notificar('negative', 'No existe esta Distribución');
-                return
-            }
 
-            if (parseFloat(info.presupuesto) > parseFloat(selectedLote.presupuestoDisponible)) {
+            if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
                 notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
                 return;
             }
@@ -134,13 +148,8 @@ const enviarInfo = {
             let info = {
                 ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
-            const selectedLote = storeDisItemLote.distribucionesItemLote.find(disLote => disLote._id === info.idDistribucionPresupuesto);
-            if (!selectedLote) {
-                notificar('negative', 'No existe esta Distribución');
-                return
-            }
 
-            if (parseFloat(info.presupuesto) > parseFloat(selectedLote.presupuestoDisponible)) {
+            if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
                 notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
                 return;
             }
@@ -249,18 +258,23 @@ async function getoptionsFicha() {
 };
 
 let optionsItemLote = ref([])
+let disItemLote = ref([])
 async function getOptionsItemLote(){
     try {
-        await storeDisItemLote.getAll();
-        const itemLoteActivos = storeDisItemLote.distribucionesItemLote.filter(disItemLote => disItemLote.estado === true);
-        optionsItemLote.value = itemLoteActivos.map((disItemLote) => { return { label: `${disItemLote.idLote.nombre} - P. Disponible: ${disItemLote.presupuestoDisponible}`, value: disItemLote._id, disable: disItemLote.estado === 0 } });
+        const response = await storeDisItemLote.getById(idDistribucionPresupuesto.value);
+        disItemLote.value = response
+        optionsItemLote.value = [{
+            label: `${response.idLote.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+            value: String(response._id), 
+            disable: response.estado === 0 
+        }];
     } catch (error) {
         console.log(error);
     };
 }
 
 const opcionesFiltro = ref({
-    lotes: optionsItemLote.value,
+    // lotes: optionsItemLote.value,
     fichas: optionsFichas.value
 })
 
@@ -268,7 +282,7 @@ function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.lotes = optionsItemLote.value
+    //   opcionesFiltro.value.lotes = optionsItemLote.value
       opcionesFiltro.value.fichas = optionsFichas.value
     })
     return
@@ -276,18 +290,20 @@ function filterFn(val, update) {
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.lotes = optionsItemLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    // opcionesFiltro.value.lotes = optionsItemLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
     opcionesFiltro.value.fichas = optionsFichas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
 
   })
 }
-
+// function goToItemLote(){
+//     router.push(`/distribucion-item-lote/${disItemLote.value._id}`);
+// }
 
 </script>
 
 
 <template>
-    <main style=" width: 100%; display: flex; justify-content: center;">
+    <main style=" width: 100%; display: flex; justify-content: center; flex-direction: column; align-items: center;">
         <!-- Modal -->
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
@@ -298,9 +314,10 @@ function filterFn(val, update) {
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-
+                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Presupuesto Lote" lazy-rules disable
+                            :options=optionsItemLote :rules="[val => !!val || 'Seleccione el Lote']" />
                        
-                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                        <!-- <q-select filled use-input behavior="menu" hide-selected fill-input
                             input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionPresupuesto" label="Lote" 
                             lazy-rules :options="opcionesFiltro.lotes"
                             :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
@@ -312,9 +329,9 @@ function filterFn(val, update) {
                                 </q-item-section>
                               </q-item>
                             </template>
-                        </q-select>
+                        </q-select> -->
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionPresupuesto" label="Ficha" 
+                            input-debounce="0" @filter="filterFn"  v-model="data.idFicha" label="Ficha" 
                             lazy-rules :options="opcionesFiltro.fichas"
                             :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" >
                             <template v-slot:no-option>
@@ -387,6 +404,11 @@ function filterFn(val, update) {
                 </q-td>
             </template>
         </q-table>
+        <div style="width: 90%;">
+            <button class="btn-back" @click="goToItemLote()">
+                 <i class="fa-solid fa-backward"></i> Volver
+             </button> 
+         </div>
     </main>
 </template>
 
@@ -531,5 +553,40 @@ function filterFn(val, update) {
 }
 
 
+.btn-back {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+   width: 9em;
+   height: 55px;
+   border-radius: 15px;   
+   font-size: 15px;
+   font-family: inherit;
+   border: none;
+   position: relative;
+   overflow: hidden;
+   z-index: 1;
+   box-shadow: 6px 6px 12px #c5c5c5,
+               -6px -6px 12px #ffffff;
+  }
+  
+  .btn-back::before {
+   content: '';
+   width: 0;
+   height: 55px;
+   border-radius: 15px;
+   position: absolute;
+   top: 0;
+   right: 0;
+   background-image: linear-gradient(to left, red 100%, red 0%);
+   transition: .5s ease;
+   display: block;
+   z-index: -1;
+  }
+  
+  .btn-back:hover::before {
+   width: 9em;
+  }
 /* #boxBuscar {} */
 </style>
