@@ -146,7 +146,7 @@ function olvidoPassword(){
 
 .form-container {
   width: 300px;
-  background: linear-gradient(180deg, #39a900 18%, rgb(255, 255, 255) 10%);
+  background: linear-gradient(180deg, #2E7D32 18%, rgb(255, 255, 255) 10%);
   height: 520px;
   display: flex;
   flex-direction: column;
@@ -196,7 +196,7 @@ function olvidoPassword(){
   border: none;
   height: 35px;
   margin-top: 30px;
-  background-color: #39a900;
+  background-color: #2E7D32;
   color: white;
   font-size: 16px;
 }

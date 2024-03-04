@@ -134,15 +134,14 @@ getInfo()
 
 
 function verDetallesPedido(idPedido) {
+    rowsdetails.value = []
     modal.value = true;
     obtenerDetallePedido(idPedido);
     pedidoSeleccionado.value = rows.value.find(pedido => pedido._id === idPedido);
 }
 
 async function obtenerDetallePedido(idPedido) {
-
     try {
-
         const response = await useDetallePedidos.getPorPedido(idPedido);
         console.log("Hola soy detalle pedido", response);
 
