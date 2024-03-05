@@ -156,6 +156,10 @@ function home() {
   height: 100vh;
 }
 
+.logo{
+  padding: 15px;
+}
+
 
 .form2 {
   width: 100%;
@@ -194,6 +198,7 @@ function home() {
 .inputpassword {
   width: 70%;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  font-size: 130%;
 }
 
 #second {
@@ -260,7 +265,13 @@ function home() {
 @media screen and (max-width: 549px) and (min-width: 100px) {
   .form-group {
     width: 80%;
+    box-shadow: none;
   }
+
+  .logo{
+  display: flex;
+  justify-content: center;
+}
 
   #stext11 {
     width: 70%;

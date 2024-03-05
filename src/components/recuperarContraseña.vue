@@ -67,14 +67,15 @@ function home() {
     <section v-if="!componenteVerificar">
       <article id="image">
         <img :src="logoSena" alt="" @click="home" style="max-width: 145px;cursor: pointer;" />
+      </article>
+
+      <article id="text">
         <p id="message">
           Por favor, digite su correo para el proceso de recuperación de
           contraseña.
         </p>
-      </article>
-
-      <article id="text">
         <div class="prueba">
+          
           <div id="text2">
             <div >
               <h3>Correo electrónico</h3>
@@ -128,9 +129,8 @@ section {
 
 #image {
   display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
+  padding: 15px;
   text-align: center;
 }
 
@@ -152,7 +152,7 @@ section {
   box-shadow: 25px 20px 5px #888888;
   width: 80%;
   max-width: 600px;
-  height: 43vh;
+  height: 38vh;
   max-height: 50vh;
   margin: 20px;
   gap: 20px;
@@ -186,6 +186,7 @@ section {
 
 .inputcorreo {
   width: 100%;
+  font-size: 130%;
 }
 
 #buttonpassword {
@@ -217,7 +218,7 @@ section {
 @media screen and (max-width: 470px) and (min-width: 100px) {
   #image{
     display: flex;
-    flex-direction: column;
+    justify-content: center;
   }
   
   .prueba {
@@ -244,12 +245,14 @@ section {
   }
 } 
 
-@media screen and (max-height: 710px){
+@media screen and (max-height: 850px){
 
   .prueba {
-    height: 100vh;
+    height: 48vh;
   }
 
 } 
+
+
 
 </style>

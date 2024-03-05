@@ -11,7 +11,7 @@ export const useStoreUsuarios = defineStore(
   () => {
     const token = ref("");
     const usuario = ref("");
-
+    const email = ref("");
     const id = ref("");
 
     const router = useRouter();
@@ -64,7 +64,7 @@ export const useStoreUsuarios = defineStore(
           `${modelo}/codigo-recuperar/${correo}`
         );
         console.log(response);
-
+          email.value = correo
         return response;
       } catch (error) {
         console.log(error);
@@ -290,6 +290,7 @@ export const useStoreUsuarios = defineStore(
       login,
       token,
       id,
+      email,
       usuario,
       cambiarPassword,
       nuevaPassword,

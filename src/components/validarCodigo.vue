@@ -70,7 +70,7 @@ function home() {
 
       <div class="form-group">
         <div id="text">
-          <label for="email" class="text">Por favor, digite el código de verificación enviado al correo.</label>
+          <label for="email" class="text">Por favor, digite el código de verificación enviado a {{ useUsuario.email }}</label>
         </div>
         <q-input outlined type="number" id="email" class="inputcorreo" v-model="codigo" lazy-rules hide-bottom-space
           color="dark" bg-color="white" :rules="[
@@ -96,7 +96,9 @@ function home() {
   height: 60%;
 }
 
-
+.logo{
+  padding: 15px;
+}
 
 .form {
   width: 100%;
@@ -123,10 +125,7 @@ function home() {
 }
 
 #text {
-  text-align: center;
   font-size: 200%;
-  width: 100%;
-  max-height: 100%;
 }
 
 
@@ -142,9 +141,10 @@ function home() {
 .inputcorreo {
   width: 20vw;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  font-size: 130%;
 }
 
-@media screen and (max-width: 1000px) and (min-width: 550px) {
+@media screen and (max-width: 1080px) and (min-width: 550px) {
   .form-group {
     width: 40vw;
     padding: 15px;
@@ -157,13 +157,35 @@ function home() {
   }
 }
 
-@media screen and (max-width: 549px) and (min-width: 100px) {
+@media screen and (max-width: 860px) and (min-width: 590px) {
 .form-group {
   width: 60vw ;
   padding: 10px;
+
 }
 .inputcorreo {
   width: 50vw;
+}
+
+#buttonpassword {
+  width: 30vw;
+}
+}
+
+@media screen and (max-width: 589px) and (min-width: 100px) {
+.form-group {
+  width: 90vw ;
+  padding: 10px;
+  box-shadow: none;
+}
+
+.logo{
+  display: flex;
+  justify-content: center;
+}
+
+.inputcorreo {
+  width: 65vw;
 }
 
 #buttonpassword {
