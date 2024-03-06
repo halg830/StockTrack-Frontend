@@ -268,6 +268,7 @@ function home() {
     box-shadow: none;
   }
 
+
   .logo{
   display: flex;
   justify-content: center;
@@ -276,6 +277,7 @@ function home() {
   #stext11 {
     width: 70%;
     padding-top: 30px;
+    box-shadow: none;
   }
 
   #smessage {

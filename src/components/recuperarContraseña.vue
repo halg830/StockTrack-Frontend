@@ -82,7 +82,7 @@ function home() {
             </div>
 
             <div id="text3">
-              <form @submit="validarCampo" id="inputcorreo" class="correo">
+              <q-form @submit="validarCampo" id="inputcorreo" class="correo">
                 <q-input class="inputcorreo" outlined v-model="email" lazy-rules hide-bottom-space color="dark"
                   bg-color="white" :rules="[
                     (val) =>
@@ -95,7 +95,7 @@ function home() {
                 <div style="margin-top: 20px;">
                   <q-btn id="buttonpassword" type="submit" class="bg-primary" :loading="loadingCorreo">Recuperar contraseña</q-btn>
                 </div>
-              </form>
+              </q-form>
             </div>
 
           </div>
