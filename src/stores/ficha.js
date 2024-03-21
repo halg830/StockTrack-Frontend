@@ -5,7 +5,7 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "ficha";
+const modelo = "destino";
 
 export const useStoreFichas = defineStore(modelo, () => {
   function insertarToken(){
