@@ -42,7 +42,7 @@ const columns = [
     { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
     { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
     { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}`, align: "left" },
-    { naem: "idArea", label: "Area Asignada", field: (row) => row.idArea.nombre, align: "left" },
+    // { name: "idArea", label: "Area Asignada", field: (row) => row.idArea.nombre, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
