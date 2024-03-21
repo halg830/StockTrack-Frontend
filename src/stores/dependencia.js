@@ -5,9 +5,9 @@ import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "item";
+const modelo = "dependencia";
 
-export const useStoreItem= defineStore(modelo, () => {
+export const useStoreDependencia= defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreItem= defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const items = ref([]);
+  const dependencias = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      items.value = response.data;
+      dependencias.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -205,5 +205,5 @@ export const useStoreItem= defineStore(modelo, () => {
     }
   };
 
-  return { items, getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
+  return { dependencias, getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
 });

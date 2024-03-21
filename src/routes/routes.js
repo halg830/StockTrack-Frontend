@@ -9,7 +9,7 @@ import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
 import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/lote.vue'
-import Item from '../components/item.vue'
+import Dependencia from '../components/dependencia.vue'
 import Area from '../components/area.vue'
 import formatoDevolucion from '../components/formatoDevoluciones.vue'
 import historial from '../components/historialDevolucion.vue'
@@ -56,7 +56,7 @@ const routes = [
     { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
     { path: '/lotes', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
     { path: '/lotes/:idDistribucion', name: 'LoteConID', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
-    { path: '/item', beforeEnter: auth, meta: {rol: ['admin']}, component: Item},
+    { path: '/dependencia', beforeEnter: auth, meta: {rol: ['admin']}, component: Dependencia},
     { path: '/areas', beforeEnter: auth, meta: {rol: ['admin']}, component: Area},
     { path: '/formato-devolucion', beforeEnter: auth, meta: {rol: ['bodega']}, component: formatoDevolucion},
     { path: '/historial', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historial},

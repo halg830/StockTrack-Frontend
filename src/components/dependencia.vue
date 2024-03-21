@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreItem } from '../stores/item.js'
+import { useStoreDependencia } from '../stores/dependencia.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
@@ -30,25 +30,12 @@ const columns = [
     label: 'Nombre',
     align: 'center',
     field: 'nombre'
-  },
+  }, 
   {
-    name: 'presupuesto',
-    label: 'Presupuesto Inicial',
+    name: 'codigo',
+    label: 'Codigo',
     align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
-  },
-  {
-    name: 'presupuestoDisponible',
-    label: 'Presupuesto Diponible',
-    align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoDisponible)
-
-  },
-  {
-    name: 'year',
-    label: 'Año',
-    align: 'center',
-    field: (row) => `${format(new Date(row.year), "yyyy")}`
+    field: 'codigo'
   },
   {
     name: 'estado',
@@ -68,12 +55,12 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useItem = useStoreItem()
+const useDependencia = useStoreDependencia()
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useItem.getAll()
+    const response = await useDependencia.getAll()
     console.log(response);
 
     if (!response) return;
@@ -99,24 +86,30 @@ const opciones = {
   agregar: () => {
     data.value = {}
     estado.value = 'agregar'
+    cambio.value = 0
     modal.value = true
   },
   editar: (info) => {
-    data.value = { ...info,
-      year: format(new Date(info.year), "yyyy"),
-    }
+    data.value = { ...info,}
     estado.value = 'editar'
+    cambio.value = 0
+    modal.value = true
+  },
+  asignarPresupuesto: ()=>{
+    datos.value = {}
+    estado.value = "Asignar"
+    cambio.value = 1
     modal.value = true
   }
 }
-
+let cambio = ref(0)
 const data = ref({})
 const enviarInfo = {
   agregar: async () => {
     try {
       loadingModal.value = true
 
-      const response = await useItem.agregar(data.value)
+      const response = await useDependencia.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
@@ -138,7 +131,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useItem.editar(data.value._id, data.value);
+      const response = await useDependencia.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -182,7 +175,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useItem.activar(id)
+      const response = await useDependencia.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -200,7 +193,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useItem.inactivar(id)
+      const response = await useDependencia.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -236,21 +229,17 @@ function goItemLote(idDistribucion){
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Programa</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Dependencia</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model.trim="data.nombre" label="Nombre" type="text"
-              :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
+            <q-input filled v-model.trim="data.nombre" label="Nombre" type="text" 
+              :rules="[val => !!val || 'Ingrese un nombre']" ></q-input>
 
-            <q-input filled v-model="data.presupuesto" label="Presupuesto" mask="##########"
-              :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
-
-              <q-input filled v-model="data.year" label="Año" mask="##########"
-              :rules="[ val => !!val || 'Ingrese el Año (solo números)',
-                        val => val.length < 5 && val.length > 3 || 'El año debe contener 4 dígitos']"></q-input>
+            <q-input filled v-model="data.codigo" label="Codigo" mask="##########"
+              :rules="[val => !!val || 'Ingrese el codigo (solo números)']"></q-input>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -263,11 +252,11 @@ function goItemLote(idDistribucion){
     <!-- TABLA -->
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Items" style="width: 90%;"
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Dependencias" style="width: 90%;"
       no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Items</h4>
+          <h4 id="titleTable">Dependencias</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
@@ -301,6 +290,7 @@ function goItemLote(idDistribucion){
               </path>
             </svg>
           </button>
+          <button class="btn-asignar" @click="opciones.asignarPresupuesto(props.row._id)" style="margin-right: 10px;">Asignar Presupuesto <i class="fa-solid fa-money-bill-1-wave"></i></button>
           <button class="btn-go" @click="goItemLote(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
@@ -390,7 +380,7 @@ function goItemLote(idDistribucion){
   transform-origin: right;
 }
 
-.btn-go {
+.btn-go , .btn-asignar{
  width: 9em;
  height: 55px;
  border-radius: 15px;   
@@ -404,7 +394,7 @@ function goItemLote(idDistribucion){
              -6px -6px 12px #ffffff;
 }
 
-.btn-go::before {
+.btn-go::before, .btn-asignar::before {
  content: '';
  width: 0;
  height: 55px;
@@ -418,7 +408,7 @@ function goItemLote(idDistribucion){
  z-index: -1;
 }
 
-.btn-go:hover::before {
+.btn-go:hover::before, .btn-asignar:hover::before {
  width: 9em;
 }
 </style>
