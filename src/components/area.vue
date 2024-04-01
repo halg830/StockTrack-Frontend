@@ -246,7 +246,7 @@ function buscarIndexLocal(id) {
       <template v-slot:body-cell-estado="props">
         <q-td :props="props" class="botones">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
-            ? 'Activo'
+            ? 'Activo' 
             : !props.row.estado
               ? 'Inactivo'
               : '‎  ‎   ‎   ‎   ‎ '
