@@ -43,7 +43,7 @@ const opciones = {
     { label: 'Administración General', o: ['fichas', 'lotes', 'areas', 'productos', 'cuentas'], e: ['Fichas', 'Lotes', 'Areas', 'Productos', 'Cuentas'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     // { label: 'Presupuestos', o: ['item', 'distribucion-item-lote', 'distribucion-lote-ficha'], e: ['Items', 'Item y lote', 'Lote y ficha'] },
-    { label: 'Presupuestos', o: ['item'], e: ['Items'] },
+    { label: 'Presupuestos', o: ['dependencia'], e: ['Dependencias'] },
 
   ],
   instructor: [

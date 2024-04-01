@@ -3,7 +3,7 @@
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { useStoreLotes } from '../stores/lote.js';
-import { useStoreItem } from '../stores/item.js';
+import { useStoreDependencia } from '../stores/dependencia.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js';
 // import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
@@ -21,7 +21,7 @@ const distribucionItemLote = async () => {
 onMounted(distribucionItemLote);
 
 const $q = useQuasar();
-const storeItem = useStoreItem();
+const storeItem = useStoreDependencia();
 const storeLotes = useStoreLotes();
 const storeDisItemLote = useStoreDisItemLote();
 
@@ -578,3 +578,4 @@ function goToItem(){
   }
 
 /* #boxBuscar {} */</style>
+../stores/dependencia.js

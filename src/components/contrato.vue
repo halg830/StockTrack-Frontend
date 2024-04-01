@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreItem } from '../stores/item.js'
+import { useStoreContrato } from '../stores/contrato.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
@@ -68,13 +68,14 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useItem = useStoreItem()
+const useContrato = useStoreContrato()
+
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useItem.getAll()
-    console.log(response);
+    const response = await useContrato.getAll()
+    console.log("Hola soy contratos",response);
 
     if (!response) return;
     if (response.error) {
@@ -116,7 +117,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useItem.agregar(data.value)
+      const response = await useContrato.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
@@ -138,7 +139,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useItem.editar(data.value._id, data.value);
+      const response = await useContrato.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -182,7 +183,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useItem.activar(id)
+      const response = await useContrato.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -200,7 +201,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useItem.inactivar(id)
+      const response = await useContrato.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -221,12 +222,12 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
-// const goItemLote = (idDistribucion) => {
-//   router.push(`/distribucion-item-lote/${idDistribucion}`);
+// const goContratoLote = (idDistribucion) => {
+//   router.push(`/distribucion-contrato-lote/${idDistribucion}`);
 // };
 
-function goItemLote(idDistribucion){
-  router.push(`/distribucion-item-lote/${idDistribucion}`);
+function goContratoLote(idDistribucion){
+  router.push(`/distribucion-contrato-lote/${idDistribucion}`);
 }
 
 </script>
@@ -263,11 +264,11 @@ function goItemLote(idDistribucion){
     <!-- TABLA -->
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Items" style="width: 90%;"
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Contratos" style="width: 90%;"
       no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Items</h4>
+          <h4 id="titleTable">Contrato</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
@@ -301,7 +302,7 @@ function goItemLote(idDistribucion){
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goItemLote(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goContratoLote(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
