@@ -7,7 +7,9 @@ import Login from '../components/login.vue'
 import NuevaContra from '../components/nuevaContraseña.vue'
 import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
+import solicitarSalida from '../components/solicitarSalida.vue'
 import GestionProductos from '../components/gestionProductos.vue'
+import entrada from '../components/entrada.vue'
 import Lote from '../components/lote.vue'
 import Item from '../components/item.vue'
 import Area from '../components/area.vue'
@@ -53,7 +55,9 @@ const routes = [
     { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
     { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
     { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['instructor', 'bodega']}, component: solicitar},
+    { path: '/solicitar-salida', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: solicitar},
     { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
+    { path: '/entrada', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: entrada},
     { path: '/lotes', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
     { path: '/lotes/:idDistribucion', name: 'LoteConID', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
     { path: '/item', beforeEnter: auth, meta: {rol: ['admin']}, component: Item},
