@@ -40,7 +40,7 @@ obtenerNumSalida();
 
 //Data modal
 const data = ref({
-  idInstructorEncargado: obtenerInstructor(),
+  idAdmin: obtenerAdmin(),
 });
 
 function fechaActual() {
@@ -55,7 +55,7 @@ function fechaActual() {
 }
 
 
-function obtenerInstructor() {
+function obtenerAdmin() {
   const objUsuario = useUsuario.usuario
   console.log(objUsuario);
   return {
