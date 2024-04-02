@@ -214,12 +214,8 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
-// const goItemLote = (idDistribucion) => {
-//   router.push(`/distribucion-item-lote/${idDistribucion}`);
-// };
-
-function goItemLote(idDistribucion){
-  router.push(`/distribucion-item-lote/${idDistribucion}`);
+function goDisDependencia(idDependencia){
+  router.push(`/distribucion-dependencia/${idDependencia}`);
 }
 
 </script>
@@ -290,8 +286,7 @@ function goItemLote(idDistribucion){
               </path>
             </svg>
           </button>
-          <button class="btn-asignar" @click="opciones.asignarPresupuesto(props.row._id)" style="margin-right: 10px;">Asignar Presupuesto <i class="fa-solid fa-money-bill-1-wave"></i></button>
-          <button class="btn-go" @click="goItemLote(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goDisDependencia(props.row._id)">Distribución <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>

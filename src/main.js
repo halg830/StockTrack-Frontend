@@ -9,6 +9,8 @@ import "quasar/src/css/index.sass";
 import App from "./App.vue";
 
 axios.defaults.baseURL = 'http://localhost:4500/api/'
+// axios.defaults.baseURL = 'https://stocktrackv1.azurewebsites.net/api/'
+
 //  axios.defaults.baseURL = "https://stocktrack-backend.onrender.com/api/";
 
 const pinia = createPinia();

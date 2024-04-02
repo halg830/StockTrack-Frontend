@@ -5,9 +5,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "distribucion";
+const modelo = "disDependencia";
 
-export const useStoreDisItemLote = defineStore(modelo, () => {
+export const useStoreDisDependencia = defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreDisItemLote = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const distribucionesItemLote = ref([]);
+  const distribucionesDependencia = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      distribucionesItemLote.value = response.data;
+      distribucionesDependencia.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -75,11 +75,13 @@ export const useStoreDisItemLote = defineStore(modelo, () => {
       return error.response.data;
     }
   };
-  const getDistribucionesById = async (idItem) => {
+  const getDistribucionesById = async (idDependencia) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/distribucion/${idItem}`);
-      distribucionesItemLote.value = response.data;
+      console.log(idDependencia);
+      const response = await axios.get(`${modelo}/distribucion/${idDependencia}`);
+      console.log(response);
+      distribucionesDependencia.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -224,5 +226,5 @@ export const useStoreDisItemLote = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById, getDistribucionesById, distribucionesItemLote };
+  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById, getDistribucionesById, distribucionesDependencia };
 });
