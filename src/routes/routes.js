@@ -16,8 +16,8 @@ import Area from '../components/area.vue'
 import formatoDevolucion from '../components/formatoDevoluciones.vue'
 import historial from '../components/historialDevolucion.vue'
 import historialPedido from '../components/historialPedido.vue'
-import distribucionItemLote from '../components/distribucionItemLote.vue';
-import distribucionLoteFicha from '../components/distribucionLoteFicha.vue';
+import distribucionDependencia from '../components/distribucionDependencia.vue';
+import distribucionDependenciaRed from '../components/distribucionDependenciaRed.vue';
 import editarPerfil from '../components/editarPerfil.vue';
 import redConocimiento from '../components/redConocimiento.vue';
 import {useStoreUsuarios} from '../stores/usuarios.js'
@@ -69,8 +69,7 @@ const routes = [
     { path: '/distribucion-item-lote/:idDistribucion', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'LoteConID', component: distribucionItemLote, props: true },
     { path: '/distribucion-lote-ficha', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: distribucionLoteFicha},
     { path: '/distribucion-lote-ficha/:idDistribucionPresupuesto', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'FichasConID', component: distribucionLoteFicha, props:true},
-    { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},
-    {path : '/redConocimiento', beforeEnter: auth, meta: {rol:['admin','instructor','bodega']},component:redConocimiento}
+    { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
 ]
 

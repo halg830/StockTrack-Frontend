@@ -33,7 +33,6 @@ export const useStoreDependencia= defineStore(modelo, () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
-      console.log(response);
       dependencias.value = response.data;
       return response.data;
     } catch (error) {

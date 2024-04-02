@@ -3,8 +3,8 @@
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { useStoreFichas } from '../stores/ficha.js';
-import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
-import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
+// import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
+// import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
@@ -91,7 +91,6 @@ const opciones = {
         modal.value = true;
     },
     editar: (info) => {
-        console.log("info:",info);
         data.value = {
             ...info,
             idDistribucionPresupuesto: {
@@ -591,3 +590,4 @@ function goToItemLote(){
   }
 /* #boxBuscar {} */
 </style>
+../stores/disDependencia.js
