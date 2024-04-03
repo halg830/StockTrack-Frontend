@@ -171,7 +171,9 @@ function realizarPedido() {
     router.push('/solicitar-pedido')
 }
 
-
+function generarSalida(idPedido){
+  router.push(`/solicitar-salida/${idPedido}`);
+}
 </script>
 
 
@@ -275,6 +277,7 @@ function realizarPedido() {
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
                         <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary">  </q-btn>
+                        <q-btn @click="generarSalida(props.row._id)" icon="file_open" color="secondary">  </q-btn>
                     </q-td>
                 </template>
             </q-table>

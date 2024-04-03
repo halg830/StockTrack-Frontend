@@ -1,9 +1,13 @@
 <script setup>
 import { ref } from "vue";
-import { useStorePedidos } from "../stores/pedido.js";
 import { useStoreSalidas } from "../stores/salida.js";
 import { useStoreUsuarios } from "../stores/usuarios";
 import { useQuasar } from "quasar";
+import { useRoute } from "vue-router";
+import { useStorePedidos } from "../stores/pedido.js";
+
+//Route
+const route = useRoute()
 
 // Alertas notify
 const $q = useQuasar();
@@ -15,10 +19,13 @@ function notificar(tipo, msg, posicion = "top") {
   });
 }
 
-//
+//Stores 
 const useSalidas = useStoreSalidas();
+const useUsuario = useStoreUsuarios();
+const usePedido = useStorePedidos();
+
+//Data salida
 const numSalida = ref(0)
-const useUsuario = useStoreUsuarios()
 async function obtenerNumSalida() {
   try {
     const response = await useSalidas.getNumSalida();
@@ -71,183 +78,14 @@ const selectLoad = ref({
   producto: true,
 });
 
-const opcionesSelect = ref({});
-
-const useFicha = useStoreFichas();
-async function obtenerOptions() {
-  try {
-    const responseFichas = await useFicha.getAll();
-    console.log(responseFichas);
-
-    if (!responseFichas) return;
-
-    if (responseFichas.error) {
-      notificar("negative", responseFichas.error);
-      return;
-    }
-
-    opcionesSelect.value.fichas = responseFichas.map((ficha) => {
-      return {
-        label:
-          ficha.codigo +
-          " / " +
-          (ficha.abreviatura ? ficha.abreviatura : ficha.nombre) +
-          `${ficha.estado === 0 ? " - Inactivo" : ""}`,
-        value: ficha._id,
-        disable: ficha.estado === 0,
-      };
-    });
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.ficha = false;
-  }
-}
-obtenerOptions();
-
-//Filtro de fichas
-const opcionesFiltro = ref({
-  fichas: opcionesSelect.value.fichas,
-});
-function filterFn(val, update) {
-  val = val.trim();
-  if (val === "") {
-    update(() => {
-      opcionesFiltro.value.fichas = opcionesSelect.value.fichas;
-    });
-    return;
-  }
-
-  update(() => {
-    const needle = val.toLowerCase();
-    opcionesFiltro.value.fichas =
-      opcionesSelect.value.fichas.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      ) || [];
-  });
-}
-
-//Lotes
-const slide = ref(1);
-const useLote = useStoreLotes();
-async function obtenerLotes() {
-  try {
-    const response = await useLote.getAll();
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    const lotes = response.filter((lote) => lote.estado === true);
-
-    const result = [];
-    for (let i = 0; i < lotes.length; i += 4) {
-      result.push(lotes.slice(i, i + 4));
-    }
-
-    opcionesSelect.value.lotes = result;
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.lote = false;
-  }
-}
-obtenerLotes();
-
-//Productos
-const productoSeleccionar = ref({
-  todos: [],
-  //Lote
-});
-const useProducto = useStoreProductos();
-async function obtenerProductos() {
-  try {
-    selectLoad.value.producto = true;
-    const response = await useProducto.getAll();
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    const productos = response.filter((producto) => producto.estado === true);
-
-    const productosIcon = productos.map(producto => {
-      const agg = buscarIndexLocal(producto._id)
-      if (agg >= 0) producto.icon = 'check'
-
-      return producto
-    })
-
-    productoSeleccionar.value.todos = productosIcon;
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.producto = false;
-  }
-}
-
-const productosAgg = ref([]); //Productos agregados
-async function obtenerProductosPorLote(idLote, nombre) {
-  try {
-    selectLoad.value.producto = true;
-    const response = await useProducto.getPorLote(idLote);
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    const productos = response.filter((producto) => producto.estado === true);
-
-    const productosIcon = productos.map(producto => {
-      const agg = buscarIndexLocal(producto._id)
-      if (agg >= 0) producto.icon = 'check'
-
-      return producto
-    })
-
-    productoSeleccionar.value[nombre] = productosIcon;
-    console.log(productoSeleccionar.value[nombre]);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.producto = false;
-  }
-}
-
 //Modal
 const modal = ref(false);
 const loadBtnModal = ref(false);
 const opcionLote = ref("todos");
-function verTodosProductos() {
-  obtenerProductos();
-  opcionLote.value = "todos";
-  modal.value = true;
-}
-
-function mostrarLotes(idLote, nombre) {
-  try {
-    obtenerProductosPorLote(idLote, nombre);
-    opcionLote.value = nombre;
-    modal.value = true;
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 //Manejo de productos
 const detSalidas = ref([]);
+const productosAgg = ref([]);
 function aggProductos(producto) {
   producto.icon = 'check'
   console.log(producto);
@@ -274,53 +112,19 @@ function buscarIndexLocal(id) {
   return productosAgg.value.findIndex((producto) => producto._id === id);
 }
 
-//Solicitar salida
-const loadBtnSolicitar = ref(false);
-async function solicitarSalida() {
+//Obtener pedido
+
+async function getPedido(){
   try {
-    loadBtnSolicitar.value = true;
-    const info = {
-      idInstructorEncargado: data.value.idInstructorEncargado.value,
-      idFicha: data.value.idFicha.value,
-    };
-    const response = await useSalidas.agregar(info);
+    const idPedido = ref(route.params.idPedido);
+    console.log(idPedido.value);
+    const response = await usePedido.getById(idPedido.value);
     console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    await detSalidas.value.forEach(async (detSalida) => {
-      await crearDetSalida(detSalida)
-    });
-    notificar('Positive', 'Salida generado con éxito')
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loadBtnSolicitar.value = false;
-  }
-}
-
-const useDetSalida = useStoreDetalleSalida();
-async function crearDetSalida(detSalida) {
-  try {
-    detSalida.idSalida = useSalidas.salida._id
-    const response = await useDetSalida.agregar(detSalida);
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
   } catch (error) {
     console.log(error);
   }
 }
+getPedido()
 </script>
 <template class="container">
   <div class="card">
@@ -359,8 +163,8 @@ async function crearDetSalida(detSalida) {
                   </div>
                   <div class="input-cont">
                     <span>Ficha: </span>
-                    <q-select class="input3" outlined v-model:model-value="data.idFicha" use-input input-debounce="0"
-                      label="Codigo Ficha" behavior="menu" @filter="filterFn" :options="opcionesFiltro.fichas"
+                    <!-- <q-select class="input3" outlined v-model:model-value="data.idFicha" use-input input-debounce="0"
+                      label="Codigo Ficha" behavior="menu" @filter="filterFn" :options=""
                       :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
                       :disable="selectLoad.ficha">
                       <template v-slot:no-option>
@@ -370,40 +174,12 @@ async function crearDetSalida(detSalida) {
                           </q-item-section>
                         </q-item>
                       </template>
-                    </q-select>
+</q-select> -->
                   </div>
                 </div>
               </div>
             </article>
             <article>
-              <div id="contTopLotes">
-                <q-btn style="margin: 0 auto; margin-top: 50px;" @click="verTodosProductos">Ver todos los
-                  productos</q-btn>
-              </div>
-              <div class="q-pa-md">
-                <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
-                  control-color="black" navigation padding arrows height="200px"
-                  class="transparent shadow-2 rounded-borders" draggable="false">
-                  <q-carousel-slide :name="index + 1" class="column no-wrap  "
-                    v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
-                    <div style="background-color: transparent; "
-                      class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
-                      <button class="image" v-for="lote in loteGrupo" :key="lote._id" style="
-                      background-color: white;
-                      margin-left: 20px;
-                      width: 40%;
-                      height: 80%;
-                    " @click="mostrarLotes(lote._id, lote.nombre)">
-                        {{ lote.nombre }}
-                      </button>
-                      <!-- <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/mountains.jpg" />
-                  <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/parallax1.jpg" />
-                  <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/material.png" />
-                  <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/donuts.png" /> -->
-                    </div>
-                  </q-carousel-slide>
-                </q-carousel>
-              </div>
               <div class="overfow">
                 <table class="tabla">
                   <thead>
@@ -452,8 +228,8 @@ async function crearDetSalida(detSalida) {
               <q-spinner color="primary" size="5em" :thickness="10" v-if="selectLoad.producto" />
 
               <div v-if="!selectLoad.producto &&
-                productoSeleccionar[opcionLote].length <= 0
-                ">
+                  productoSeleccionar[opcionLote].length <= 0
+                  ">
                 <span>No hay productos disponibles</span>
               </div>
 
