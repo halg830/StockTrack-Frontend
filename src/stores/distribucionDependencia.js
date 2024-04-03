@@ -78,9 +78,7 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
   const getDistribucionesById = async (idDependencia) => {
     try {
       insertarToken()
-      console.log(idDependencia);
       const response = await axios.get(`${modelo}/distribucion/${idDependencia}`);
-      console.log(response);
       distribucionesDependencia.value = response.data;
       return response.data;
     } catch (error) {
