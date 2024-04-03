@@ -1,51 +1,73 @@
 <script setup>
-import { ref , onMounted} from 'vue'
+import { ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { useStoreDependencia } from '../stores/dependencia.js'
 import helpersGenerales from '../helpers/generales';
-import { useStoreLotes } from '../stores/lote.js';
+import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const $q = useQuasar();
-const useLotes = useStoreLotes();
-const loadingTable = ref(false);
-const loadingModal = ref(false);
-const loadIn_activar = ref(false);
-const filter = ref("");
-const modal = ref(false);
 
 
+// Variables modal
+const modal = ref(false)
+const loadingModal = ref(false)
+
+// Alertas notify
+const $q = useQuasar()
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
     message: msg,
     position: "top",
   });
-};
+}
 
-const estado = ref('agregar');
-const data = ref({});
-
+// Variables tabla
 const columns = [
-  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
-  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
-  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
-];
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    align: 'center',
+    field: 'nombre'
+  }, 
+  {
+    name: 'codigo',
+    label: 'Codigo',
+    align: 'center',
+    field: 'codigo'
+  },
+  {
+    name: 'estado',
+    label: 'Estado',
+    align: 'center',
+    field: 'estado'
+  },
+  {
+    name: 'opciones',
+    label: 'Opciones',
+    align: 'center',
+    field: 'opciones'
+  },
+]
+const rows = ref([])
+const loadTable = ref(false)
+const filter = ref("")
 
-const rows = ref([]);
-
+// Get datos tabla
+const useDependencia = useStoreDependencia()
 async function getInfo() {
   try {
-    loadingTable.value = true
+    loadTable.value = true
 
-    const response = await useLotes.getAll()
+    const response = await useDependencia.getAll()
     console.log(response);
 
     if (!response) return;
     if (response.error) {
       notificar('negative', response.error)
       return
-    };
+    }
 
     rows.value = response.reverse();
 
@@ -53,53 +75,63 @@ async function getInfo() {
     console.log(error);
   }
   finally {
-    loadingTable.value = false
-  };
-};
+    loadTable.value = false
+  }
+}
+getInfo()
 
-getInfo();
-
+// Opciones tabla
+const estado = ref('agregar')
 const opciones = {
   agregar: () => {
     data.value = {}
     estado.value = 'agregar'
+    cambio.value = 0
     modal.value = true
   },
   editar: (info) => {
-    data.value = { ...info }
+    data.value = { ...info,}
     estado.value = 'editar'
+    cambio.value = 0
+    modal.value = true
+  },
+  asignarPresupuesto: ()=>{
+    datos.value = {}
+    estado.value = "Asignar"
+    cambio.value = 1
     modal.value = true
   }
-};
-
+}
+let cambio = ref(0)
+const data = ref({})
 const enviarInfo = {
   agregar: async () => {
     try {
-      loadingModal.value = true;
+      loadingModal.value = true
 
-      const response = await useLotes.agregar(data.value);
+      const response = await useDependencia.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
       if (response.error) {
-        notificar('negative', response.error);
+        notificar('negative', response.error)
         return
-      };
+      }
 
-      modal.value = false;
-      notificar('positive', 'Guardado exitosamente');
-
+      rows.value.unshift(response)
+      modal.value = false
+      notificar('positive', 'Guardado exitosamente')
     } catch (error) {
       console.log(error);
     } finally {
-      loadingModal.value = false;
-    };
+      loadingModal.value = false
+    }
   },
   editar: async () => {
-    loadingModal.value = true;
+    loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useLotes.editar(data.value._id, data.value);
+      const response = await useDependencia.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -108,7 +140,7 @@ const enviarInfo = {
         return
       }
       rows.value.splice(buscarIndexLocal(response._id), 1, response);
-      modal.value = false;
+      modal.value = false
       notificar('positive', 'Editado exitosamente')
     } catch (error) {
       console.log(error);
@@ -132,101 +164,102 @@ function validarCampos() {
       if (d.trim() === "") {
         errorCamposVacios();
         return;
-      };
-    };
-  };
+      }
+    }
+  }
   enviarInfo[estado.value]()
-};
+}
 
+const loadIn_activar = ref(false)
 const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useLotes.activar(id)
+      const response = await useDependencia.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
         return
-      };
+      }
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
     } catch (error) {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    };
+    }
   },
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useLotes.inactivar(id)
+      const response = await useDependencia.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
         return
-      };
+      }
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
     } catch (error) {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    };
+    }
   }
-};
+}
 
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
-};
+}
 
-function goRedConocimiento(){
-  router.push(`/red-conocimiento`);
+function goDisDependencia(idDependencia){
+  router.push(`/distribucion-dependencia/${idDependencia}`);
 }
 
 </script>
-
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
-    <!-- Modal -->
+    <!-- MODAL -->
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
-        <q-toolbar style="background-color: #39A900;color: white">
-          <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
+        <q-toolbar style="background-color:#39A900;">
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Dependencia</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model.trim="data.nombre" label="Nombre Lote" 
-              :rules="[val => !!val || 'Digite el nombre']" />
+            <q-input filled v-model.trim="data.nombre" label="Nombre" type="text" 
+              :rules="[val => !!val || 'Ingrese un nombre']" ></q-input>
+
+            <q-input filled v-model="data.codigo" label="Codigo" mask="##########"
+              :rules="[val => !!val || 'Ingrese el codigo (solo números)']"></q-input>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
-              <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
+              <q-btn :loading="loadingModal" padding="10px" type="submit"
+                color="primary" :label="estado" />
             </div>
-
           </q-form>
         </q-card-section>
       </q-card>
     </q-dialog>
-
-    <!-- Tabla -->
-    <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
+    <!-- TABLA -->
+    <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Lotes" style="width: 90%;"
-      no-data-label="No hay Lotes registrados.">
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Dependencias" style="width: 90%;"
+      no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Lotes</h4>
+          <h4 id="titleTable">Red Conocimiento</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
         </div>
-
       </template>
       <template v-slot:top-right>
-        <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
+        <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
           placeholder="Buscar cualquier campo" id="boxBuscar">
           <template v-slot:append>
             <q-icon name="search" />
@@ -234,7 +267,7 @@ function goRedConocimiento(){
         </q-input>
       </template>
       <template v-slot:body-cell-estado="props">
-        <q-td :props="props" class="botones">
+        <q-td :props="props" class="estados">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
             ? 'Activo'
             : !props.row.estado
@@ -253,18 +286,24 @@ function goRedConocimiento(){
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goRedConocimiento(props.row._id)">Red Conocimiento <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goDisDependencia(props.row._id)">Distribución <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
   </main>
 </template>
-
 <style scoped>
 #titleTable {
   margin: auto;
 }
 
+.botones{
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
 .editBtn {
   width: 55px;
   height: 55px;
@@ -279,7 +318,7 @@ function goRedConocimiento(){
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
-  margin: 0 auto;
+  margin: 0 10px;
 }
 
 .editBtn::before {
@@ -336,7 +375,6 @@ function goRedConocimiento(){
   transform-origin: right;
 }
 
-
 .btn-go , .btn-asignar{
  width: 9em;
  height: 55px;
@@ -368,6 +406,6 @@ function goRedConocimiento(){
 .btn-go:hover::before, .btn-asignar:hover::before {
  width: 9em;
 }
-
-/* #boxBuscar {} */
 </style>
+
+  
