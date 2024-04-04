@@ -237,7 +237,7 @@ function buscarIndexLocal(id) {
 }
 
 function goLoteFicha(idDistribucionPresupuesto){
-    router.push(`/distribucion-lote-ficha/${idDistribucionPresupuesto}`);
+    router.push(`/distribucion-dependencia-red/${idDistribucionPresupuesto}`);
 }
 
 function goToDependencia(){
@@ -252,7 +252,7 @@ function goToDependencia(){
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribución item lote</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribución Dependencia</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
@@ -262,7 +262,7 @@ function goToDependencia(){
                         <q-select filled use-input behavior="menu" hide-selected fill-input
                             input-debounce="0"  v-model="data.idDependencia" label="Dependencia" disable
                             lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" >
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una dependencia']" >
                         </q-select>
 
                         <q-input filled v-model="data.presupuestoAsignado" mask="#########################" label="Presupuesto" lazy-rules :rules="[
@@ -283,8 +283,8 @@ function goToDependencia(){
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Item Lote"
-            style="width: 90%;" no-data-label="No hay Distribución Item Lote registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Dependencia"
+            style="width: 90%;" no-data-label="No hay Distribucion Dependencia registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
                     <h4 id="titleTable">Distribución Dependencia</h4>
@@ -322,7 +322,7 @@ function goToDependencia(){
                       </path>
                     </svg>
                   </button>
-                  <button class="btn-go" @click="goLoteFicha(props.row._id)">Fichas <i class="fa-solid fa-forward"></i></button>
+                  <button class="btn-go" @click="goLoteFicha(props.row._id)">Redes de conocimiento <i class="fa-solid fa-forward"></i></button>
                 </q-td>
               </template>
         </q-table>

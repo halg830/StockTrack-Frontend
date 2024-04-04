@@ -2,9 +2,7 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreFichas } from '../stores/ficha.js';
-// import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
-// import { useStoreDisLoteFicha } from '../stores/distribucionLoteFicha.js';
+import { useStoreDisDependencia } from '../stores/distribucionDependencia';
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
@@ -22,9 +20,8 @@ const distribucionLoteFicha = async () => {
 onMounted(distribucionLoteFicha);
 
 const $q = useQuasar();
-const storeFichas = useStoreFichas();
-const storeDisItemLote = useStoreDisItemLote();
-const storeDisLoteFicha = useStoreDisLoteFicha();
+
+// const storeDisLoteFicha = useStoreDisLoteFicha();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -256,13 +253,13 @@ async function getoptionsFicha() {
     };
 };
 
-let optionsItemLote = ref([])
+let optionDisDependencia = ref([])
 let disItemLote = ref([])
-async function getOptionsItemLote(){
+async function getOptionDisDependencia(){
     try {
         const response = await storeDisItemLote.getById(idDistribucionPresupuesto.value);
         disItemLote.value = response
-        optionsItemLote.value = [{
+        optionDisDependencia.value = [{
             label: `${response.idLote.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
@@ -308,7 +305,7 @@ function goToItemLote(){
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Lote Fichas</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Dependencia Red</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
@@ -362,11 +359,11 @@ function goToItemLote(){
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribución Lote Fichas" style="width: 90%;"
-            no-data-label="No hay Distribución Lote Fichas registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Dependencia Red" style="width: 90%;"
+            no-data-label="No hay Distribucion Dependencia Red registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Distribución Lote Fichas</h4>
+                    <h4 id="titleTable">Distribucion Dependencia Red</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>

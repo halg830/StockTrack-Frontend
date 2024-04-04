@@ -249,7 +249,7 @@ function goDisDependencia(idDependencia){
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
       no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Dependencias" style="width: 90%;"
-      no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
+      no-data-label="No hay Dependencias registradas." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
           <h4 id="titleTable">Dependencias</h4>
