@@ -20,6 +20,7 @@ import distribucionDependencia from '../components/distribucionDependencia.vue';
 import distribucionDependenciaRed from '../components/distribucionDependenciaRed.vue';
 import editarPerfil from '../components/editarPerfil.vue';
 import redConocimiento from '../components/redConocimiento.vue';
+import conexionRedLote from '../components/conexionRedLote.vue'
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
 const checkAuth = () => {
@@ -54,7 +55,7 @@ const routes = [
     { path: '/fichas', beforeEnter: auth, meta: {rol: ['admin']}, component: Ficha},
     { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
     { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
-    { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['instructor', 'bodega']}, component: solicitar},
+    { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: solicitar},
     { path: '/solicitar-salida/:idPedido', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Salida', props:true, component: solicitarSalida},
     { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
     { path: '/entrada', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: entrada},
@@ -69,6 +70,7 @@ const routes = [
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
     { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'FichasConID', component: distribucionDependenciaRed, props:true},
     { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
+    { path: '/conexion-red-lote', beforeEnter: auth, meta: {rol: ['admin']}, component: conexionRedLote},
     { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},
     { path: '/entrada', beforeEnter: auth, meta:{rol :['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}

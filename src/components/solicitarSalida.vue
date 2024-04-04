@@ -113,13 +113,25 @@ function buscarIndexLocal(id) {
 }
 
 //Obtener pedido
-
-async function getPedido(){
+const dataPedido = ref({idInstructorEncargado: "", idDestino: ""})
+async function getPedido() {
   try {
     const idPedido = ref(route.params.idPedido);
     console.log(idPedido.value);
     const response = await usePedido.getById(idPedido.value);
     console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    dataPedido.value = {...response.pedido}
+    detSalidas.value = response.detPedidos
+    productosAgg.value = response.detPedidos.map(detPedido => detPedido.idProducto)
+    console.log(productosAgg.value);
   } catch (error) {
     console.log(error);
   }
@@ -158,15 +170,15 @@ getPedido()
                   style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
                   <div class="input-cont">
                     <span>Instructor: </span>
-                    <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
-                      type="text" disable lazy-rules></q-select>
+                    <q-select class="input3" outlined v-model:model-value="dataPedido.idInstructorEncargado.nombre" :loading="selectLoad.pedido"
+                      label="Nombre" type="text" disable lazy-rules></q-select>
                   </div>
                   <div class="input-cont">
-                    <span>Ficha: </span>
-                    <!-- <q-select class="input3" outlined v-model:model-value="data.idFicha" use-input input-debounce="0"
-                      label="Codigo Ficha" behavior="menu" @filter="filterFn" :options=""
-                      :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
-                      :disable="selectLoad.ficha">
+                    <span>Destino: </span>
+                    <q-select class="input3" outlined v-model:model-value="dataPedido.idDestino.nombre" use-input
+                      input-debounce="0" label="Codigo Destino" behavior="menu" @filter="filterFn"
+                      :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.pedido"
+                      :disable="true">
                       <template v-slot:no-option>
                         <q-item>
                           <q-item-section class="text-grey">
@@ -174,7 +186,7 @@ getPedido()
                           </q-item-section>
                         </q-item>
                       </template>
-</q-select> -->
+                    </q-select>
                   </div>
                 </div>
               </div>
@@ -321,7 +333,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .card {
   width: 60%;
-  height: 850px;
   margin: 0 auto;
   background-color: #d1d1d1;
   border-radius: 8px;
@@ -391,7 +402,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .area {
   width: 100%;
-  height: 800px;
   resize: none;
   background-color: rgb(235, 235, 235);
   border-radius: 5px;
