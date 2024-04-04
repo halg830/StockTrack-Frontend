@@ -1,13 +1,13 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "asignacion";
+const modelo = "conexionRedLote";
 
-export const useStoreDisLoteFicha= defineStore(modelo, () => {
+export const useStoreConexRedLote = defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const distribucionLoteFicha = ref([]);
+  const conexionesRedLote = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
-      console.log("d", response.data);
-      distribucionLoteFicha.value = response.data;
+      console.log(response);
+      conexionesRedLote.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -53,12 +53,12 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
       return error.response.data;
     }
   };
-  const getById = async (idDistribucionPresupuesto) => {
+
+  const getById = async (id) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/distribucion/${idDistribucionPresupuesto}`);
-      console.log("d", response.data);
-      distribucionLoteFicha.value = response.data;
+      const response = await axios.get(`${modelo}/buscarId/${id}`);
+      console.log(response);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -82,7 +82,7 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
     try {
       insertarToken()
       const response = await axios.post(`${modelo}/agregar`, data);
-      console.log(response);
+      console.log(response.data._id);
 
       return response.data;
     } catch (error) {
@@ -179,5 +179,5 @@ export const useStoreDisLoteFicha= defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, getById, distribucionLoteFicha };
+  return { conexionesRedLote, getAll, agregar, editar, activar, inactivar, getById };
 });

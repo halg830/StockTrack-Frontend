@@ -5,9 +5,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "disDependencia";
+const modelo = "disContratoLote";
 
-export const useStoreDisDependencia = defineStore(modelo, () => {
+export const useStoreDisContratoLote= defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const distribucionesDependencia = ref([]);
+  const distribucionLoteFicha = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
-      console.log(response);
-      distribucionesDependencia.value = response.data;
+      console.log("d", response.data);
+      distribucionLoteFicha.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -53,33 +53,12 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
       return error.response.data;
     }
   };
-  const getById = async (id) => {
+  const getById = async (idDistribucionPresupuesto) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/buscarId/${id}`);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-      if (error.message === "Network Error") {
-        notificar("negative", "Sin conexión, por favor intente recargar");
-        return null;
-      }
-      if (
-        error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido" ||
-        error.response.data.error.name === "TokenExpiredError"
-      ) {
-        salir();
-        return null;
-      }
-      return error.response.data;
-    }
-  };
-  const getDistribucionesById = async (idDependencia) => {
-    try {
-      insertarToken()
-      const response = await axios.get(`${modelo}/distribucion/${idDependencia}`);
-      distribucionesDependencia.value = response.data;
+      const response = await axios.get(`${modelo}/distribucion/${idDistribucionPresupuesto}`);
+      console.log("d", response.data);
+      distribucionLoteFicha.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -125,30 +104,6 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     }
   };
 
-  const ajustarPresupuesto = async(id, presupuesto) =>{
-    try {
-      insertarToken()
-      console.log("Responde:", id, presupuesto);
-      const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-      if (error.message === "Network Error") {
-        notificar("Sin conexión, por favor intente recargar");
-        return null;
-      }
-
-      if (
-        error.response.data.error === "No hay token en la peticion" ||
-        error.response.data.error === "Token no válido" ||
-        error.response.data.error.name === "TokenExpiredError"
-      ) {
-        salir();
-        return null;
-      }
-      return error.response.data;
-    }
-  };
   const editar = async (id, data) => {
     try {
       insertarToken()
@@ -224,5 +179,5 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById, getDistribucionesById, distribucionesDependencia };
+  return { getAll, agregar, editar, activar, inactivar, getById, distribucionLoteFicha };
 });

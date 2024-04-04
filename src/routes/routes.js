@@ -32,7 +32,6 @@ const checkAuth = () => {
 };
 
 const auth = (to, from, next) => {
-  console.log(to);
   if (checkAuth()) {
       const useUsuario = useStoreUsuarios()
       const rol = useUsuario.usuario.rol
@@ -56,7 +55,7 @@ const routes = [
     { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
     { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
     { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['instructor', 'bodega']}, component: solicitar},
-    { path: '/solicitar-salida', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: solicitar},
+    { path: '/solicitar-salida/:idPedido', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Salida', props:true, component: solicitarSalida},
     { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
     { path: '/entrada', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: entrada},
     { path: '/lotes', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},

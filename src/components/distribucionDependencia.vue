@@ -13,7 +13,7 @@ import Dependencia from './dependencia.vue';
 const router = useRouter();
 const route = useRoute();
 
-const idDependencia = ref([]);
+const idDependencia = ref("");
 
 const disDependencia = async () => {
   idDependencia.value = route.params.idDependencia;
@@ -57,8 +57,9 @@ async function getInfo() {
     try {
         await disDependencia();
         loadingTable.value = true
+        console.log("Envio:",idDependencia.value);
         const response = await storeDisDependencia.getDistribucionesById(idDependencia.value)
-        console.log(response.value);
+        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -489,4 +490,3 @@ function goToDependencia(){
   }
 
 /* #boxBuscar {} */</style>
-../stores/dependencia.js../stores/disDependencia.js../stores/distribucionDependencia.js

@@ -3,14 +3,17 @@ import { ref , onMounted} from 'vue'
 import { useQuasar } from 'quasar';
 import helpersGenerales from '../helpers/generales';
 import { useStoreLotes } from '../stores/lote.js';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+const $q = useQuasar();
 const useLotes = useStoreLotes();
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
-const $q = useQuasar();
+
 
 function notificar(tipo, msg) {
   $q.notify({
@@ -178,6 +181,11 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 };
 
+function goRedConocimiento(){
+  router.push(`/red-conocimiento`);
+}
+
+
 </script>
 
 <template>
@@ -246,6 +254,7 @@ function buscarIndexLocal(id) {
               </path>
             </svg>
           </button>
+          <button class="btn-go" @click="goRedConocimiento(props.row._id)">Red Conocimiento <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
@@ -326,6 +335,39 @@ function buscarIndexLocal(id) {
   transform: scaleX(1);
   left: 0px;
   transform-origin: right;
+}
+
+
+.btn-go , .btn-asignar{
+ width: 9em;
+ height: 55px;
+ border-radius: 15px;   
+ font-size: 15px;
+ font-family: inherit;
+ border: none;
+ position: relative;
+ overflow: hidden;
+ z-index: 1;
+ box-shadow: 6px 6px 12px #c5c5c5,
+             -6px -6px 12px #ffffff;
+}
+
+.btn-go::before, .btn-asignar::before {
+ content: '';
+ width: 0;
+ height: 55px;
+ border-radius: 15px;
+ position: absolute;
+ top: 0;
+ left: 0;
+ background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+ transition: .5s ease;
+ display: block;
+ z-index: -1;
+}
+
+.btn-go:hover::before, .btn-asignar:hover::before {
+ width: 9em;
 }
 
 /* #boxBuscar {} */
