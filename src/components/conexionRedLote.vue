@@ -1,8 +1,7 @@
 <script setup>
-// Importaciones
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreDependencia } from '../stores/dependencia.js'
+import { useStoreConexRedLote } from '../stores/conexionRedLote.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
@@ -27,17 +26,18 @@ function notificar(tipo, msg) {
 // Variables tabla
 const columns = [
   {
-    name: 'nombre',
-    label: 'Nombre',
-    align: 'center',
-    field: 'nombre'
-  }, 
-  {
     name: 'codigo',
     label: 'Codigo',
     align: 'center',
     field: 'codigo'
   },
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    align: 'center',
+    field: (row) => row.idRed.nombre
+  }, 
+  
   {
     name: 'estado',
     label: 'Estado',
@@ -56,13 +56,13 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useDependencia = useStoreDependencia();
+const useConexRedLote = useStoreConexRedLote()
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useDependencia.getAll()
-    console.log(response);
+    const response = await useConexRedLote.getAll()
+    console.log("hola soy data conexiones", response);
 
     if (!response) return;
     if (response.error) {
@@ -77,9 +77,9 @@ async function getInfo() {
   }
   finally {
     loadTable.value = false
-  };
-};
-getInfo();
+  }
+}
+getInfo()
 
 // Opciones tabla
 const estado = ref('agregar')
@@ -96,32 +96,22 @@ const opciones = {
     cambio.value = 0
     modal.value = true
   },
-  asignarPresupuesto: ()=>{
-    datos.value = {}
-    estado.value = "Asignar"
-    cambio.value = 1
-    modal.value = true
-  }
 }
-
-let cambio = ref(0);
-const data = ref({});
-
-
-// Envio de datos Agregar y Editar
+let cambio = ref(0)
+const data = ref({})
 const enviarInfo = {
   agregar: async () => {
     try {
       loadingModal.value = true
 
-      const response = await useDependencia.agregar(data.value)
+      const response = await useConexRedLote.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
         return
-      };
+      }
 
       rows.value.unshift(response)
       modal.value = false
@@ -130,13 +120,13 @@ const enviarInfo = {
       console.log(error);
     } finally {
       loadingModal.value = false
-    };
+    }
   },
   editar: async () => {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useDependencia.editar(data.value._id, data.value);
+      const response = await useConexRedLote.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -151,11 +141,10 @@ const enviarInfo = {
       console.log(error);
     } finally {
       loadingModal.value = false;
-    };
+    }
   }
-};
+}
 
-// Validaciones
 function validarCampos() {
   console.log(data.value);
   const arrData = Object.values(data.value);
@@ -165,43 +154,23 @@ function validarCampos() {
     if (d === null) {
       errorCamposVacios();
       return;
-    };
+    }
     if (typeof d === "string") {
       if (d.trim() === "") {
         errorCamposVacios();
         return;
-      };
-    };
-  };
+      }
+    }
+  }
   enviarInfo[estado.value]()
-};
+}
 
-const loadIn_activar = ref(false);
-
-//Funcionamiento Activar Inactivar
+const loadIn_activar = ref(false)
 const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useDependencia.activar(id)
-      console.log(response);
-      if (!response) return
-      if (response.error) {
-        notificar('negative', response.error)
-        return
-      };
-      rows.value.splice(buscarIndexLocal(response._id), 1, response)
-
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loadIn_activar.value = false
-    };
-  },
-  inactivar: async (id) => {
-    loadIn_activar.value = true
-    try {
-      const response = await useDependencia.inactivar(id)
+      const response = await useConexRedLote.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -214,19 +183,32 @@ const in_activar = {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    };
-  }
-};
+    }
+  },
+  inactivar: async (id) => {
+    loadIn_activar.value = true
+    try {
+      const response = await useConexRedLote.inactivar(id)
+      console.log(response);
+      if (!response) return
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+      rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
-//Buscar el Id localmente
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loadIn_activar.value = false
+    }
+  }
+}
+
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
-};
-
-// Ir a Componente Distribucion Dependencia
-function goDisDependencia(idDependencia){
-  router.push(`/distribucion-dependencia/${idDependencia}`);
 }
+
 
 </script>
 <template>
@@ -259,10 +241,10 @@ function goDisDependencia(idDependencia){
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
       no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Dependencias" style="width: 90%;"
-      no-data-label="No hay Dependencias registradas." class="my-sticky-header-column-table">
+      no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Dependencias</h4>
+          <h4 id="titleTable">Conexión Red-Lote</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
@@ -296,7 +278,6 @@ function goDisDependencia(idDependencia){
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goDisDependencia(props.row._id)">Distribución <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>

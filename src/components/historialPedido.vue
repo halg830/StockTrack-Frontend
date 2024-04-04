@@ -38,10 +38,10 @@ const columns = ref([
         field: 'numero'
     },
     {
-        name: 'ficha',
-        label: 'Ficha',
+        name: 'destino',
+        label: 'Destino',
         align: "center",
-        field: (row) => row.idFicha.codigo
+        field: (row) => row.idDestino.codigo
     },
     {
         name: 'fechapedido',
@@ -209,13 +209,13 @@ function generarSalida(idPedido){
                                         pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
                                 </div>
                                 <div class="text">
-                                    <p class="text-h5 text-weight-bold">Código Ficha: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.codigo :
+                                    <p class="text-h5 text-weight-bold">Código Destino: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idDestino.codigo :
                                         '' }}</p>
                                 </div>
                                 <div class="text">
-                                    <p class="text-h5 text-weight-bold">Ficha: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idFicha.nombre :
+                                    <p class="text-h5 text-weight-bold">Destino: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idDestino.nombre :
                                         '' }}</p>
                                 </div>
                             </div>
