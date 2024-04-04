@@ -185,6 +185,7 @@ function goRedConocimiento(){
   router.push(`/red-conocimiento`);
 }
 
+
 </script>
 
 <template>

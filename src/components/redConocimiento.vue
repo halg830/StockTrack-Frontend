@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreDependencia } from '../stores/dependencia.js'
+import { useStoreConexRedLote } from '../stores/conexionRedLote.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
@@ -26,17 +26,18 @@ function notificar(tipo, msg) {
 // Variables tabla
 const columns = [
   {
-    name: 'nombre',
-    label: 'Nombre',
-    align: 'center',
-    field: 'nombre'
-  }, 
-  {
     name: 'codigo',
     label: 'Codigo',
     align: 'center',
     field: 'codigo'
   },
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    align: 'center',
+    field: (row) => row.idRed.nombre
+  }, 
+  
   {
     name: 'estado',
     label: 'Estado',
@@ -55,13 +56,13 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useDependencia = useStoreDependencia()
+const useConexRedLote = useStoreConexRedLote()
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useDependencia.getAll()
-    console.log(response);
+    const response = await useConexRedLote.getAll()
+    console.log("hola soy data conexiones", response);
 
     if (!response) return;
     if (response.error) {
@@ -95,12 +96,6 @@ const opciones = {
     cambio.value = 0
     modal.value = true
   },
-  asignarPresupuesto: ()=>{
-    datos.value = {}
-    estado.value = "Asignar"
-    cambio.value = 1
-    modal.value = true
-  }
 }
 let cambio = ref(0)
 const data = ref({})
@@ -109,7 +104,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useDependencia.agregar(data.value)
+      const response = await useConexRedLote.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
@@ -131,7 +126,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useDependencia.editar(data.value._id, data.value);
+      const response = await useConexRedLote.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -175,7 +170,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useDependencia.activar(id)
+      const response = await useConexRedLote.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -193,7 +188,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useDependencia.inactivar(id)
+      const response = await useConexRedLote.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {

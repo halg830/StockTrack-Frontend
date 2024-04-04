@@ -19,6 +19,7 @@ import historialPedido from '../components/historialPedido.vue'
 import distribucionDependencia from '../components/distribucionDependencia.vue';
 import distribucionDependenciaRed from '../components/distribucionDependenciaRed.vue';
 import editarPerfil from '../components/editarPerfil.vue';
+import redConocimiento from '../components/redConocimiento.vue'
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
 const checkAuth = () => {
@@ -67,6 +68,7 @@ const routes = [
     { path: '/distribucion-dependencia/:idDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Dependencia con ID', component: distribucionDependencia, props: true },
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
     { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'FichasConID', component: distribucionDependenciaRed, props:true},
+    { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
     { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
 ]
