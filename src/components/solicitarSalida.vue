@@ -3,11 +3,12 @@ import { ref } from "vue";
 import { useStoreSalidas } from "../stores/salida.js";
 import { useStoreUsuarios } from "../stores/usuarios";
 import { useQuasar } from "quasar";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useStorePedidos } from "../stores/pedido.js";
 
 //Route
 const route = useRoute()
+const router = useRouter()
 
 // Alertas notify
 const $q = useQuasar();
@@ -45,11 +46,6 @@ async function obtenerNumSalida() {
 }
 obtenerNumSalida();
 
-//Data modal
-const data = ref({
-  idAdmin: obtenerAdmin(),
-});
-
 function fechaActual() {
   const fecha = new Date();
   const formatoFecha = `${fecha.getDate().toString().padStart(2, "0")} / ${(
@@ -65,10 +61,7 @@ function fechaActual() {
 function obtenerAdmin() {
   const objUsuario = useUsuario.usuario
   console.log(objUsuario);
-  return {
-    label: objUsuario.nombre + " " + objUsuario.apellido,
-    value: objUsuario._id,
-  };
+  return objUsuario._id
 }
 
 //Obtener fichas
@@ -113,9 +106,10 @@ function buscarIndexLocal(id) {
 }
 
 //Obtener pedido
-const dataPedido = ref({idInstructorEncargado: "", idDestino: ""})
+const dataPedido = ref({ idInstructorEncargado: "", idDestino: "" })
 async function getPedido() {
   try {
+    selectLoad.value.pedido = true
     const idPedido = ref(route.params.idPedido);
     console.log(idPedido.value);
     const response = await usePedido.getById(idPedido.value);
@@ -128,15 +122,42 @@ async function getPedido() {
       return;
     }
 
-    dataPedido.value = {...response.pedido}
+    dataPedido.value = { ...response.pedido }
     detSalidas.value = response.detPedidos
     productosAgg.value = response.detPedidos.map(detPedido => detPedido.idProducto)
     console.log(productosAgg.value);
   } catch (error) {
     console.log(error);
+  } finally {
+    selectLoad.value.pedido = false
   }
 }
 getPedido()
+
+//Solicitar salida
+const dataSalida = ref({idAdmin: obtenerAdmin(), idPedido: route.params.idPedido, detSalidas, productosAgg})
+async function solicitarSalida() {
+  try {
+    selectLoad.value.salida = true
+    console.log(dataSalida.value);
+    const response = await useSalidas.agregar(dataSalida.value)
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    notificar('positive', 'Salida generada con éxito')
+    router.push('/historial-salida')
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.salida = false
+  }
+}
 </script>
 <template class="container">
   <div class="card">
@@ -161,17 +182,34 @@ getPedido()
         <q-form style="margin: 50px;" class="q-gutter-md">
           <section>
             <article>
-              <div style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; ">
+              <div style="display: grid; grid-template-columns: repeat(3,1fr); justify-items: center; ">
                 <span class="spanns">Fecha: {{ fechaActual() }}</span>
                 <span class="spanns">N° salida: {{ numSalida }}</span>
+                <span>Pedido: {{ dataPedido.numero }}</span>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <q-input outlined v-model="dataSalida.fechaEntrega" mask="date" :rules="['date']" label="Fecha de entrega">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                        <q-date v-model="dataSalida.fechaEntrega">
+                          <div class="row items-center justify-end">
+                            <q-btn v-close-popup label="Close" color="primary" flat />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
               </div>
               <div>
                 <div class="inputs"
                   style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
                   <div class="input-cont">
                     <span>Instructor: </span>
-                    <q-select class="input3" outlined v-model:model-value="dataPedido.idInstructorEncargado.nombre" :loading="selectLoad.pedido"
-                      label="Nombre" type="text" disable lazy-rules></q-select>
+                    <q-select class="input3" outlined v-model:model-value="dataPedido.idInstructorEncargado.nombre"
+                      :loading="selectLoad.pedido" label="Nombre" type="text" disable lazy-rules></q-select>
                   </div>
                   <div class="input-cont">
                     <span>Destino: </span>

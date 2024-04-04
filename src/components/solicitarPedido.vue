@@ -630,7 +630,4 @@ input[type="number"]::-webkit-outer-spin-button {
 #code:focus {
   outline: none !important;
 }
-
-
-/* SECCION RESPONSIVE */
 </style>
