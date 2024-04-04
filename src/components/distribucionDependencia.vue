@@ -236,8 +236,8 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-function goLoteFicha(idDistribucionPresupuesto){
-    router.push(`/distribucion-dependencia-red/${idDistribucionPresupuesto}`);
+function goDisDependenciaRed(idDistribucionDependendencia){
+    router.push(`/distribucion-dependencia-red/${idDistribucionDependendencia}`);
 }
 
 function goToDependencia(){
@@ -322,7 +322,7 @@ function goToDependencia(){
                       </path>
                     </svg>
                   </button>
-                  <button class="btn-go" @click="goLoteFicha(props.row._id)">Redes de conocimiento <i class="fa-solid fa-forward"></i></button>
+                  <button class="btn-go" @click="goDisDependenciaRed(props.row._id)">Redes de conocimiento <i class="fa-solid fa-forward"></i></button>
                 </q-td>
               </template>
         </q-table>

@@ -2,7 +2,9 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreDisDependencia } from '../stores/distribucionDependencia';
+import { useStoreDisDependencia } from '../stores/distribucionDependencia.js';
+import { useStoreRedConocimiento } from '../stores/redConocimiento.js';
+import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 
@@ -11,17 +13,18 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 
-const idDistribucionPresupuesto = ref([]);
+const idDistribucionDependendencia = ref([]);
 
 const distribucionLoteFicha = async () => {
-  idDistribucionPresupuesto.value = route.params.idDistribucionPresupuesto;
+  idDistribucionDependendencia.value = route.params.idDistribucionDependendencia;
 };
 
 onMounted(distribucionLoteFicha);
 
 const $q = useQuasar();
-
-// const storeDisLoteFicha = useStoreDisLoteFicha();
+const storeDisDependencia = useStoreDisDependencia();
+const storeRedConocimiento = useStoreRedConocimiento();
+const storeDisDependenciaRed = useStoreDisDependenciaRed();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -42,12 +45,12 @@ const data = ref({});
 
 
 const columns = [
-    { name: "idFicha", label: "Codigo Ficha", field: (row) => row.idFicha.codigo, sortable: true, align: "left" },
+    { name: "idDistribucionDependencia", label: "Codigo Ficha", field: (row) => row.idFicha.codigo, sortable: true, align: "left" },
     { name: "idFicha", label: "Nombre Ficha" , field: (row) => row.idFicha.nombre, sortable: true, align: "left" },
     { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
-    { name: "idLote", label: "Lote Nombre", field: (row) => row.idDistribucionPresupuesto.idLote.nombre, align: "left" },
-    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionPresupuesto.idItem.nombre, align: "left" },
+    { name: "idLote", label: "Lote Nombre", field: (row) => row.idDistribucionDependendencia.idLote.nombre, align: "left" },
+    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionDependendencia.idItem.nombre, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -58,7 +61,7 @@ async function getInfo() {
     try {
         await distribucionLoteFicha();
         loadingTable.value = true
-        const response = await storeDisLoteFicha.getById(idDistribucionPresupuesto.value)
+        const response = await storeDisDependenciaRed.getById(idDistribucionDependendencia.value)
         getOptionsItemLote();
         if (!response) return;
         if (response.error) {
@@ -79,7 +82,7 @@ getInfo();
 const opciones = {
     agregar: () => {
         data.value = {
-            idDistribucionPresupuesto:{
+            idDistribucionDependendencia:{
                 label: `${optionsItemLote.value[0].label}` ,
                 value: String(optionsItemLote.value[0].value)
             }
@@ -90,9 +93,9 @@ const opciones = {
     editar: (info) => {
         data.value = {
             ...info,
-            idDistribucionPresupuesto: {
-                label: `${info.idDistribucionPresupuesto.idLote.nombre} - P. Disponible: ${info.idDistribucionPresupuesto.presupuestoDisponible}`,
-                value: String(info.idDistribucionPresupuesto._id)
+            idDistribucionDependendencia: {
+                label: `${info.idDistribucionDependendencia.idLote.nombre} - P. Disponible: ${info.idDistribucionDependendencia.presupuestoDisponible}`,
+                value: String(info.idDistribucionDependendencia._id)
             },
             idFicha:{
                 label:`${info.idFicha.nombre} - ${info.idFicha.codigo}`,
@@ -111,7 +114,7 @@ const enviarInfo = {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
+                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependendencia: data.value.idDistribucionDependendencia.value
             };
 
             if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
@@ -142,7 +145,7 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
+                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependendencia: data.value.idDistribucionDependendencia.value
             };
 
             if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
@@ -222,7 +225,7 @@ const in_activar = {
 
 async function ajustarPresupuesto(data) {
     try {
-        const response = await storeDisItemLote.ajustarPresupuesto(data.idDistribucionPresupuesto, {presupuesto : data.presupuesto})
+        const response = await storeDisItemLote.ajustarPresupuesto(data.idDistribucionDependendencia, {presupuesto : data.presupuesto})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -257,7 +260,7 @@ let optionDisDependencia = ref([])
 let disItemLote = ref([])
 async function getOptionDisDependencia(){
     try {
-        const response = await storeDisItemLote.getById(idDistribucionPresupuesto.value);
+        const response = await storeDisItemLote.getById(idDistribucionDependendencia.value);
         disItemLote.value = response
         optionDisDependencia.value = [{
             label: `${response.idLote.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
@@ -292,7 +295,7 @@ function filterFn(val, update) {
   })
 }
 function goToItemLote(){
-    // console.log(disItemLote.value.idItem._id);
+    // console.log(disItemLote.value.idItem._id); 
     router.push(`/distribucion-item-lote/${disItemLote.value.idItem._id}`);
 }
 
@@ -311,11 +314,11 @@ function goToItemLote(){
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-select filled v-model:model-value="data.idDistribucionPresupuesto" label="Presupuesto Lote" lazy-rules disable
+                        <q-select filled v-model:model-value="data.idDistribucionDependendencia" label="Presupuesto Lote" lazy-rules disable
                             :options=optionsItemLote :rules="[val => !!val || 'Seleccione el Lote']" />
                        
                         <!-- <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionPresupuesto" label="Lote" 
+                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionDependendencia" label="Lote" 
                             lazy-rules :options="opcionesFiltro.lotes"
                             :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
                             <template v-slot:no-option>

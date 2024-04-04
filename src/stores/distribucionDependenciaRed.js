@@ -6,9 +6,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "asignacion";
+const modelo = "disDependenciaRed";
 
-export const useStoreDisLoteFicha= defineStore(modelo, () => {
+export const useStoreDisDependenciaRed= defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 

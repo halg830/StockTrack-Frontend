@@ -1,4 +1,5 @@
 <script setup>
+// Importaciones
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreDependencia } from '../stores/dependencia.js'
@@ -55,7 +56,7 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useDependencia = useStoreDependencia()
+const useDependencia = useStoreDependencia();
 async function getInfo() {
   try {
     loadTable.value = true
@@ -76,9 +77,9 @@ async function getInfo() {
   }
   finally {
     loadTable.value = false
-  }
-}
-getInfo()
+  };
+};
+getInfo();
 
 // Opciones tabla
 const estado = ref('agregar')
@@ -102,8 +103,12 @@ const opciones = {
     modal.value = true
   }
 }
-let cambio = ref(0)
-const data = ref({})
+
+let cambio = ref(0);
+const data = ref({});
+
+
+// Envio de datos Agregar y Editar
 const enviarInfo = {
   agregar: async () => {
     try {
@@ -116,7 +121,7 @@ const enviarInfo = {
       if (response.error) {
         notificar('negative', response.error)
         return
-      }
+      };
 
       rows.value.unshift(response)
       modal.value = false
@@ -125,7 +130,7 @@ const enviarInfo = {
       console.log(error);
     } finally {
       loadingModal.value = false
-    }
+    };
   },
   editar: async () => {
     loadingModal.value = true
@@ -146,10 +151,11 @@ const enviarInfo = {
       console.log(error);
     } finally {
       loadingModal.value = false;
-    }
+    };
   }
-}
+};
 
+// Validaciones
 function validarCampos() {
   console.log(data.value);
   const arrData = Object.values(data.value);
@@ -159,18 +165,20 @@ function validarCampos() {
     if (d === null) {
       errorCamposVacios();
       return;
-    }
+    };
     if (typeof d === "string") {
       if (d.trim() === "") {
         errorCamposVacios();
         return;
-      }
-    }
-  }
+      };
+    };
+  };
   enviarInfo[estado.value]()
-}
+};
 
-const loadIn_activar = ref(false)
+const loadIn_activar = ref(false);
+
+//Funcionamiento Activar Inactivar
 const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
@@ -181,14 +189,14 @@ const in_activar = {
       if (response.error) {
         notificar('negative', response.error)
         return
-      }
+      };
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
     } catch (error) {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    }
+    };
   },
   inactivar: async (id) => {
     loadIn_activar.value = true
@@ -206,14 +214,16 @@ const in_activar = {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    }
+    };
   }
-}
+};
 
+//Buscar el Id localmente
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
-}
+};
 
+// Ir a Componente Distribucion Dependencia
 function goDisDependencia(idDependencia){
   router.push(`/distribucion-dependencia/${idDependencia}`);
 }
