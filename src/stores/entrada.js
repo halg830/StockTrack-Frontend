@@ -5,9 +5,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "redConocimiento";
+const modelo = "entrada";
 
-export const useStoreRedConocimiento = defineStore(modelo, () => {
+export const useStoreEntrada = defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreRedConocimiento = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const redConocimiento = ref([]);
+  const entrada = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      redConocimiento.value = response.data;
+      entrada.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -155,5 +155,5 @@ export const useStoreRedConocimiento = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, redConocimiento };
+  return { getAll, agregar, editar, activar, inactivar, entrada };
 });

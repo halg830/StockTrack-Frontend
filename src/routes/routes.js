@@ -9,7 +9,6 @@ import recuperarContra from '../components/recuperarContraseña.vue'
 import solicitar from '../components/solicitarPedido.vue'
 import solicitarSalida from '../components/solicitarSalida.vue'
 import GestionProductos from '../components/gestionProductos.vue'
-import entrada from '../components/entrada.vue'
 import Lote from '../components/lote.vue'
 import Dependencia from '../components/dependencia.vue'
 import Area from '../components/area.vue'
@@ -20,6 +19,7 @@ import distribucionDependencia from '../components/distribucionDependencia.vue';
 import distribucionDependenciaRed from '../components/distribucionDependenciaRed.vue';
 import editarPerfil from '../components/editarPerfil.vue';
 import redConocimiento from '../components/redConocimiento.vue';
+import entrada from '../components/entrada.vue'
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
 const checkAuth = () => {
