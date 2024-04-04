@@ -65,10 +65,12 @@ const routes = [
     { path: '/formato-devolucion', beforeEnter: auth, meta: {rol: ['bodega']}, component: formatoDevolucion},
     { path: '/historial', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historial},
     { path: '/historial-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historialPedido},
-    { path: '/distribucion-item-lote/:idDistribucion', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'LoteConID', component: distribucionItemLote, props: true },
-    { path: '/distribucion-lote-ficha', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: distribucionLoteFicha},
-    { path: '/distribucion-lote-ficha/:idDistribucionPresupuesto', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, name: 'FichasConID', component: distribucionLoteFicha, props:true},
-    { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil}
+    { path: '/distribucion-dependencia/:idDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Dependencia con ID', component: distribucionDependencia, props: true },
+    { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
+    { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'FichasConID', component: distribucionDependenciaRed, props:true},
+    { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
+    { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},
+    { path: '/entrada', beforeEnter: auth, meta:{rol :['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
 ]
 
