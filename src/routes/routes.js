@@ -55,7 +55,7 @@ const routes = [
     { path: '/fichas', beforeEnter: auth, meta: {rol: ['admin']}, component: Ficha},
     { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
     { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
-    { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['instructor', 'bodega']}, component: solicitar},
+    { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: solicitar},
     { path: '/solicitar-salida/:idPedido', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Salida', props:true, component: solicitarSalida},
     { path: '/productos', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: GestionProductos},
     { path: '/entrada', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: entrada},
