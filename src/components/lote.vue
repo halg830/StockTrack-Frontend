@@ -185,6 +185,11 @@ function goRedConocimiento(){
   router.push(`/red-conocimiento`);
 }
 
+function goConexRedLote(idLote){
+  router.push(`/conexion-red-lote/${idLote}`);
+  useLotes.idLote = idLote
+  console.log("Hola soy id lote", useLotes.idLote)
+}
 
 </script>
 
@@ -235,7 +240,7 @@ function goRedConocimiento(){
         </q-input>
       </template>
       <template v-slot:body-cell-estado="props">
-        <q-td :props="props" class="botones">
+        <q-td :props="props" class="boton">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
             ? 'Activo'
             : !props.row.estado
@@ -255,6 +260,7 @@ function goRedConocimiento(){
             </svg>
           </button>
           <button class="btn-go" @click="goRedConocimiento(props.row._id)">Red Conocimiento <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Red-Lote <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
@@ -266,6 +272,13 @@ function goRedConocimiento(){
   margin: auto;
 }
 
+.botones{
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
 .editBtn {
   width: 55px;
   height: 55px;
@@ -280,7 +293,7 @@ function goRedConocimiento(){
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
-  margin: 0 auto;
+  margin: 0 10px;
 }
 
 .editBtn::before {
@@ -336,7 +349,6 @@ function goRedConocimiento(){
   left: 0px;
   transform-origin: right;
 }
-
 
 .btn-go , .btn-asignar{
  width: 9em;

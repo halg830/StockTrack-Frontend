@@ -1,12 +1,14 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreConexRedLote } from '../stores/conexionRedLote.js'
+import { useStoreConexRedLote } from '../stores/conexionRedLote.js';
+import { useStoreLotes } from '../stores/lote';
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const useLote = useStoreLotes();
 
 
 // Variables modal
@@ -61,9 +63,8 @@ async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useConexRedLote.getAll()
+    const response = await useConexRedLote.getPorLote(useLote.idLote)
     console.log("hola soy data conexiones", response);
-
     if (!response) return;
     if (response.error) {
       notificar('negative', response.error)

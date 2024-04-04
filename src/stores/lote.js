@@ -29,6 +29,7 @@ export const useStoreLotes = defineStore(modelo, () => {
     router.push("/");
   }
   const lotes = ref([]);
+  const idLote = ref('');
   const getAll = async () => {
     try {
       insertarToken()
@@ -155,5 +156,5 @@ export const useStoreLotes = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, lotes };
+  return { getAll, agregar, editar, activar, inactivar, lotes, idLote };
 });

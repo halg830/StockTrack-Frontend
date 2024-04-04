@@ -19,6 +19,7 @@ import distribucionDependencia from '../components/distribucionDependencia.vue';
 import distribucionDependenciaRed from '../components/distribucionDependenciaRed.vue';
 import editarPerfil from '../components/editarPerfil.vue';
 import redConocimiento from '../components/redConocimiento.vue';
+import conexionRedLote from '../components/conexionRedLote.vue'
 import entrada from '../components/entrada.vue'
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
@@ -69,7 +70,7 @@ const routes = [
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
     { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'FichasConID', component: distribucionDependenciaRed, props:true},
     { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
-    { path: '/conexion-red-lote', beforeEnter: auth, meta: {rol: ['admin']}, component: conexionRedLote},
+    { path: '/conexion-red-lote/:idLote', beforeEnter: auth, meta: {rol: ['admin']}, component: conexionRedLote},
     { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},
     { path: '/entrada', beforeEnter: auth, meta:{rol :['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
