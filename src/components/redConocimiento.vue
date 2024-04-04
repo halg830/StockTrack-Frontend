@@ -187,13 +187,13 @@ function buscarIndexLocal(id) {
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Red de conocimiento</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input filled v-model.trim="data.nombre" label="Nombre Lote"
+                        <q-input filled v-model.trim="data.nombre" label="Nombre de la red de conocimiento"
                             :rules="[val => !!val || 'Digite el nombre']" />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
