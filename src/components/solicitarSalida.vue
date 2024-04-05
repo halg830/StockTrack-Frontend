@@ -64,9 +64,9 @@ function obtenerAdmin() {
   return objUsuario._id
 }
 
-//Obtener fichas
+//Obtener destinos
 const selectLoad = ref({
-  ficha: true,
+  destino: true,
   lote: true,
   producto: true,
 });
@@ -215,7 +215,7 @@ async function solicitarSalida() {
                     <span>Destino: </span>
                     <q-select class="input3" outlined v-model:model-value="dataPedido.idDestino.nombre" use-input
                       input-debounce="0" label="Codigo Destino" behavior="menu" @filter="filterFn"
-                      :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.pedido"
+                      :rules="[(val) => val != null || 'Seleccione una destino']" :loading="selectLoad.pedido"
                       :disable="true">
                       <template v-slot:no-option>
                         <q-item>

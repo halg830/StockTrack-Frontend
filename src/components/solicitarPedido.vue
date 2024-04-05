@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useStoreFichas } from "../stores/ficha.js";
+import { useStoreDestinos } from "../stores/destino.js";
 import { useStoreLotes } from "../stores/lote.js";
 import { useStoreProductos } from "../stores/productos.js";
 import { useStorePedidos } from "../stores/pedido.js";
@@ -67,64 +67,64 @@ function obtenerInstructor() {
   };
 }
 
-//Obtener fichas
+//Obtener destinos
 const selectLoad = ref({
-  ficha: true,
+  destino: true,
   lote: true,
   producto: true,
 });
 
 const opcionesSelect = ref({});
 
-const useFicha = useStoreFichas();
+const useDestino = useStoreDestinos();
 async function obtenerOptions() {
   try {
-    const responseFichas = await useFicha.getAll();
-    console.log(responseFichas);
+    const responseDestinos = await useDestino.getAll();
+    console.log(responseDestinos);
 
-    if (!responseFichas) return;
+    if (!responseDestinos) return;
 
-    if (responseFichas.error) {
-      notificar("negative", responseFichas.error);
+    if (responseDestinos.error) {
+      notificar("negative", responseDestinos.error);
       return;
     }
 
-    opcionesSelect.value.fichas = responseFichas.map((ficha) => {
+    opcionesSelect.value.destinos = responseDestinos.map((destino) => {
       return {
         label:
-          ficha.codigo +
+          destino.codigo +
           " / " +
-          (ficha.abreviatura ? ficha.abreviatura : ficha.nombre) +
-          `${ficha.estado === 0 ? " - Inactivo" : ""}`,
-        value: ficha._id,
-        disable: ficha.estado === 0,
+          (destino.abreviatura ? destino.abreviatura : destino.nombre) +
+          `${destino.estado === 0 ? " - Inactivo" : ""}`,
+        value: destino._id,
+        disable: destino.estado === 0,
       };
     });
   } catch (error) {
     console.log(error);
   } finally {
-    selectLoad.value.ficha = false;
+    selectLoad.value.destino = false;
   }
 }
 obtenerOptions();
 
-//Filtro de fichas
+//Filtro de destinos
 const opcionesFiltro = ref({
-  fichas: opcionesSelect.value.fichas,
+  destinos: opcionesSelect.value.destinos,
 });
 function filterFn(val, update) {
   val = val.trim();
   if (val === "") {
     update(() => {
-      opcionesFiltro.value.fichas = opcionesSelect.value.fichas;
+      opcionesFiltro.value.destinos = opcionesSelect.value.destinos;
     });
     return;
   }
 
   update(() => {
     const needle = val.toLowerCase();
-    opcionesFiltro.value.fichas =
-      opcionesSelect.value.fichas.filter(
+    opcionesFiltro.value.destinos =
+      opcionesSelect.value.destinos.filter(
         (v) => v.label.toLowerCase().indexOf(needle) > -1
       ) || [];
   });
@@ -284,7 +284,7 @@ async function solicitarPedido() {
     loadBtnSolicitar.value = true;
     const info = {
       idInstructorEncargado: data.value.idInstructorEncargado.value,
-      idFicha: data.value.idFicha.value,
+      idDestino: data.value.idDestino.value,
     };
     const response = await usePedidos.agregar(info);
     console.log(response);
@@ -361,11 +361,11 @@ async function crearDetPedido(detPedido) {
                       type="text" disable lazy-rules></q-select>
                   </div>
                   <div class="input-cont">
-                    <span>Ficha: </span>
-                    <q-select class="input3" outlined v-model:model-value="data.idFicha" use-input input-debounce="0"
-                      label="Codigo Ficha" behavior="menu" @filter="filterFn" :options="opcionesFiltro.fichas"
-                      :rules="[(val) => val != null || 'Seleccione una ficha']" :loading="selectLoad.ficha"
-                      :disable="selectLoad.ficha">
+                    <span>Destino: </span>
+                    <q-select class="input3" outlined v-model:model-value="data.idDestino" use-input input-debounce="0"
+                      label="Codigo Destino" behavior="menu" @filter="filterFn" :options="opcionesFiltro.destinos"
+                      :rules="[(val) => val != null || 'Seleccione una destino']" :loading="selectLoad.destino"
+                      :disable="selectLoad.destino">
                       <template v-slot:no-option>
                         <q-item>
                           <q-item-section class="text-grey">

@@ -2,7 +2,7 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreContrato } from '../stores/ficha.js';
+import { useStoreContrato } from '../stores/contrato.js';
 import { useStoreDisItemLote } from '../stores/distribucionItemLote.js'
 import { useStoreDisContratoLote } from '../stores/disContratoLote.js';
 import helpersGenerales from '../helpers/generales';
@@ -23,7 +23,7 @@ onMounted(disContratoLote);
 const $q = useQuasar();
 const storeContrato = useStoreContrato();
 const storeDisItemLote = useStoreDisItemLote();
-const storeDisLoteFicha = useStoreDisContratoLote();
+const storeDisLoteDestino = useStoreDisContratoLote();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -58,7 +58,7 @@ async function getInfo() {
     try {
         await disContratoLote();
         loadingTable.value = true
-        const response = await storeDisLoteFicha.getById(idDistribucionPresupuesto.value)
+        const response = await storeDisLoteDestino.getById(idDistribucionPresupuesto.value)
         getOptionsItemLote();
         if (!response) return;
         if (response.error) {
@@ -95,16 +95,16 @@ const opciones = {
                 label: `${info.idDistribucionPresupuesto.idLote.nombre} - P. Disponible: ${info.idDistribucionPresupuesto.presupuestoDisponible}`,
                 value: String(info.idDistribucionPresupuesto._id)
             },
-            idFicha:{
-                label:`${info.idFicha.nombre} - ${info.idFicha.codigo}`,
-                value: String(info.idFicha._id)
+            idDestino:{
+                label:`${info.idDestino.nombre} - ${info.idDestino.codigo}`,
+                value: String(info.idDestino._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
-getoptionsFicha();
+getoptionsDestino();
 getOptionsItemLote();
 const enviarInfo = {
     agregar: async () => {
@@ -112,7 +112,7 @@ const enviarInfo = {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
+                ...data.value, idDestino: data.value.idDestino.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
 
             if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
@@ -120,7 +120,7 @@ const enviarInfo = {
                 return;
             }
 
-            const response = await storeDisLoteFicha.agregar(info)
+            const response = await storeDisLoteDestino.agregar(info)
             ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -143,14 +143,14 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
+                ...data.value, idDestino: data.value.idDestino.value, idDistribucionPresupuesto: data.value.idDistribucionPresupuesto.value
             };
 
             if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
                 notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
                 return;
             }
-            const response = await storeDisLoteFicha.editar(data.value._id, info);
+            const response = await storeDisLoteDestino.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -188,7 +188,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisLoteFicha.activar(id)
+            const response = await storeDisLoteDestino.activar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -205,7 +205,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisLoteFicha.inactivar(id)
+            const response = await storeDisLoteDestino.inactivar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -240,14 +240,14 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionsFichas = ref([])
+let optionsDestinos = ref([])
 
-async function getoptionsFicha() {
+async function getoptionsDestino() {
     try {
         await storeContrato.getAll();
-        const fichasActicas = storeContrato.fichas.filter(ficha => ficha.estado === true);
+        const destinosActicas = storeContrato.destinos.filter(destino => destino.estado === true);
 
-        optionsFichas.value = fichasActicas.map((ficha) => { return { label: `${ficha.nombre} - ${ficha.codigo}`, value: ficha._id, disable: ficha.estado === 0 } });
+        optionsDestinos.value = destinosActicas.map((destino) => { return { label: `${destino.nombre} - ${destino.codigo}`, value: destino._id, disable: destino.estado === 0 } });
 
     } catch (error) {
         console.log(error);
@@ -272,7 +272,7 @@ async function getOptionsItemLote(){
 
 const opcionesFiltro = ref({
     // lotes: optionsItemLote.value,
-    fichas: optionsFichas.value
+    destinos: optionsDestinos.value
 })
 
 function filterFn(val, update) {
@@ -280,7 +280,7 @@ function filterFn(val, update) {
   if (val === '') {
     update(() => {
     //   opcionesFiltro.value.lotes = optionsItemLote.value
-      opcionesFiltro.value.fichas = optionsFichas.value
+      opcionesFiltro.value.destinos = optionsDestinos.value
     })
     return
   }
@@ -288,7 +288,7 @@ function filterFn(val, update) {
   update(() => {
     const needle = val.toLowerCase()
     // opcionesFiltro.value.lotes = optionsItemLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-    opcionesFiltro.value.fichas = optionsFichas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.destinos = optionsDestinos.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
 
   })
 }
@@ -329,9 +329,9 @@ function goToItemLote(){
                             </template>
                         </q-select> -->
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idFicha" label="Ficha" 
-                            lazy-rules :options="opcionesFiltro.fichas"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" >
+                            input-debounce="0" @filter="filterFn"  v-model="data.idDestino" label="Destino" 
+                            lazy-rules :options="opcionesFiltro.destinos"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Destino']" >
                             <template v-slot:no-option>
                                 
                             <q-item>

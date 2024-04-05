@@ -7,7 +7,7 @@ import { useStoreUsuarios } from "./usuarios";
 
 const modelo = "destino";
 
-export const useStoreFichas = defineStore(modelo, () => {
+export const useStoreDestinos = defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreFichas = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const fichas = ref([]);
+  const destinos = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      fichas.value = response.data;
+      destinos.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -155,5 +155,5 @@ export const useStoreFichas = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, fichas };
+  return { getAll, agregar, editar, activar, inactivar, destinos };
 });
