@@ -1,7 +1,7 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import Nav from '../components/nav.vue'
 import Home from '../components/home.vue'
-import Ficha from '../components/ficha.vue'
+import Destino from '../components/destino.vue'
 import Cuentas from '../components/registro.vue'
 import Login from '../components/login.vue'
 import NuevaContra from '../components/nuevaContraseña.vue'
@@ -51,7 +51,7 @@ const routes = [
   { path: '/nav', component: Nav, children:[
     { path:'/nav', redirect:'/home'},
     { path: '/home', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: Home },
-    { path: '/fichas', beforeEnter: auth, meta: {rol: ['admin']}, component: Ficha},
+    { path: '/destinos', beforeEnter: auth, meta: {rol: ['admin']}, component: Destino},
     { path: '/cuentas', beforeEnter: auth, meta: {rol: ['admin']}, component: Cuentas},
     { path: '/nueva-password', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: NuevaContra},
     { path: '/solicitar-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: solicitar},
@@ -66,7 +66,7 @@ const routes = [
     { path: '/historial-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historialPedido},
     { path: '/distribucion-dependencia/:idDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Dependencia con ID', component: distribucionDependencia, props: true },
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
-    { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'FichasConID', component: distribucionDependenciaRed, props:true},
+    { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'DestinosConID', component: distribucionDependenciaRed, props:true},
     { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
     { path: '/conexion-red-lote/:idLote', beforeEnter: auth, meta: {rol: ['admin']}, component: conexionRedLote},
     { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},

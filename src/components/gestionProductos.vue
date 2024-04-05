@@ -63,10 +63,10 @@ const columns = ref([
         field: 'iva'
     },
     {
-        name: 'consumible',
-        label: 'Consumible',
+        name: 'cantidad',
+        label: 'Cantidad',
         align: 'center',
-        field: val => val.consumible === true ? 'Sí' : 'No'
+        field: 'cantidad',
     },
     {
         name: 'idLote',
@@ -120,7 +120,7 @@ const opciones = {
         modal.value = true
     },
     editar: (info) => {
-        data.value = { ...info, idLote: { label: info.idLote.nombre, value: info.idLote._id }, consumible: { label: info.consumible === true ? 'Sí' : 'No', value: info.consumible } }
+        data.value = { ...info, idLote: { label: info.idLote.nombre, value: info.idLote._id } }
         estado.value = 'editar'
         modal.value = true
     }
@@ -131,7 +131,7 @@ const enviarInfo = {
         try {
             loadingModal.value = true
 
-            const info = { ...data.value, idLote: data.value.idLote.value, consumible: data.value.consumible.value }
+            const info = { ...data.value, idLote: data.value.idLote.value }
 
             const response = await useProductos.agregar(info)
             console.log(response);
@@ -154,7 +154,7 @@ const enviarInfo = {
     editar: async () => {
         try {
             loadingModal.value = true
-            const info = { ...data.value, idLote: data.value.idLote.value, consumible: data.value.consumible.value }
+            const info = { ...data.value, idLote: data.value.idLote.value }
 
             console.log(data.value);
             const response = await useProductos.editar(data.value._id, info);
@@ -260,27 +260,24 @@ async function getOptionsLote() {
 };
 getOptionsLote()
 
-//Select consumible
-const optionsConsumible = ref([{ label: 'Sí', value: true }, { label: 'No', value: false }])
-
 //Filtro select lote
 const opcionesFiltro = ref({
     lotes: optionsLote.value
 })
 
 function filterFn(val, update) {
-  val=val.trim()
-  if (val === '') {
-    update(() => {
-      opcionesFiltro.value.lotes = optionsLote.value
-    })
-    return
-  }
+    val = val.trim()
+    if (val === '') {
+        update(() => {
+            opcionesFiltro.value.lotes = optionsLote.value
+        })
+        return
+    }
 
-  update(() => {
-    const needle = val.toLowerCase()
-    opcionesFiltro.value.lotes = optionsLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-  })
+    update(() => {
+        const needle = val.toLowerCase()
+        opcionesFiltro.value.lotes = optionsLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    })
 }
 </script>
 
@@ -305,7 +302,7 @@ function filterFn(val, update) {
                         </div>
 
                         <q-input outlined v-model="data.descripcion" label="Descripción" type="textarea"
-                            :rules="[val => !!val || 'Ingrese una descripción']" ></q-input>
+                            :rules="[val => !!val || 'Ingrese una descripción']"></q-input>
 
                         <q-select outlined v-model="data.unidadMedida" label="Unidad medida" behavior="menu"
                             :options="unidadesMedida"></q-select>
@@ -318,21 +315,17 @@ function filterFn(val, update) {
                                 type="number" :rules="[val => !!val || 'Ingrese el precio unitario']"></q-input>
                         </div>
 
-                        <q-select outlined v-model:model-value="data.consumible" label="Consumible" lazy-rules
-                            :options="optionsConsumible"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una opción']" />
-
-                            <q-select outlined use-input behavior="menu" hide-selected
-        fill-input
-        input-debounce="0" @filter="filterFn"  v-model="data.idLote" label="Lote" lazy-rules :options="opcionesFiltro.lotes"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
+                        <q-select outlined use-input behavior="menu" hide-selected fill-input input-debounce="0"
+                            @filter="filterFn" v-model="data.idLote" label="Lote" lazy-rules
+                            :options="opcionesFiltro.lotes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']">
                             <template v-slot:no-option>
-          <q-item>
-            <q-item-section class="text-grey">
-              Sin resultados
-            </q-item-section>
-          </q-item>
-        </template>
+                                <q-item>
+                                    <q-item-section class="text-grey">
+                                        Sin resultados
+                                    </q-item-section>
+                                </q-item>
+                            </template>
                         </q-select>
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
@@ -347,9 +340,9 @@ function filterFn(val, update) {
         <!------------------------------------------------------ TABLA -------------------------------------------->
 
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
-            :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Productos"
-            no-data-label="No hay productos registrados." style="width: 90%;">
+            :filter="filter" rows-per-page-label="Visualización de filas" page="2"
+            :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda."
+            wrap-cells="false" label="Productos" no-data-label="No hay productos registrados." style="width: 90%;">
             <template v-slot:top-left>
 
                 <div style=" display: flex; gap: 10px;">

@@ -13,13 +13,13 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 
-const idDistribucionDependendencia = ref([]);
+const idDistribucionDependencia = ref([]);
 
-const distribucionLoteFicha = async () => {
-  idDistribucionDependendencia.value = route.params.idDistribucionDependendencia;
+const distribucionDependencia = async () => {
+  idDistribucionDependencia.value = route.params.idDistribucionDependencia;
 };
 
-onMounted(distribucionLoteFicha);
+onMounted(distribucionDependencia);
 
 const $q = useQuasar();
 const storeDisDependencia = useStoreDisDependencia();
@@ -45,12 +45,11 @@ const data = ref({});
 
 
 const columns = [
-    { name: "idDistribucionDependencia", label: "Codigo Ficha", field: (row) => row.idFicha.codigo, sortable: true, align: "left" },
-    { name: "idFicha", label: "Nombre Ficha" , field: (row) => row.idFicha.nombre, sortable: true, align: "left" },
-    { name: "presupuesto", label: "Presupuesto", field: "presupuesto", sortable: true, align: "left" },
+    { name: "idDistribucionDependencia", label: "Dependencia", field: (row) => row.idDisDependencia.idDependencia.nombre, sortable: true, align: "left" },
+    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idRed.nombre, sortable: true, align: "left" },
+    { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
-    { name: "idLote", label: "Lote Nombre", field: (row) => row.idDistribucionDependendencia.idLote.nombre, align: "left" },
-    { name: "idItem", label: "Item Nombre", field: (row) => row.idDistribucionDependendencia.idItem.nombre, align: "left" },
+    { name: "year", label: "Vigencia", field: (row) => format(new Date(row.year), 'yyyy'), align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -59,10 +58,10 @@ const rows = ref([]);
 
 async function getInfo() {
     try {
-        await distribucionLoteFicha();
+        await distribucionDependencia();
         loadingTable.value = true
-        const response = await storeDisDependenciaRed.getById(idDistribucionDependendencia.value)
-        getOptionsItemLote();
+        const response = await storeDisDependenciaRed.getById(idDistribucionDependencia.value)
+        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -82,9 +81,9 @@ getInfo();
 const opciones = {
     agregar: () => {
         data.value = {
-            idDistribucionDependendencia:{
-                label: `${optionsItemLote.value[0].label}` ,
-                value: String(optionsItemLote.value[0].value)
+            idDisDependencia:{
+                label: `${optionDisDependencia.value[0].label}` ,
+                value: String(optionDisDependencia.value[0].value)
             }
         };
         estado.value = 'agregar';
@@ -93,36 +92,36 @@ const opciones = {
     editar: (info) => {
         data.value = {
             ...info,
-            idDistribucionDependendencia: {
-                label: `${info.idDistribucionDependendencia.idLote.nombre} - P. Disponible: ${info.idDistribucionDependendencia.presupuestoDisponible}`,
-                value: String(info.idDistribucionDependendencia._id)
+            idDisDependencia: {
+                label: `${info.idDisDependencia.idDependencia.nombre} - P. Disponible: ${info.idDisDependencia.presupuestoDisponible}`,
+                value: String(info.idDisDependencia._id)
             },
-            idFicha:{
-                label:`${info.idFicha.nombre} - ${info.idFicha.codigo}`,
-                value: String(info.idFicha._id)
+            idRed:{
+                label: `${info.idRed.nombre}`,
+                value: String(info.idRed._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
-getoptionsFicha();
-getOptionsItemLote();
 const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependendencia: data.value.idDistribucionDependendencia.value
+                ...data.value, 
+                idRed: data.value.idRed.value, 
+                idDisDependencia: data.value.idDisDependencia.value
             };
 
-            if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
                 notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
                 return;
             }
 
-            const response = await storeDisLoteFicha.agregar(info)
+            const response = await storeDisDependenciaRed.agregar(info)
             ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -145,14 +144,14 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependendencia: data.value.idDistribucionDependendencia.value
+                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependencia: data.value.idDistribucionDependencia.value
             };
 
             if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
                 notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
                 return;
             }
-            const response = await storeDisLoteFicha.editar(data.value._id, info);
+            const response = await storeDisDependenciaRed.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -225,7 +224,7 @@ const in_activar = {
 
 async function ajustarPresupuesto(data) {
     try {
-        const response = await storeDisItemLote.ajustarPresupuesto(data.idDistribucionDependendencia, {presupuesto : data.presupuesto})
+        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuesto : data.presupuesto})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -242,61 +241,61 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionsFichas = ref([])
-
-async function getoptionsFicha() {
-    try {
-        await storeFichas.getAll();
-        const fichasActicas = storeFichas.fichas.filter(ficha => ficha.estado === true);
-
-        optionsFichas.value = fichasActicas.map((ficha) => { return { label: `${ficha.nombre} - ${ficha.codigo}`, value: ficha._id, disable: ficha.estado === 0 } });
-
-    } catch (error) {
-        console.log(error);
-    };
-};
-
 let optionDisDependencia = ref([])
-let disItemLote = ref([])
+let disDependencia = ref([])
 async function getOptionDisDependencia(){
     try {
-        const response = await storeDisItemLote.getById(idDistribucionDependendencia.value);
-        disItemLote.value = response
+        await distribucionDependencia();
+        const response = await storeDisDependencia.getById(idDistribucionDependencia.value);
+        console.log(response);
+        disDependencia.value = response
         optionDisDependencia.value = [{
-            label: `${response.idLote.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+            label: `${response.idDependencia.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
         }];
     } catch (error) {
         console.log(error);
     };
+};
+getOptionDisDependencia();
+
+let optionsRedes = ref([]);
+async function getOptionsRedes() {
+  try {
+    const response = await storeRedConocimiento.getAll();
+
+    optionsRedes.value = response.map((red) => ({
+      label: red.nombre, 
+      value: String(red._id), 
+      disable: red.estado === 0
+    }));
+  } catch (error) {
+    console.error(error);
+  }
 }
+getOptionsRedes();
 
 const opcionesFiltro = ref({
-    // lotes: optionsItemLote.value,
-    fichas: optionsFichas.value
+    redes: optionsRedes.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-    //   opcionesFiltro.value.lotes = optionsItemLote.value
-      opcionesFiltro.value.fichas = optionsFichas.value
+      opcionesFiltro.value.redes = optionsRedes.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    // opcionesFiltro.value.lotes = optionsItemLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-    opcionesFiltro.value.fichas = optionsFichas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-
+    opcionesFiltro.value.redes = optionsRedes.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-function goToItemLote(){
-    // console.log(disItemLote.value.idItem._id); 
-    router.push(`/distribucion-item-lote/${disItemLote.value.idItem._id}`);
+function goToDisDependencia(){
+    router.push(`/distribucion-dependencia/${disDependencia.value.idDependencia._id}`);
 }
 
 </script>
@@ -314,13 +313,16 @@ function goToItemLote(){
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-select filled v-model:model-value="data.idDistribucionDependendencia" label="Presupuesto Lote" lazy-rules disable
-                            :options=optionsItemLote :rules="[val => !!val || 'Seleccione el Lote']" />
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0"  v-model="data.idDisDependencia" label="Dependencia" disable
+                            lazy-rules
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una dependencia']" >
+                        </q-select>
                        
-                        <!-- <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idDistribucionDependendencia" label="Lote" 
-                            lazy-rules :options="opcionesFiltro.lotes"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un lote']" >
+                        <q-select filled use-input behavior="menu" hide-selected fill-input
+                            input-debounce="0" @filter="filterFn"  v-model="data.idRed" label="Red de conocimineto" 
+                            lazy-rules :options="opcionesFiltro.redes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una red de conocimiento']" >
                             <template v-slot:no-option>
                                 
                             <q-item>
@@ -329,25 +331,19 @@ function goToItemLote(){
                                 </q-item-section>
                               </q-item>
                             </template>
-                        </q-select> -->
-                        <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idFicha" label="Ficha" 
-                            lazy-rules :options="opcionesFiltro.fichas"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Ficha']" >
-                            <template v-slot:no-option>
-                                
-                            <q-item>
-                                <q-item-section class="text-grey">
-                                Sin resultados
-                                </q-item-section>
-                            </q-item>
-                            </template>
                         </q-select>
-                        <q-input filled v-model="data.presupuesto" type="number" label="Presupuesto" lazy-rules
+                        <q-input filled v-model="data.presupuestoAsignado" type="number" label="Presupuesto" lazy-rules
                             :rules="[
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
+
+                        <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
+                            :rules="[
+                                v => !!v || 'El campo Vigencia no puede estar vacío',
+                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
+                            ]"
+                        />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -405,7 +401,7 @@ function goToItemLote(){
             </template>
         </q-table>
         <div style="width: 90%;">
-            <button class="btn-back" @click="goToItemLote()">
+            <button class="btn-back" @click="goToDisDependencia()">
                  <i class="fa-solid fa-backward"></i> Volver
              </button> 
          </div>

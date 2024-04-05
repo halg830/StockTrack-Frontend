@@ -208,7 +208,7 @@ function buscarIndexLocal(id) {
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model="data.nombre" label="Nombre" type="text"
+            <q-input filled v-model.trim="data.nombre" label="Nombre" type="text"
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
     

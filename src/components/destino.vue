@@ -2,14 +2,12 @@
 
 import { useQuasar } from 'quasar';
 import { ref, watch } from 'vue';
-import { useStoreFichas } from '../stores/ficha.js';
-import { useStoreAreas } from '../stores/area.js';
+import { useStoreDestinos } from '../stores/destino.js';
 import { format } from "date-fns";
-import helpersGenerales from '../helpers/generales';
+import helpersGenerales from '../helpers/generales.js';
 
 const $q = useQuasar();
-const storeFichas = useStoreFichas();
-const storeAreas = useStoreAreas();
+const storeDestinos = useStoreDestinos();
 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
@@ -30,19 +28,16 @@ let niveles = ref([
 
 const estado = ref('agregar')
 const data = ref({
-    area: { value: null },
-
 });
 const date = ref('')
 
 
 const columns = [
-    { name: "nombre", label: "Nombre / Abreviatura", field: val=> val.nombre + (val.abreviatura ? ` / ${val.abreviatura}` : ''), sortable: true, align: "left" },
+    { name: "nombre", label: "Nombre / Abreviatura", field: val => val.nombre + (val.abreviatura ? ` / ${val.abreviatura}` : ''), sortable: true, align: "left" },
     { name: "codigo", label: "Codigo", field: "codigo", sortable: true, align: "left" },
     { name: "nivelFormacion", label: "Nivel de Formación", field: "nivelFormacion", sortable: true, align: "left" },
     { name: "fechaInicio", label: "Fecha Inicio", field: (row) => `${format(new Date(row.fechaInicio), "yyyy-MM-dd")}`, align: "left" },
     { name: "fechaFin", label: "Fecha Fin", field: (row) => `${format(new Date(row.fechaFin), "yyyy-MM-dd")}`, align: "left" },
-    // { name: "idArea", label: "Area Asignada", field: (row) => row.idArea.nombre, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -52,7 +47,7 @@ const rows = ref([]);
 async function getInfo() {
     try {
         loadingTable.value = true
-        const response = await storeFichas.getAll()
+        const response = await storeDestinos.getAll()
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -80,25 +75,20 @@ const opciones = {
             ...info,
             fechaInicio: format(new Date(info.fechaInicio), "yyyy-MM-dd"),
             fechaFin: format(new Date(info.fechaFin), "yyyy-MM-dd"),
-            area: {
-                label: `${info.idArea.nombre}`,
-                value: String(info.idArea._id)
-            }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
-getOptionsArea();
 const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
             console.log(data.value);
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value
             };
-            const response = await storeFichas.agregar(info)
+            const response = await storeDestinos.agregar(info)
             console.log(response);
             getInfo();
 
@@ -107,7 +97,7 @@ const enviarInfo = {
                 notificar('negative', response.error)
                 return
             }
-            
+
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -123,9 +113,9 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idArea: data.value.area.value
+                ...data.value
             };
-            const response = await storeFichas.editar(data.value._id, info);
+            const response = await storeDestinos.editar(data.value._id, info);
             console.log(response);
             getInfo();
 
@@ -150,7 +140,7 @@ function validarCampos() {
     console.log(arrData);
     for (const d of arrData) {
         console.log(d);
-        if(d[0]==='abreviatura') continue
+        if (d[0] === 'abreviatura') continue
 
         if (d[1] === null) {
             notificar('negative', 'Por favor complete todos los campos');
@@ -170,7 +160,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.activar(id)
+            const response = await storeDestinos.activar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -188,7 +178,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeFichas.inactivar(id)
+            const response = await storeDestinos.inactivar(id)
             console.log(response);
             if (!response) return
             if (response.error) {
@@ -209,24 +199,7 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionsArea = ref([])
 
-async function getOptionsArea() {
-    try {
-        await storeAreas.getAll();
-        const areasActicas = storeAreas.areas.filter(area => area.estado === true);
-
-        optionsArea.value = areasActicas.map((area) => { return { label: area.nombre, value: area._id, disable: area.estado === 0 } });
-
-        // optionsArea.value = areasActicas.map((area) => ({
-        //     label: `${area.nombre}`,
-        //     value: String(area._id),
-        // }));
-        console.log(optionsArea.value);
-    } catch (error) {
-        console.log(error);
-    };
-};
 
 
 watch(data, () => {
@@ -234,23 +207,8 @@ watch(data, () => {
 });
 
 const opcionesFiltro = ref({
-    areas: optionsArea.value
+
 })
-
-function filterFn(val, update) {
-  val=val.trim()
-  if (val === '') {
-    update(() => {
-      opcionesFiltro.value.areas = optionsArea.value
-    })
-    return
-  }
-
-  update(() => {
-    const needle = val.toLowerCase()
-    opcionesFiltro.value.areas = optionsArea.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
-  })
-}
 </script>
 
 
@@ -260,14 +218,14 @@ function filterFn(val, update) {
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Ficha</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Destino</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
-                        <q-input filled v-model="data.codigo" type="number" label="N° Ficha" lazy-rules :rules="[
-                            val => val && val.length > 0 && val > 0 || 'Digite el numero de ficha (Solo números)',
+                        <q-input filled v-model="data.codigo" type="number" label="N° Destino" lazy-rules :rules="[
+                            val => val && val.length > 0 && val > 0 || 'Digite el numero de destino (Solo números)',
                             val => /^\d+$/.test(val) || 'Ingrese solo números'
                         ]" />
 
@@ -287,40 +245,41 @@ function filterFn(val, update) {
                             // val => new Date(val) >= new Date(Date.now()) || 'Seleccione una fecha superior al dia de hoy'
                         ]" /> -->
 
-    <q-input filled v-model="data.fechaInicio" mask="date" :rules="[val => !!val || 'Seleccione la fecha de inicio']" label="Fecha inicio">
-      <template v-slot:append>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="data.fechaInicio">
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+                        <q-input filled v-model="data.fechaInicio" mask="date"
+                            :rules="[val => !!val || 'Seleccione la fecha de inicio']" label="Fecha inicio">
+                            <template v-slot:append>
+                                <q-icon name="event" class="cursor-pointer">
+                                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                        <q-date v-model="data.fechaInicio">
+                                            <div class="row items-center justify-end">
+                                                <q-btn v-close-popup label="Close" color="primary" flat />
+                                            </div>
+                                        </q-date>
+                                    </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                        </q-input>
 
-    <q-input filled v-model="data.fechaFin" mask="date" :rules="[val => !!val || 'Seleccione la Fecha de Finalización',
-                            val => {
-                                const startDate = new Date(data.fechaInicio);
-                                const endDate = new Date(val);
-                                const sixMonthsLater = new Date(startDate);
-                                sixMonthsLater.setMonth(startDate.getMonth() + 6);
-                                return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
-                            }]" label="Fecha fin">
-      <template v-slot:append>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="data.fechaFin">
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+                        <q-input filled v-model="data.fechaFin" mask="date" :rules="[val => !!val || 'Seleccione la Fecha de Finalización',
+                        val => {
+                            const startDate = new Date(data.fechaInicio);
+                            const endDate = new Date(val);
+                            const sixMonthsLater = new Date(startDate);
+                            sixMonthsLater.setMonth(startDate.getMonth() + 6);
+                            return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
+                        }]" label="Fecha fin">
+                            <template v-slot:append>
+                                <q-icon name="event" class="cursor-pointer">
+                                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                        <q-date v-model="data.fechaFin">
+                                            <div class="row items-center justify-end">
+                                                <q-btn v-close-popup label="Close" color="primary" flat />
+                                            </div>
+                                        </q-date>
+                                    </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                        </q-input>
                         <!-- <q-input filled v-model="data.fechaFin" type="date" label="Fecha Fin" lazy-rules :rules="[
                             val => val !== null && val !== '' || 'Seleccione la Fecha de Finalización',
                             val => {
@@ -331,20 +290,6 @@ function filterFn(val, update) {
                                 return endDate >= sixMonthsLater || 'La fecha de finalización debe ser al menos 6 meses después de la fecha de inicio';
                             }
                         ]" /> -->
-
-                        <q-select filled use-input behavior="menu" hide-selected
-        fill-input
-        input-debounce="0" @filter="filterFn"  v-model="data.area" label="Area" lazy-rules :options="opcionesFiltro.areas"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un area']" >
-                            <template v-slot:no-option>
-          <q-item>
-            <q-item-section class="text-grey">
-              Sin resultados
-            </q-item-section>
-          </q-item>
-        </template>
-                        </q-select>
-
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn class="botonenv" :loading="loadingModal" padding="10px" type="submit" color="primary"
@@ -358,12 +303,12 @@ function filterFn(val, update) {
 
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
-            :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Fichas" style="width: 90%;"
-            no-data-label="No hay Fichas registrados.">
+            :filter="filter" rows-per-page-label="Visualización de filas" page="2"
+            :rows-per-page-options="[10, 20, 40, 0]" no-results-label="No hay resultados para la búsqueda."
+            wrap-cells="false" label="Destinos" style="width: 90%;" no-data-label="No hay Destinos registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Fichas</h4>
+                    <h4 id="titleTable">Destinos</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
