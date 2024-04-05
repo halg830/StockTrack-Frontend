@@ -12,7 +12,6 @@ import GestionProductos from '../components/gestionProductos.vue'
 import Lote from '../components/lote.vue'
 import Dependencia from '../components/dependencia.vue'
 import Area from '../components/area.vue'
-import formatoDevolucion from '../components/formatoDevoluciones.vue'
 import historial from '../components/historialDevolucion.vue'
 import historialPedido from '../components/historialPedido.vue'
 import distribucionDependencia from '../components/distribucionDependencia.vue';
@@ -63,7 +62,6 @@ const routes = [
     { path: '/lotes/:idDistribucion', name: 'LoteConID', beforeEnter: auth, meta: {rol: ['admin', 'bodega']}, component: Lote},
     { path: '/dependencia', beforeEnter: auth, meta: {rol: ['admin']}, component: Dependencia},
     { path: '/areas', beforeEnter: auth, meta: {rol: ['admin']}, component: Area},
-    { path: '/formato-devolucion', beforeEnter: auth, meta: {rol: ['bodega']}, component: formatoDevolucion},
     { path: '/historial', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historial},
     { path: '/historial-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historialPedido},
     { path: '/distribucion-dependencia/:idDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Dependencia con ID', component: distribucionDependencia, props: true },
