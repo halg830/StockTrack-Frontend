@@ -2,14 +2,21 @@
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar';
 import helpersGenerales from '../helpers/generales';
-import { useStoreEntrada } from '../stores/entrada';
-const useLotes = useStoreEntrada();
+import { useStoreEntrada } from '../stores/entrada.js';
+import { useStoreProductos } from '../stores/productos.js';
+
+const useEntrada = useStoreEntrada();
+const useProductos = useStoreProductos();
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
 const $q = useQuasar();
+const opcionesSelect = ref({});
+const selectLoad = ref({
+  producto: true
+})
 
 function notificar(tipo, msg) {
   $q.notify({
@@ -32,11 +39,13 @@ const columns = [
 
 const rows = ref([]);
 
+// Get tiendas
+
 async function getInfo() {
   try {
     loadingTable.value = true
 
-    const response = await useLotes.getAll()
+    const response = await useEntrada.getAll()
     console.log(response);
 
     if (!response) return;
@@ -57,6 +66,58 @@ async function getInfo() {
 
 getInfo();
 
+async function obtenerOptions() {
+  try {
+    const responseProductos = await useProductos.getAll();
+    console.log(responseProductos);
+
+    if (!responseProductos) return;
+
+    if (responseProductos.error) {
+      notificar("negative", responseProductos.error);
+      return;
+    }
+
+    const productosActivos = useProductos.productos.filter(producto => producto.estado === true);
+
+    opcionesSelect.value.productos = productosActivos.map((producto) => {
+      return {
+        label:
+          producto.nombre,
+        value: producto._id,
+        disable: producto.estado === 0,
+      };
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.producto = false;
+  }
+}
+obtenerOptions();
+
+//Filtro de productos
+const opcionesFiltro = ref({
+  productos: opcionesSelect.value.productos,
+});
+function filterFn(val, update) {
+  val = val.trim();
+  if (val === "") {
+    update(() => {
+      opcionesFiltro.value.productos = opcionesSelect.value.productos;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.productos =
+      opcionesSelect.value.productos.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
+}
+
 const opciones = {
   agregar: () => {
     data.value = {}
@@ -64,7 +125,7 @@ const opciones = {
     modal.value = true
   },
   editar: (info) => {
-    data.value = { ...info }
+    data.value = { ...info, idProducto:{label: info.idProducto.nombre, value: info.idProducto._id} }
     estado.value = 'editar'
     modal.value = true
   }
@@ -75,7 +136,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true;
 
-      const response = await useLotes.agregar(data.value);
+      const response = await useEntrada.agregar({...data.value, idProducto: data.value.idProducto.value});
       console.log(response);
       getInfo();
       if (!response) return
@@ -97,7 +158,7 @@ const enviarInfo = {
     loadingModal.value = true;
     try {
       console.log(data.value);
-      const response = await useLotes.editar(data.value._id, data.value);
+      const response = await useEntrada.editar(data.value._id, {...data.value, idProducto: data.value.idProducto.value});
       console.log(response);
       getInfo();
       if (!response) return
@@ -115,6 +176,7 @@ const enviarInfo = {
     }
   }
 }
+
 
 function validarCampos() {
   console.log(data.value);
@@ -140,7 +202,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useLotes.activar(id)
+      const response = await useEntrada.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -158,7 +220,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useLotes.inactivar(id)
+      const response = await useEntrada.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -195,8 +257,23 @@ function buscarIndexLocal(id) {
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model.trim="data.nombre" label="Nombre de la entrada"
-              :rules="[val => !!val || 'Digite el nombre']" />
+            <q-select class="input3" outlined v-model:model-value="data.idProducto" use-input input-debounce="0"
+                      label="Seleccione un producto" behavior="menu" @filter="filterFn" :options="opcionesFiltro.productos"
+                      :rules="[(val) => val != null || 'Seleccione una producto']" :loading="selectLoad.producto"
+                      :disable="selectLoad.producto">
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            Sin resultados
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
+              <q-input filled v-model.trim="data.cantidad" label="Cantidad" type="number"
+              :rules="[val => !!val || 'Digite la cantidad']" />
+              <q-input filled v-model.trim="data.total" label="Total"  type="number"
+              :rules="[val => !!val || 'Digite el total']" />
+              
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
