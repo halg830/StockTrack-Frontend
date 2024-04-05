@@ -185,9 +185,9 @@ function goRedConocimiento(){
   router.push(`/red-conocimiento`);
 }
 
-function goConexRedLote(idLote){
-  router.push(`/conexion-red-lote/${idLote}`);
-  useLotes.idLote = idLote
+function goConexRedLote(id){
+  router.push(`/conexion-red-lote/lote/${id}`);
+  useLotes.idLote = id
   console.log("Hola soy id lote", useLotes.idLote)
 }
 

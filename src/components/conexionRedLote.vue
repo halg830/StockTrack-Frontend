@@ -1,14 +1,21 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreConexRedLote } from '../stores/conexionRedLote.js';
-import { useStoreLotes } from '../stores/lote';
+import { useStoreLotes } from '../stores/lote.js';
+import { useStoreRedConocimiento } from '../stores/redConocimiento.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
-import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
-const router = useRouter();
+const data = ref({idLote:{}})
+
+const selectLoad = ref({
+  lote: true,
+  red: true,
+});
 const useLote = useStoreLotes();
+const useRedConocimiento = useStoreRedConocimiento();
 
 
 // Variables modal
@@ -38,8 +45,8 @@ const columns = [
     label: 'Nombre',
     align: 'center',
     field: (row) => row.idRed.nombre
-  }, 
-  
+  },
+
   {
     name: 'estado',
     label: 'Estado',
@@ -57,19 +64,33 @@ const rows = ref([])
 const loadTable = ref(false)
 const filter = ref("")
 
-// Get datos tabla
+const route = useRoute()
+
+// Get datos tablas
 const useConexRedLote = useStoreConexRedLote()
 async function getInfo() {
-  try {
+ 
+}
+getInfo()
+
+
+const conexion = ref('')
+const obtener = {
+  lote: async()=>{
+    try {
     loadTable.value = true
 
-    const response = await useConexRedLote.getPorLote(useLote.idLote)
+    const response = await useConexRedLote.getPorLote(route.params.id)
     console.log("hola soy data conexiones", response);
     if (!response) return;
     if (response.error) {
       notificar('negative', response.error)
       return
     }
+
+    const conexion = response.find(conexion=>conexion.idLote._id===route.params.id)
+    data.value.idLote = {label: conexion.idLote.nombre, value: conexion.idLote._id}
+    console.log(data.value.idLote)
 
     rows.value = response.reverse();
 
@@ -79,8 +100,83 @@ async function getInfo() {
   finally {
     loadTable.value = false
   }
+  },
+  red: ()=>{
+    console.log('adios');
+  }
 }
-getInfo()
+
+onMounted(()=>{
+  const conexion = route.params.conexion
+  
+  obtener[conexion]()
+})
+
+const opcionesSelect = ref({});
+
+
+
+async function obtenerOptions() {
+  try {
+    const responseLotes = await useLote.getAll();
+    console.log(responseLotes);
+
+    if (!responseLotes) return;
+
+    if (responseLotes.error) {
+      notificar("negative", responseLotes.error);
+      return;
+    }
+
+    const lotesActivos = responseLotes.filter(lote => lote.estado === true);
+
+    opcionesSelect.value.lotes = lotesActivos.map((lote) => {
+      return {
+        label:
+          lote.nombre,
+        value: lote._id,
+        disable: lote.estado === 0,
+      };
+    });
+
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.lote = false;
+  }
+}
+obtenerOptions();
+
+async function obtenerOptionsRed() {
+  try {
+    const responseRed = await useRedConocimiento.getAll();
+    console.log(responseRed);
+
+    if (!responseRed) return;
+
+    if (responseRed.error) {
+      notificar("negative", responseRed.error);
+      return;
+    }
+
+    const redesActivas = responseRed.filter(red => red.estado === true);
+
+    opcionesSelect.value.redes = redesActivas.map((red) => {
+      return {
+        label:
+        red.nombre,
+        value: red._id,
+        disable: red.estado === 0 ,
+      };
+    });
+
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.red = false;
+  }
+}
+obtenerOptionsRed();
 
 // Opciones tabla
 const estado = ref('agregar')
@@ -92,20 +188,20 @@ const opciones = {
     modal.value = true
   },
   editar: (info) => {
-    data.value = { ...info,}
+    data.value = { ...info, idLote:{label: info.idLote.nombre, value: info.idLote._id} , idRed:{label: info.idRed.nombre, value: info.idRed._id}   }
     estado.value = 'editar'
     cambio.value = 0
     modal.value = true
   },
 }
 let cambio = ref(0)
-const data = ref({})
+
 const enviarInfo = {
   agregar: async () => {
     try {
       loadingModal.value = true
 
-      const response = await useConexRedLote.agregar(data.value)
+      const response = await useConexRedLote.agregar({...data.value, idProducto: data.value.idProducto.value})
       console.log(response);
       getInfo();
       if (!response) return
@@ -127,7 +223,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useConexRedLote.editar(data.value._id, data.value);
+      const response = await useConexRedLote.editar(data.value._id, {...data.value, idProducto: data.value.idProducto.value});
       console.log(response);
       getInfo();
       if (!response) return
@@ -166,6 +262,50 @@ function validarCampos() {
   enviarInfo[estado.value]()
 }
 
+//Filtro q-select
+
+const opcionesFiltro = ref({
+  lotes: opcionesSelect.value.lotes,
+  redes: opcionesSelect.value.redes,
+});
+
+function filterFn(val, update) {
+  val = val.trim();
+  if (val === "") {
+    update(() => {
+      opcionesFiltro.value.lotes = opcionesSelect.value.lotes;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.lotes =
+      opcionesSelect.value.lotes.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
+}
+
+function filterFnRedes(val, update) {
+  val = val.trim();
+  if (val === "") {
+    update(() => {
+      opcionesFiltro.value.redes = opcionesSelect.value.redes;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.redes =
+      opcionesSelect.value.redes.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
+}
+
+// Activar - Inactivar conexion-red
 const loadIn_activar = ref(false)
 const in_activar = {
   activar: async (id) => {
@@ -218,21 +358,44 @@ function buscarIndexLocal(id) {
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Dependencia</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Conexión
+            Red-Lote</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input filled v-model.trim="data.nombre" label="Nombre" type="text" 
-              :rules="[val => !!val || 'Ingrese un nombre']" ></q-input>
+            <q-input filled v-model.trim="data.codigo" label="Codigo" type="text"
+              :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
-            <q-input filled v-model="data.codigo" label="Codigo" mask="##########"
-              :rules="[val => !!val || 'Ingrese el codigo (solo números)']"></q-input>
+            <q-select class="input3" outlined v-model:model-value="data.idLote" use-input input-debounce="0"
+              label="Seleccione un lote" behavior="menu" @filter="filterFn" :options="opcionesFiltro.lotes"
+              :rules="[(val) => val != null || 'Seleccione un lote']" :loading="selectLoad.lote"
+              :disable="selectLoad.lote">
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    Sin resultados
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+
+            <q-select class="input3" outlined v-model:model-value="data.idRed" use-input input-debounce="0"
+              label="Seleccione una red de conocimiento" behavior="menu" @filter="filterFnRedes" :options="opcionesFiltro.redes"
+              :rules="[(val) => val != null || 'Seleccione una red']" :loading="selectLoad.red"
+              :disable="selectLoad.lote">
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    Sin resultados
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
-              <q-btn :loading="loadingModal" padding="10px" type="submit"
-                color="primary" :label="estado" />
+              <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
             </div>
           </q-form>
         </q-card-section>
@@ -262,11 +425,11 @@ function buscarIndexLocal(id) {
       <template v-slot:body-cell-estado="props">
         <q-td :props="props" class="estados">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
-            ? 'Activo'
-            : !props.row.estado
-              ? 'Inactivo'
-              : '‎  ‎   ‎   ‎   ‎ '
-            " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+      ? 'Activo'
+      : !props.row.estado
+        ? 'Inactivo'
+        : '‎  ‎   ‎   ‎   ‎ '
+      " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
             @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
         </q-td>
       </template>
@@ -289,13 +452,14 @@ function buscarIndexLocal(id) {
   margin: auto;
 }
 
-.botones{
+.botones {
   display: flex;
   height: 100%;
   width: 100%;
   align-items: center;
   justify-content: center;
 }
+
 .editBtn {
   width: 55px;
   height: 55px;
@@ -367,37 +531,38 @@ function buscarIndexLocal(id) {
   transform-origin: right;
 }
 
-.btn-go , .btn-asignar{
- width: 9em;
- height: 55px;
- border-radius: 15px;   
- font-size: 15px;
- font-family: inherit;
- border: none;
- position: relative;
- overflow: hidden;
- z-index: 1;
- box-shadow: 6px 6px 12px #c5c5c5,
-             -6px -6px 12px #ffffff;
+.btn-go,
+.btn-asignar {
+  width: 9em;
+  height: 55px;
+  border-radius: 15px;
+  font-size: 15px;
+  font-family: inherit;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 6px 6px 12px #c5c5c5,
+    -6px -6px 12px #ffffff;
 }
 
-.btn-go::before, .btn-asignar::before {
- content: '';
- width: 0;
- height: 55px;
- border-radius: 15px;
- position: absolute;
- top: 0;
- left: 0;
- background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
- transition: .5s ease;
- display: block;
- z-index: -1;
+.btn-go::before,
+.btn-asignar::before {
+  content: '';
+  width: 0;
+  height: 55px;
+  border-radius: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+  transition: .5s ease;
+  display: block;
+  z-index: -1;
 }
 
-.btn-go:hover::before, .btn-asignar:hover::before {
- width: 9em;
+.btn-go:hover::before,
+.btn-asignar:hover::before {
+  width: 9em;
 }
 </style>
-
-  

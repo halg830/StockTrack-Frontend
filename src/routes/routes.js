@@ -68,7 +68,7 @@ const routes = [
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
     { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'DestinosConID', component: distribucionDependenciaRed, props:true},
     { path: '/red-conocimiento', beforeEnter: auth, meta: {rol: ['admin']}, component: redConocimiento},
-    { path: '/conexion-red-lote/:idLote', beforeEnter: auth, meta: {rol: ['admin']}, component: conexionRedLote},
+    { path: '/conexion-red-lote/:conexion/:id', beforeEnter: auth, meta: {rol: ['admin']},props:true, component: conexionRedLote},
     { path: '/editar-perfil', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: editarPerfil},
     { path: '/entrada', beforeEnter: auth, meta:{rol :['admin', 'instructor', 'bodega']}, component: editarPerfil}
   ]}
