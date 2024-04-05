@@ -55,7 +55,7 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
   };
   const getById = async (id) => {
     try {
-      insertarToken()
+      insertarToken();
       const response = await axios.get(`${modelo}/buscarId/${id}`);
       return response.data;
     } catch (error) {

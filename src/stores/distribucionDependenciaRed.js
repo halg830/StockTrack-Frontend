@@ -29,13 +29,13 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const distribucionLoteFicha = ref([]);
+  const disDependenciaRed = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log("d", response.data);
-      distribucionLoteFicha.value = response.data;
+      disDependenciaRed.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -54,12 +54,13 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
       return error.response.data;
     }
   };
-  const getById = async (idDistribucionPresupuesto) => {
+  const getById = async (idDistribucionDependencia) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/distribucion/${idDistribucionPresupuesto}`);
+      console.log("id:",idDistribucionDependencia);
+      const response = await axios.get(`${modelo}/distribucion/${idDistribucionDependencia}`);
       console.log("d", response.data);
-      distribucionLoteFicha.value = response.data;
+      disDependenciaRed.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -130,6 +131,31 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     }
   };
 
+  const ajustarPresupuesto = async(id, presupuesto) =>{
+    try {
+      insertarToken()
+      console.log("Responde:", id, presupuesto);
+      const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const activar = async (id) => {
     try {
       insertarToken()
@@ -180,5 +206,5 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, getById, distribucionLoteFicha };
+  return { getAll, agregar, editar, activar, inactivar, getById, ajustarPresupuesto, disDependenciaRed };
 });
