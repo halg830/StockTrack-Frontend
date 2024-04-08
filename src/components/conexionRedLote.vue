@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { useRoute } from 'vue-router';
 
 const data = ref({idLote:{}})
-
+const tipoConex = ref('')
 const selectLoad = ref({
   lote: true,
   red: true,
@@ -42,7 +42,7 @@ const columns = [
   },
   {
     name: 'nombre',
-    label: 'Nombre',
+    label: 'Red',
     align: 'center',
     field: (row) => row.idRed.nombre
   },
@@ -81,6 +81,7 @@ const obtener = {
     loadTable.value = true
 
     const response = await useConexRedLote.getPorLote(route.params.id)
+    tipoConex.value = 'Conexión Lote-Red'
     console.log("hola soy data conexiones", response);
     if (!response) return;
     if (response.error) {
@@ -90,7 +91,7 @@ const obtener = {
 
     const conexion = response.find(conexion=>conexion.idLote._id===route.params.id)
     data.value.idLote = {label: conexion.idLote.nombre, value: conexion.idLote._id}
-    console.log(data.value.idLote)
+    console.log("hola soy id lote", data.value.idLote)
 
     rows.value = response.reverse();
 
@@ -192,6 +193,7 @@ const opciones = {
     estado.value = 'editar'
     cambio.value = 0
     modal.value = true
+    console.log(data)
   },
 }
 let cambio = ref(0)
@@ -201,7 +203,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useConexRedLote.agregar({...data.value, idProducto: data.value.idProducto.value})
+      const response = await useConexRedLote.agregar({...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value})
       console.log(response);
       getInfo();
       if (!response) return
@@ -223,7 +225,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useConexRedLote.editar(data.value._id, {...data.value, idProducto: data.value.idProducto.value});
+      const response = await useConexRedLote.editar(data.value._id, {...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value});
       console.log(response);
       getInfo();
       if (!response) return
@@ -319,7 +321,6 @@ const in_activar = {
         return
       }
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
-
     } catch (error) {
       console.log(error);
     } finally {
@@ -330,7 +331,7 @@ const in_activar = {
     loadIn_activar.value = true
     try {
       const response = await useConexRedLote.inactivar(id)
-      console.log(response);
+      console.log("hola soy inactivo",response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -358,8 +359,7 @@ function buscarIndexLocal(id) {
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Conexión
-            Red-Lote</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} {{ tipoConex }}</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
@@ -408,7 +408,7 @@ function buscarIndexLocal(id) {
       no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Conexión Red-Lote</h4>
+          <h4 id="titleTable">{{ tipoConex }}</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
