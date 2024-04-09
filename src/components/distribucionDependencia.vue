@@ -57,9 +57,7 @@ async function getInfo() {
     try {
         await disDependencia();
         loadingTable.value = true
-        console.log("Envio:",idDependencia.value);
         const response = await storeDisDependencia.getDistribucionesById(idDependencia.value)
-        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)

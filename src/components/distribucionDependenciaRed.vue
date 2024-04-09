@@ -224,7 +224,8 @@ const in_activar = {
 
 async function ajustarPresupuesto(data) {
     try {
-        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuesto : data.presupuesto})
+        console.log("Presupuesto", data.presupuestoAsignado);
+        const response = await storeDisDependencia.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
