@@ -107,6 +107,7 @@ function buscarIndexLocal(id) {
 
 //Obtener pedido
 const dataPedido = ref({ idInstructorEncargado: "", idDestino: "" })
+const detPedido = ref({})
 async function getPedido() {
   try {
     selectLoad.value.pedido = true
@@ -123,6 +124,7 @@ async function getPedido() {
     }
 
     dataPedido.value = { ...response.pedido }
+    detPedido.value = response.detPedidos
     detSalidas.value = response.detPedidos
     productosAgg.value = response.detPedidos.map(detPedido => detPedido.idProducto)
     console.log(productosAgg.value);
@@ -135,7 +137,7 @@ async function getPedido() {
 getPedido()
 
 //Solicitar salida
-const dataSalida = ref({idAdmin: obtenerAdmin(), idPedido: route.params.idPedido, detSalidas, productosAgg})
+const dataSalida = ref({idAdmin: obtenerAdmin(), idPedido: route.params.idPedido, detSalidas, detPedido})
 async function solicitarSalida() {
   try {
     selectLoad.value.salida = true

@@ -108,5 +108,105 @@ export const useStoreSalidas = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, getNumSalida, agregar, salidas, salida}
+  const activar = async (id) => {
+    try {
+      insertarToken()
+      const response = await axios.put(`${modelo}/activar/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const inactivar = async (id) => {
+    try {
+      insertarToken()
+      const response = await axios.put(`${modelo}/inactivar/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const entregado = async (id) => {
+    try {
+      insertarToken()
+      const response = await axios.put(`${modelo}/entregado/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  const noEntregado = async (id) => {
+    try {
+      insertarToken()
+      const response = await axios.put(`${modelo}/noEntregado/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("Sin conexión, por favor intente recargar");
+        return null;
+      }
+
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
+  return { getAll, getNumSalida, agregar, activar, inactivar, entregado, noEntregado, salidas, salida}
 })

@@ -41,7 +41,7 @@ const columns = ref([
         name: 'destino',
         label: 'Destino',
         align: "center",
-        field: (row) => row.idDestino.codigo
+        field: (row) => row.idPedido.idDestino.codigo
     },
     {
         name: 'fechasalida',
@@ -49,12 +49,12 @@ const columns = ref([
         align: "center",
         field: (row) => `${format(new Date(row.createAT), "yyyy-MM-dd")}`
     },
-    {
+/*     {
         name: 'Estado',
         label: 'Estado',
         align: 'center',
-        field: (row) => row.estado ? 'Aprobado' : 'En revisión'
-    },
+        field: 'estado'
+    }, */
     {
         name: 'Entregado',
         label: 'Entregado',
@@ -96,10 +96,16 @@ const columnsdetails = ref([
         ,
     },
     {
-        name: 'cantidad',
-        label: 'Cantidad',
+        name: 'cantidadEntregada',
+        label: 'Cantidad Entregada',
         align: 'center',
-        field: 'cantidad',
+        field: 'cantidadEntregada',
+    },
+    {
+        name: 'cantidadPendiente',
+        label: 'Cantidad Pendiente',
+        align: 'center',
+        field: 'cantidadPendiente',
     },
     {
         name: 'unidadmedida',
@@ -167,12 +173,87 @@ function formatearFecha(fecha) {
     return fecha ? format(new Date(fecha), 'yyyy-MM-dd HH:mm') : '';
 }
 
-function realizarSalida() {
-    router.push('/solicitar-salida')
+function buscarIndexLocal(id) {
+    return rows.value.findIndex((r) => r._id === id);
 }
 
-function generarSalida(idSalida){
-  router.push(`/solicitar-salida/${idSalida}`);
+const loadIn_activar = ref(false)
+const in_activar = {
+    activar: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useSalidas.activar(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    },
+    inactivar: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useSalidas.inactivar(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    }
+}
+
+const entregar = {
+    si: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useSalidas.entregado(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    },
+    no: async (id) => {
+        loadIn_activar.value = true
+        try {
+            const response = await useSalidas.noEntregado(id)
+            console.log(response);
+            if (!response) return
+            if (response.error) {
+                notificar('negative', response.error)
+                return
+            }
+            rows.value.splice(buscarIndexLocal(response._id), 1, response)
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadIn_activar.value = false
+        }
+    }
 }
 </script>
 
@@ -206,16 +287,16 @@ function generarSalida(idSalida){
                                 <div class="text">
                                     <p class="text-h5 text-weight-bold">Instructor: </p>
                                     <p class="text-h5" id="text">{{ salidaSeleccionado ?
-                                        salidaSeleccionado.idInstructorEncargado.nombre : '' }}</p>
+                                        salidaSeleccionado.idPedido.idInstructorEncargado.nombre : '' }}</p>
                                 </div>
                                 <div class="text">
                                     <p class="text-h5 text-weight-bold">Código Destino: </p>
-                                    <p class="text-h5" id="text">{{ salidaSeleccionado ? salidaSeleccionado.idDestino.codigo :
+                                    <p class="text-h5" id="text">{{ salidaSeleccionado ? salidaSeleccionado.idPedido.idDestino.codigo :
                                         '' }}</p>
                                 </div>
                                 <div class="text">
                                     <p class="text-h5 text-weight-bold">Destino: </p>
-                                    <p class="text-h5" id="text">{{ salidaSeleccionado ? salidaSeleccionado.idDestino.nombre :
+                                    <p class="text-h5" id="text">{{ salidaSeleccionado ? salidaSeleccionado.idPedido.idDestino.nombre :
                                         '' }}</p>
                                 </div>
                             </div>
@@ -260,9 +341,6 @@ function generarSalida(idSalida){
                 <template v-slot:top-left>
                     <div style=" display: flex; gap: 10px;">
                         <h4 id="titleTable">Salidas</h4>
-                        <q-btn @click="realizarSalida()" color="primary">
-                            <q-icon name="add" color="white" center />
-                        </q-btn>
                     </div>
 
                 </template>
@@ -274,10 +352,32 @@ function generarSalida(idSalida){
                         </template>
                     </q-input>
                 </template>
+                <template v-slot:body-cell-Entregado="props">
+                    <q-td :props="props" class="botones">
+                        <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.entregado
+                            ? 'Sí'
+                            : !props.row.entregado
+                                ? 'No'
+                                : '‎  ‎   ‎   ‎   ‎ '
+                            " :color="props.row.entregado ? 'positive' : 'accent'" loading-indicator-size="small"
+                            @click="props.row.entregado ? entregar.no(props.row._id) : entregar.si(props.row._id); props.row.entregado = 'load'" />
+                    </q-td>
+                </template>
+<!--                 <template v-slot:body-cell-Estado="props">
+                    <q-td :props="props" class="botones">
+                        {{ console.log(props) }}
+                        <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
+                            ? 'Activo'
+                            : !props.row.estado
+                                ? 'Inactivo'
+                                : '‎  ‎   ‎   ‎   ‎ '
+                            " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+                            @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
+                    </q-td>
+                </template> -->
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
                         <q-btn @click="verDetallesSalida(props.row._id)" icon="description" color="secondary">  </q-btn>
-                        <q-btn @click="generarSalida(props.row._id)" icon="file_open" color="secondary">  </q-btn>
                     </q-td>
                 </template>
             </q-table>

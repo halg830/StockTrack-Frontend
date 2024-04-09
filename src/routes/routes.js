@@ -20,6 +20,7 @@ import editarPerfil from '../components/editarPerfil.vue';
 import redConocimiento from '../components/redConocimiento.vue';
 import conexionRedLote from '../components/conexionRedLote.vue'
 import entrada from '../components/entrada.vue'
+import historialSalida from '../components/historialSalida.vue'
 import {useStoreUsuarios} from '../stores/usuarios.js'
 
 const checkAuth = () => {
@@ -64,6 +65,7 @@ const routes = [
     { path: '/areas', beforeEnter: auth, meta: {rol: ['admin']}, component: Area},
     { path: '/historial', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historial},
     { path: '/historial-pedido', beforeEnter: auth, meta: {rol: ['admin', 'instructor', 'bodega']}, component: historialPedido},
+    {path: '/historial-salida', beforeEnter: auth, meta: {rol: ['admin']}, component: historialSalida},
     { path: '/distribucion-dependencia/:idDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'Dependencia con ID', component: distribucionDependencia, props: true },
     { path: '/distribucion-dependencia-red', beforeEnter: auth, meta: {rol: ['admin']}, component: distribucionDependenciaRed},
     { path: '/distribucion-dependencia-red/:idDistribucionDependencia', beforeEnter: auth, meta: {rol: ['admin']}, name: 'DestinosConID', component: distribucionDependenciaRed, props:true},
