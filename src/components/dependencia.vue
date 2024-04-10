@@ -4,7 +4,6 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreDependencia } from '../stores/dependencia.js'
 import helpersGenerales from '../helpers/generales';
-import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -55,8 +54,9 @@ const rows = ref([])
 const loadTable = ref(false)
 const filter = ref("")
 
-// Get datos tabla
 const useDependencia = useStoreDependencia();
+
+// Get datos tabla
 async function getInfo() {
   try {
     loadTable.value = true

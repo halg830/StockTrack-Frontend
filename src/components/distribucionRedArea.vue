@@ -3,13 +3,13 @@
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { useStoreDisDependencia } from '../stores/distribucionDependencia.js';
-import { useStoreRedConocimiento } from '../stores/redConocimiento.js';
+import { useStoreAreas } from '../stores/area.js';
 import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
+
 import { useRouter, useRoute } from 'vue-router';
 
-// Sacar 
 const router = useRouter();
 const route = useRoute();
 
@@ -23,32 +23,24 @@ onMounted(distribucionDependencia);
 
 const $q = useQuasar();
 
-// Tiendas
-const storeDisDependencia = useStoreDisDependencia();
-const storeRedConocimiento = useStoreRedConocimiento();
-const storeDisDependenciaRed = useStoreDisDependenciaRed();
-
-
-// Variables
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
-const estado = ref('agregar');
-const data = ref({});
-const rows = ref([]);
 
-// Notificacion
 function notificar(tipo, msg) {
     $q.notify({
         type: tipo,
         message: msg,
         position: "top",
     });
-};
+}
 
-// Columnas
+const estado = ref('agregar')
+const data = ref({});
+
+
 const columns = [
     { name: "idDistribucionDependencia", label: "Dependencia", field: (row) => row.idDisDependencia.idDependencia.nombre, sortable: true, align: "left" },
     { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idRed.nombre, sortable: true, align: "left" },
@@ -59,8 +51,8 @@ const columns = [
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
 
+const rows = ref([]);
 
-// Obtener info Tabla
 async function getInfo() {
     try {
         await distribucionDependencia();
@@ -83,8 +75,6 @@ async function getInfo() {
     }
 }
 getInfo();
-
-// Opciones agregar y editar
 const opciones = {
     agregar: () => {
         data.value = {
@@ -111,9 +101,7 @@ const opciones = {
         estado.value = 'editar';
         modal.value = true;
     }
-};
-
-// Funcionamiento Agregar y Editar
+}
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -175,9 +163,8 @@ const enviarInfo = {
             loadingModal.value = false;
         }
     }
-};
+}
 
-// Validaciones
 function validarCampos() {
     const arrData = Object.values(data.value);
     for (const d of arrData) {
@@ -195,7 +182,6 @@ function validarCampos() {
     enviarInfo[estado.value]()
 }
 
-// Funcionamiento Activar y Desactivar
 const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
@@ -233,7 +219,6 @@ const in_activar = {
     }
 }
 
-// Ajustar Presupuesto de la Dependencias
 async function ajustarPresupuesto(data) {
     try {
         console.log("Presupuesto", data.presupuestoAsignado);
@@ -250,13 +235,10 @@ async function ajustarPresupuesto(data) {
 
 }
  
-// Filtro por Id
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-
-// Opciones de la Dependencia
 let optionDisDependencia = ref([])
 let disDependencia = ref([])
 async function getOptionDisDependencia(){
@@ -276,16 +258,15 @@ async function getOptionDisDependencia(){
 };
 getOptionDisDependencia();
 
-// Opciones Redes
-let optionsRedes = ref([]);
+let optionsAreas = ref([]);
 async function getOptionsRedes() {
   try {
     const response = await storeRedConocimiento.getAll();
 
-    optionsRedes.value = response.map((red) => ({
-      label: red.nombre, 
-      value: String(red._id), 
-      disable: red.estado === 0
+    optionsAreas.value = response.map((area) => ({
+      label: area.nombre, 
+      value: String(area._id), 
+      disable: area.estado === 0
     }));
   } catch (error) {
     console.error(error);
@@ -293,34 +274,26 @@ async function getOptionsRedes() {
 }
 getOptionsRedes();
 
-// Filtro de opciones
 const opcionesFiltro = ref({
-    redes: optionsRedes.value
+    redes: optionsAreas.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.redes = optionsRedes.value
+      opcionesFiltro.value.redes = optionsAreas.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.redes = optionsRedes.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.redes = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-
-// Ir a Distribucion Dependencia
 function goToDisDependencia(){
     router.push(`/distribucion-dependencia/${disDependencia.value.idDependencia._id}`);
-}
-
-// Ir a Distribucion Red Area
-function goDisRedArea(idDisRedArea){
-    router.push(`/distribucion-red-area/${idDisRedArea}`);
 }
 
 </script>
@@ -383,11 +356,11 @@ function goDisRedArea(idDisRedArea){
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Dependencia Red" style="width: 90%;"
-            no-data-label="No hay Distribucion Dependencia Red registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Red Area" style="width: 90%;"
+            no-data-label="No hay Distribucion Red Area registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Distribucion Dependencia Red</h4>
+                    <h4 id="titleTable">Distribucion Red Area</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
@@ -403,7 +376,7 @@ function goDisRedArea(idDisRedArea){
                 </q-input>
             </template>
             <template v-slot:body-cell-estado="props">
-                <q-td :props="props" class="estados">
+                <q-td :props="props" class="botones">
                     <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
                         ? 'Activo'
                         : !props.row.estado
@@ -422,7 +395,6 @@ function goDisRedArea(idDisRedArea){
                             </path>
                         </svg>
                     </button>
-                  <button class="btn-go" @click="goDisRedArea(props.row._id)">Area Tematica <i class="fa-solid fa-forward"></i></button>
                 </q-td>
             </template>
         </q-table>
@@ -437,16 +409,73 @@ function goDisRedArea(idDisRedArea){
 <style scoped>
 #titleTable {
     margin: auto;
-  }
-  
-  .botones{
-    display: flex;
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-  }
-  .editBtn {
+}
+.editBtn {
+  width: 55px;
+  height: 55px;
+  border-radius: 20px;
+  border: none;
+  background-color: #39A900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.editBtn::before {
+  content: "";
+  width: 200%;
+  height: 200%;
+  background-color: #39A900;
+  position: absolute;
+  z-index: 1;
+  transform: scale(0);
+  transition: all 0.3s;
+  border-radius: 50%;
+  filter: blur(10px);
+}
+.editBtn:hover::before {
+  transform: scale(1);
+}
+.editBtn:hover {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
+}
+
+.editBtn svg {
+  height: 17px;
+  fill: white;
+  z-index: 3;
+  transition: all 0.2s;
+  transform-origin: bottom;
+}
+.editBtn:hover svg {
+  transform: rotate(-15deg) translateX(5px);
+}
+.editBtn::after {
+  content: "";
+  width: 25px;
+  height: 1.5px;
+  position: absolute;
+  bottom: 19px;
+  left: -5px;
+  background-color: white;
+  border-radius: 2px;
+  z-index: 2;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease-out;
+}
+.editBtn:hover::after {
+  transform: scaleX(1);
+  left: 0px;
+  transform-origin: right;
+}
+
+
+.editBtn {
     width: 55px;
     height: 55px;
     border-radius: 20px;
@@ -460,10 +489,10 @@ function goDisRedArea(idDisRedArea){
     position: relative;
     overflow: hidden;
     transition: all 0.3s;
-    margin: 0 10px;
-  }
-  
-  .editBtn::before {
+    margin: 0 auto;
+}
+
+.editBtn::before {
     content: "";
     width: 200%;
     height: 200%;
@@ -474,29 +503,29 @@ function goDisRedArea(idDisRedArea){
     transition: all 0.3s;
     border-radius: 50%;
     filter: blur(10px);
-  }
-  
-  .editBtn:hover::before {
+}
+
+.editBtn:hover::before {
     transform: scale(1);
-  }
-  
-  .editBtn:hover {
+}
+
+.editBtn:hover {
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
-  }
-  
-  .editBtn svg {
+}
+
+.editBtn svg {
     height: 17px;
     fill: white;
     z-index: 3;
     transition: all 0.2s;
     transform-origin: bottom;
-  }
-  
-  .editBtn:hover svg {
+}
+
+.editBtn:hover svg {
     transform: rotate(-15deg) translateX(5px);
-  }
-  
-  .editBtn::after {
+}
+
+.editBtn::after {
     content: "";
     width: 25px;
     height: 1.5px;
@@ -509,50 +538,16 @@ function goDisRedArea(idDisRedArea){
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.5s ease-out;
-  }
-  
-  .editBtn:hover::after {
+}
+
+.editBtn:hover::after {
     transform: scaleX(1);
     left: 0px;
     transform-origin: right;
-  }
-  
-  .btn-go {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-   width: 9em;
-   height: 55px;
-   border-radius: 15px;   
-   font-size: 15px;
-   font-family: inherit;
-   border: none;
-   position: relative;
-   overflow: hidden;
-   z-index: 1;
-   box-shadow: 6px 6px 12px #c5c5c5,
-               -6px -6px 12px #ffffff;
-  }
-  
-  .btn-go::before {
-   content: '';
-   width: 0;
-   height: 55px;
-   border-radius: 15px;
-   position: absolute;
-   top: 0;
-   left: 0;
-   background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
-   transition: .5s ease;
-   display: block;
-   z-index: -1;
-  }
-  
-  .btn-go:hover::before {
-   width: 9em;
-  }
+}
 
-  .btn-back {
+
+.btn-back {
     margin-top: 5px;
     display: flex;
     justify-content: space-evenly;
@@ -587,6 +582,6 @@ function goDisRedArea(idDisRedArea){
   .btn-back:hover::before {
    width: 9em;
   }
-
 /* #boxBuscar {} */
 </style>
+../stores/disDependencia.js

@@ -2,14 +2,13 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreLotes } from '../stores/lote.js';
 import { useStoreDependencia } from '../stores/dependencia.js';
 import { useStoreDisDependencia } from '../stores/distribucionDependencia.js'
-// import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 import { useRouter, useRoute } from 'vue-router';
-import Dependencia from './dependencia.vue';
 
+
+// Obtener Id del header
 const router = useRouter();
 const route = useRoute();
 
@@ -22,15 +21,22 @@ const disDependencia = async () => {
 onMounted(disDependencia);
 
 const $q = useQuasar();
+
+//Tiendas
 const storeDependencia = useStoreDependencia();
 const storeDisDependencia = useStoreDisDependencia();
 
+//Variables 
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
+const estado = ref('agregar')
+const data = ref({});
+const rows = ref([]);
 
+//Notficacion 
 function notificar(tipo, msg) {
     $q.notify({
         type: tipo,
@@ -39,10 +45,7 @@ function notificar(tipo, msg) {
     });
 }
 
-const estado = ref('agregar')
-const data = ref({});
-
-
+//Columnas Tabla
 const columns = [
     { name: "idDependencia", label: "Nombre Dependencia", field: (row) => row.idDependencia.nombre, sortable: true, align: "left" },
     { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
@@ -51,8 +54,7 @@ const columns = [
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
 
-const rows = ref([]);
-
+// Obtener Datos de para la tabla
 async function getInfo() {
     try {
         await disDependencia();
@@ -74,6 +76,8 @@ async function getInfo() {
     }
 }
 getInfo();
+
+// Opciones Agregar Editar
 const opciones = {
     agregar: () => {
         data.value = {
@@ -98,6 +102,7 @@ const opciones = {
     }
 }
 
+//Funcionamiento de peticiones Agregar y Editar
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -161,6 +166,7 @@ const enviarInfo = {
 }
 
 
+// Validar Campos
 function validarCampos() {
     const arrData = Object.values(data.value);
     console.log(arrData);
@@ -180,6 +186,8 @@ function validarCampos() {
     enviarInfo[estado.value]()
 }
 
+
+// Funcionamiento Inactivar y Activar 
 const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
@@ -216,10 +224,10 @@ const in_activar = {
     }
 }
 
+
+//Obtener la Dependencias 
 let dependencia = ref([]);
-
 obtenerDependencia();
-
 async function obtenerDependencia(){
     await disDependencia();
     try {
@@ -230,14 +238,17 @@ async function obtenerDependencia(){
     }
 }
 
+// Buscar Id
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
+// Ir a Distribucion Con Red de Conocimiento
 function goDisDependenciaRed(idDistribucionDependendencia){
     router.push(`/distribucion-dependencia-red/${idDistribucionDependendencia}`);
 }
 
+// Volver
 function goToDependencia(){
     router.push(`/dependencia`);
 }
