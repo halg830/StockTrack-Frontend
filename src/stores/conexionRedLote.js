@@ -102,6 +102,30 @@ export const useStoreConexRedLote = defineStore(modelo, () => {
     }
   };
 
+  const getPorRed = async (idRed) => {
+    try {
+      insertarToken()
+      const response = await axios.get(`${modelo}/buscarPorRed/${idRed}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const agregar = async (data) => {
     try {
       insertarToken()
@@ -203,5 +227,5 @@ export const useStoreConexRedLote = defineStore(modelo, () => {
     }
   };
 
-  return { conexionesRedLote, getAll, agregar, editar, activar, inactivar, getById, getPorLote };
+  return { conexionesRedLote, getAll, agregar, editar, activar, inactivar, getById, getPorLote , getPorRed};
 });
