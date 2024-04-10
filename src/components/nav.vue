@@ -40,10 +40,12 @@ function cerrarSesion() {
 }
 const opciones = {
   admin: [
-    { label: 'Administración General', o: ['destinos', 'lotes', 'areas', 'productos', 'cuentas'], e: ['Destinos', 'Lotes', 'Areas', 'Productos', 'Cuentas'] },
+    { label: 'Administración General', o: ['destinos', 'lotes', 'areas', 'red-conocimiento', 'cuentas'], e: ['Destinos', 'Lotes', 'Areas', 'Redes de conocimiento', 'Cuentas'] },
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     // { label: 'Presupuestos', o: ['item', 'distribucion-item-lote', 'distribucion-lote-destino'], e: ['Items', 'Item y lote', 'Lote y destino'] },
-    { label: 'Presupuestos', o: ['dependencia'], e: ['Dependencias'] },
+    {label: 'Productos', o: ['productos', 'entrada'], e:['Productos', 'Entradas']},
+    { label: 'Presupuestos', o: ['contrato', 'dependencia'], e: ['Contratos', 'Dependencias'] },
+    {label: 'Historiales', o: ['historial-pedido', 'historial-salida'], e: ['Historial pedidos', 'Historial salidas']}
 
   ],
   instructor: [

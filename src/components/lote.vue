@@ -181,10 +181,6 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 };
 
-function goRedConocimiento(){
-  router.push(`/red-conocimiento`);
-}
-
 function goConexRedLote(id){
   router.push(`/conexion-red-lote/lote/${id}`);
   useLotes.idLote = id
@@ -259,8 +255,7 @@ function goConexRedLote(id){
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goRedConocimiento(props.row._id)">Red Conocimiento <i class="fa-solid fa-arrow-right"></i></button>
-          <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Red-Lote <i class="fa-solid fa-arrow-right"></i></button>
+          <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Lote-Red <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>

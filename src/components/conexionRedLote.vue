@@ -90,6 +90,7 @@ const obtener = {
     }
 
     const conexion = response.find(conexion=>conexion.idLote._id===route.params.id)
+    console.log(conexion);
     data.value.idLote = {label: conexion.idLote.nombre, value: conexion.idLote._id}
     console.log("hola soy id lote", data.value.idLote)
 
@@ -107,8 +108,13 @@ const obtener = {
   }
 }
 
+const conex = ref('')
+const id = ref('')
+
 onMounted(()=>{
   const conexion = route.params.conexion
+  conex.value = conexion
+  id.value = route.params.id
   
   obtener[conexion]()
 })
@@ -127,6 +133,15 @@ async function obtenerOptions() {
     if (responseLotes.error) {
       notificar("negative", responseLotes.error);
       return;
+    }
+
+    console.log(conex.value);
+    if(conex.value==='lote'){
+      const lote = responseLotes.find(l=>l._id===id.value)
+      console.log(lote);
+      data.value.idLote = {label: lote.nombre, value: lote._id}
+      opcionesSelect.value.lotes = [{label: lote.nombre, value: lote._id}]
+      return
     }
 
     const lotesActivos = responseLotes.filter(lote => lote.estado === true);
@@ -183,7 +198,7 @@ obtenerOptionsRed();
 const estado = ref('agregar')
 const opciones = {
   agregar: () => {
-    data.value = {}
+    data.value = {idLote: data.value.idLote, idRed: data.value.idRed}
     estado.value = 'agregar'
     cambio.value = 0
     modal.value = true
@@ -371,7 +386,7 @@ function buscarIndexLocal(id) {
             <q-select class="input3" outlined v-model:model-value="data.idLote" use-input input-debounce="0"
               label="Seleccione un lote" behavior="menu" @filter="filterFn" :options="opcionesFiltro.lotes"
               :rules="[(val) => val != null || 'Seleccione un lote']" :loading="selectLoad.lote"
-              :disable="selectLoad.lote">
+              :disable="selectLoad.lote || conex === 'lote'">
               <template v-slot:no-option>
                 <q-item>
                   <q-item-section class="text-grey">
@@ -384,7 +399,7 @@ function buscarIndexLocal(id) {
             <q-select class="input3" outlined v-model:model-value="data.idRed" use-input input-debounce="0"
               label="Seleccione una red de conocimiento" behavior="menu" @filter="filterFnRedes" :options="opcionesFiltro.redes"
               :rules="[(val) => val != null || 'Seleccione una red']" :loading="selectLoad.red"
-              :disable="selectLoad.lote">
+              :disable="selectLoad.lote || conex==='red'">
               <template v-slot:no-option>
                 <q-item>
                   <q-item-section class="text-grey">
