@@ -81,7 +81,7 @@ const confirmPassword = ref("");
 const estado = ref("agregar");
 const modal = ref(false);
 const opcionesSelect = {
-  rol: ["Admin", "Instructor", "Bodega"],
+  rol: ["Admin", "Instructor", "Bodega", 'Supervisor'],
 };
 
 // Get datos tabla

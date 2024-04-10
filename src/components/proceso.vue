@@ -2,11 +2,10 @@
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreContrato } from '../stores/contrato.js'
-import helpersGenerales from '../helpers/generales';
+import helpersGenerales from '../helpers/generales.js';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 import { useStoreUsuarios } from '../stores/usuarios.js';
-import {useStoreProveedores} from '../stores/proveedor.js';
 
 const router = useRouter();
 
@@ -244,14 +243,13 @@ async function obtenerOptions() {
 
     const usuariosActivos = response.filter(usuario => usuario.estado === true && usuario.rol == 'supervisor');
 
-    opcionesSelect.value.supervisor = usuariosActivos.map((usuario) => {
+    opcionesSelect.value.usuarios = usuariosActivos.map((usuario) => {
       return {
         label:
           usuario.nombre,
         value: usuario._id,
       };
     });
-
     console.log(opcionesSelect.value);
 
   } catch (error) {
@@ -262,41 +260,8 @@ async function obtenerOptions() {
 }
 obtenerOptions();
 
-const useProveedor = useStoreProveedores()
-async function obtenerOptionsProveedor() {
-  try {
-    const response = await useProveedor.getAll();
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    const proveedorsActivos = response.filter(proveedor => proveedor.estado === true);
-
-    opcionesSelect.value.proveedor = proveedorsActivos.map((proveedor) => {
-      return {
-        label:
-          proveedor.nombre,
-        value: proveedor._id,
-      };
-    });
-
-    console.log(opcionesSelect.value);
-
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.proveedor = false;
-  }
-}
-obtenerOptionsProveedor();
-
 const opcionesFiltro = ref({
-  
+  redes: opciones
 })
 
 function filterFnSupervisor(val, update) {
@@ -321,15 +286,15 @@ function filterFnProveedor(val, update) {
   val = val.trim();
   if (val === "") {
     update(() => {
-      opcionesFiltro.value.proveedor = opcionesSelect.value.proveedor;
+      opcionesFiltro.value.supervisor = opcionesSelect.value.supervisor;
     });
     return;
   }
 
   update(() => {
     const needle = val.toLowerCase();
-    opcionesFiltro.value.proveedor =
-      opcionesSelect.value.proveedor.filter(
+    opcionesFiltro.value.supervisor =
+      opcionesSelect.value.supervisor.filter(
         (v) => v.label.toLowerCase().indexOf(needle) > -1
       ) || [];
   });
@@ -395,7 +360,7 @@ function filterFnProveedor(val, update) {
       no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Contrato</h4>
+          <h4 id="titleTable">Proceso</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>

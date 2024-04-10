@@ -21,6 +21,7 @@ import conexionRedLote from "../components/conexionRedLote.vue";
 import entrada from "../components/entrada.vue";
 import historialSalida from "../components/historialSalida.vue";
 import contrato from "../components/contrato.vue";
+import proceso from "../components/proceso.vue";
 import { useStoreUsuarios } from "../stores/usuarios.js";
 
 const checkAuth = () => {
@@ -79,6 +80,12 @@ const routes = [
         component: contrato,
       },
       {
+        path: "/proceso",
+        beforeEnter: auth,
+        meta: { rol: ["admin"] },
+        component: proceso,
+      },
+      {
         path: "/nueva-password",
         beforeEnter: auth,
         meta: { rol: ["admin", "instructor", "bodega"] },
@@ -117,8 +124,9 @@ const routes = [
         component: Lote,
       },
       {
-        path: "/lotes/:idDistribucion",
+        path: "/lotes/:idContrato",
         name: "LoteConID",
+        props: true,
         beforeEnter: auth,
         meta: { rol: ["admin", "bodega"] },
         component: Lote,

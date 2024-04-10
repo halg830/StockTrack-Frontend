@@ -44,7 +44,7 @@ const opciones = {
     // { label: 'Devoluciones', o: ['formato-devolucion', 'historial'], e: 'Formato de devolución' },
     // { label: 'Presupuestos', o: ['item', 'distribucion-item-lote', 'distribucion-lote-destino'], e: ['Items', 'Item y lote', 'Lote y destino'] },
     {label: 'Productos', o: ['productos', 'entrada'], e:['Productos', 'Entradas']},
-    { label: 'Presupuestos', o: ['contrato', 'dependencia'], e: ['Contratos', 'Dependencias'] },
+    { label: 'Presupuestos', o: ['proceso', 'contrato', 'dependencia'], e: ['Procesos', 'Contratos', 'Dependencias'] },
     {label: 'Historiales', o: ['historial-pedido', 'historial-salida'], e: ['Historial pedidos', 'Historial salidas']}
 
   ],
