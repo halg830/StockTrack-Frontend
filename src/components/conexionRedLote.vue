@@ -103,8 +103,31 @@ const obtener = {
     loadTable.value = false
   }
   },
-  red: ()=>{
-    console.log('adios');
+  red: async()=>{
+    try {
+    loadTable.value = true
+
+    const response = await useConexRedLote.getPorRed(route.params.id)
+    tipoConex.value = 'Conexión Red-Lote'
+    console.log("hola soy data conexiones2", response);
+    if (!response) return;
+    if (response.error) {
+      notificar('negative', response.error)
+      return
+    }
+
+    const conexion = response.find(conexion=>conexion.idRed._id===route.params.id)
+    console.log(conexion);
+    data.value.idRed = {label: conexion.idRed.nombre, value: conexion.idRed._id}
+    console.log("hola soy id lote", data.value.idRed)
+    rows.value = response.reverse();
+
+  } catch (error) {
+    console.log(error);
+  }
+  finally {
+    loadTable.value = false
+  }
   }
 }
 
@@ -115,7 +138,6 @@ onMounted(()=>{
   const conexion = route.params.conexion
   conex.value = conexion
   id.value = route.params.id
-  
   obtener[conexion]()
 })
 
@@ -420,7 +442,7 @@ function buscarIndexLocal(id) {
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
       no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Dependencias" style="width: 90%;"
-      no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
+      no-data-label="No hay conexiones registradas." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
           <h4 id="titleTable">{{ tipoConex }}</h4>
