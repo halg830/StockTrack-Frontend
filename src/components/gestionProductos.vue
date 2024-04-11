@@ -355,9 +355,15 @@ const tooltip = ref(true)
                 </div>
             </template>
             <template v-slot:body-cell-descripcion="props">
-                <span @click="props.row.tooltip = !props.row.tooltip">{{ props.row.descripcion }}
-                    <q-tooltip v-model="props.row.tooltip" >{{ props.row.descripcion }}</q-tooltip>
-                </span>
+                <q-td :props="props" class="descripcion">
+                    <VMenu class="vmenu">
+                        <span class="descripcion">{{props.row.descripcion}}</span>
+
+                        <template #popper>
+                           <div class="descripVmenu">{{ props.row.descripcion }}</div>
+                        </template>
+                    </VMenu>
+                </q-td>
             </template>
             <template v-slot:top-right>
                 <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
@@ -392,37 +398,26 @@ const tooltip = ref(true)
 </template>
 
 <style scoped>
-[data-tooltip] {
-  position: relative;
-  cursor: pointer;
+.descripcion{
+    max-width: 300px;
+    max-height: 5px;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
-[data-tooltip]:after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 5px;
-  background: #333;
-  color: #fff;
-  border-radius: 4px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
-  z-index: 10;
+.vmenu{
+    max-height: 50px;
+    max-width: 300px;
 }
 
-[data-tooltip]:hover:after {
-  opacity: 1;
+.descripVmenu{
+    padding: 1rem;
+    word-wrap: break-word;
+    height: fit-content;
+    max-height: 300px;
+    max-width: 300px;
 }
 
-.selectable-tooltip-text {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-}
 @media (max-width: 600px) and (max-height: 785px) {
     .flex {
         display: none;
