@@ -5,12 +5,49 @@ import { useStoreUsuarios } from '../stores/usuarios';
 import { useQuasar } from "quasar";
 
 const $q = useQuasar();
+const storeUsuarios = useStoreUsuarios();
 
 const router = useRouter();
 
-const storeUsuarios = useStoreUsuarios();
-const userData = ref({...storeUsuarios.usuario});
-const isLoading = ref(false); 
+const subirFotoPerfil = async (id, file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'fotosperfil');
+        const response = await axios.post(`https://api.cloudinary.com/v1_1/djnx92ifa/image/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        const fotoPerfil = response.data.secure_url;
+        usuario.fotoPerfil = fotoPerfil; 
+
+
+        const data = { fotoPerfil };
+        usuario.fotoPerfil = fotoPerfil;
+        storeUsuarios.usuario.fotoPerfil = fotoPerfil
+        return response.data.secure_url;
+    } catch (error) {
+        console.error('Error al subir la foto de perfil:', error);
+        return null;
+    }
+};
+
+const cambiarFotoPerfil = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    isLoading.value = true;
+    await storeUsuarios.subirFotoPerfil(userData.value._id, file);
+    $q.notify({
+        color: 'positive',
+        message: 'Foto de perfil actualizada correctamente',
+        position: 'top'
+    });
+    isLoading.value = false;
+};
+
+const userData = ref({ ...storeUsuarios.usuario });
+const isLoading = ref(false);
 
 function guardarCambios() {
     isLoading.value = true;
@@ -21,7 +58,7 @@ function guardarCambios() {
                 message: 'Cambios guardados correctamente',
                 position: 'top'
             });
-            storeUsuarios.usuario=res
+            storeUsuarios.usuario = res
         })
         .catch((error) => {
             $q.notify({
@@ -46,9 +83,10 @@ function cambiarContraseña() {
             <h4>Editar Perfil</h4>
             <q-input v-model="userData.nombre" label="Nombre" readonly style="width: 300px;" />
             <q-input v-model="userData.apellido" label="Apellido" readonly style="width: 300px;" />
-            <q-input v-model="userData.identificacion" label="Identificación" readonly style="width: 300px;"/>
+            <q-input v-model="userData.identificacion" label="Identificación" readonly style="width: 300px;" />
             <q-input v-model="userData.correo" label="Correo" style="width: 300px;" />
             <q-input v-model="userData.telefono" label="Teléfono" style="width: 300px;" />
+            <input type="file" @change="cambiarFotoPerfil" accept="image/*" style="margin-top: 20px;">
             <q-btn @click="guardarCambios" style="margin-top: 20px;">
                 <q-spinner-hourglass v-if="isLoading" /> Guardar cambios
             </q-btn>
@@ -64,11 +102,12 @@ q-input[readonly] {
     color: #333;
     cursor: not-allowed;
 }
+
 .profile-card {
     width: 400px;
-    margin: 0 auto; 
+    margin: 0 auto;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

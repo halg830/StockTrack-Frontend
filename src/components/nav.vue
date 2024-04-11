@@ -10,6 +10,7 @@ const router = useRouter(); // Agregar esta línea
 
 const showProfileDialog = () => {
   profileDialog.value = true;
+  console.log(usuario.fotoPerfil);
 };
 
 const editProfile = () => {
@@ -102,8 +103,11 @@ function irHome() {
                 <p style="margin: 0 3px 0px">INFORMACIÓN DE USUARIO</p>
               </div>
               <div style="display: flex; align-items: center; justify-content: center;">
-                <img :src="usuario.fotoPerfil ?? ''" alt="Foto de perfil"
-                  style="width: 100px; height: 100px; border-radius: 50%;">
+                <div style="display: flex; align-items: center; justify-content: center;">
+                  <img
+                    :src="usuario.fotoPerfil"
+                    alt="" style="width: 100px; height: 100px; border-radius: 50%;">
+                </div>
               </div>
               <div v-if="usuario">
                 <p><q-icon name="person" size="25px" /> Nombre: {{ usuario.nombre }} {{ usuario.apellido }}</p>
