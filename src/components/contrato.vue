@@ -1,10 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreContrato } from '../stores/contrato.js'
 import helpersGenerales from '../helpers/generales';
-import { format } from "date-fns";
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStoreUsuarios } from '../stores/usuarios.js';
 import {useStoreProveedores} from '../stores/proveedor.js';
 import { useStoreProceso } from '../stores/proceso.js';
@@ -73,11 +72,19 @@ const filter = ref("")
 // Get datos tabla
 const useContrato = useStoreContrato()
 
-async function getInfo() {
+const id = ref('')
+const route = useRoute()
+
+onMounted(() => {
+  id.value = route.params.id
+  getContratos()
+})
+
+async function getContratos() {
   try {
     loadTable.value = true
 
-    const response = await useContrato.getAll()
+    const response = await useContrato.getPorContrato(id.value)
     console.log("Hola soy contratos", response);
 
     if (!response) return;
@@ -95,7 +102,6 @@ async function getInfo() {
     loadTable.value = false
   }
 }
-getInfo()
 
 // Opciones tabla
 const estado = ref('agregar')

@@ -77,8 +77,9 @@ const routes = [
         component: Cuentas,
       },
       {
-        path: "/contrato",
+        path: "/contrato/:id",
         beforeEnter: auth,
+        props: true,
         meta: { rol: ["admin"] },
         component: contrato,
       },

@@ -122,10 +122,10 @@ async function getPedido() {
     }
 
     dataPedido.value = { ...response.pedido }
-    detPedido.value = response.detPedidos
+    detPedido.value = response.detPedidos.map(detPedido=> {return {...detPedido}})
     detSalidas.value = response.detPedidos
     productosAgg.value = response.detPedidos.map(detPedido => detPedido.idProducto)
-    console.log(productosAgg.value);
+    console.log(detPedido.value);
   } catch (error) {
     console.log(error);
   } finally {
@@ -188,10 +188,6 @@ function convertirFormato(fecha) {
   const fechaOriginal = moment(fecha, 'DD/MM/YYYY');
   const nuevaFecha = fechaOriginal.format('YYYY/MM/DD');
   return nuevaFecha;
-}
-
-function fechaActualMasDosAnios() {
-  return moment().add(2, 'years').format('YYYY/MM/DD');
 }
 
 function optionsFn(date){

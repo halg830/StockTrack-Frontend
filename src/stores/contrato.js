@@ -78,6 +78,30 @@ export const useStoreContrato = defineStore(modelo, () => {
     }
   };
 
+  const getPorContrato = async (id) => {
+    try {
+      insertarToken()
+      const response = await axios.get(`${modelo}/buscarId/${id}`);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error.message === "Network Error") {
+        notificar("negative", "Sin conexión, por favor intente recargar");
+        return null;
+      }
+      if (
+        error.response.data.error === "No hay token en la peticion" ||
+        error.response.data.error === "Token no válido" ||
+        error.response.data.error.name === "TokenExpiredError"
+      ) {
+        salir();
+        return null;
+      }
+      return error.response.data;
+    }
+  };
+
   const agregar = async (data) => {
     try {
       insertarToken()
@@ -205,5 +229,5 @@ export const useStoreContrato = defineStore(modelo, () => {
     }
   };
 
-  return { contratos, getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
+  return { contratos, getAll, getPorContrato, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
 });

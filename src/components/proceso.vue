@@ -4,6 +4,7 @@ import { useQuasar } from 'quasar';
 import { useStoreProceso } from '../stores/proceso.js'
 import helpersGenerales from '../helpers/generales.js';
 import { format } from "date-fns";
+import { useRouter } from 'vue-router';
 
 // Variables modal
 const modal = ref(false)
@@ -211,6 +212,12 @@ const in_activar = {
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
+
+const router = useRouter()
+
+function goContratos(id){
+  router.push('/contrato/' + id)
+}
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -278,6 +285,7 @@ function buscarIndexLocal(id) {
               </path>
             </svg>
           </button>
+          <button class="btn-go" @click="goContratos(props.row._id)">Contratos <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
