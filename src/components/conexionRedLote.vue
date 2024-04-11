@@ -42,11 +42,6 @@ const route = useRoute();
 
 // Get datos tablas
 const useConexRedLote = useStoreConexRedLote()
-async function getInfo() {
-
-}
-getInfo()
-
 
 const conexion = ref('')
 const obtener = {
@@ -85,6 +80,12 @@ const obtener = {
           label: 'Codigo',
           align: 'center',
           field: 'codigo'
+        },
+        {
+          name: 'nombre',
+          label: 'Lote',
+          align: 'center',
+          field: (row) => row.idLote.nombre
         },
         {
           name: 'nombre',
@@ -156,6 +157,12 @@ const obtener = {
           label: 'Codigo',
           align: 'center',
           field: 'codigo'
+        },
+        {
+          name: 'nombre',
+          label: 'Red',
+          align: 'center',
+          field: (row) => row.idRed.nombre
         },
         {
           name: 'nombre',
@@ -291,7 +298,6 @@ const enviarInfo = {
 
       const response = await useConexRedLote.agregar({ ...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value })
       console.log(response);
-      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -313,7 +319,6 @@ const enviarInfo = {
       console.log(data.value);
       const response = await useConexRedLote.editar(data.value._id, { ...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value });
       console.log(response);
-      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -438,11 +443,11 @@ function buscarIndexLocal(id) {
 }
 
 function goToBack() {
-  let routeName = '/'; 
+  let routeName = '/';
   if (conex.value === 'lote') {
-    routeName = '/lotes'; 
+    routeName = '/lotes';
   } else if (conex.value === 'red') {
-    routeName = '/red-conocimiento'; 
+    routeName = '/red-conocimiento';
   }
   router.push(routeName);
 }
@@ -523,11 +528,11 @@ function goToBack() {
       <template v-slot:body-cell-estado="props">
         <q-td :props="props" class="estados">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
-      ? 'Activo'
-      : !props.row.estado
-        ? 'Inactivo'
-        : '‎  ‎   ‎   ‎   ‎ '
-      " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+            ? 'Activo'
+            : !props.row.estado
+              ? 'Inactivo'
+              : '‎  ‎   ‎   ‎   ‎ '
+            " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
             @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
         </q-td>
       </template>

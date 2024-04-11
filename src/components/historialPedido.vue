@@ -171,8 +171,8 @@ function realizarPedido() {
     router.push('/solicitar-pedido')
 }
 
-function generarSalida(idPedido){
-  router.push(`/solicitar-salida/${idPedido}`);
+function generarSalida(idPedido) {
+    router.push(`/solicitar-salida/${idPedido}`);
 }
 </script>
 
@@ -183,18 +183,36 @@ function generarSalida(idPedido){
             <q-card class="modal">
                 <q-card-section class="q-gutter-md">
                     <q-form class="q-gutter-md">
-                        <div class="row justify-center items-center" style="width: 100%;">
+                        <div class="column" style="width: 50%; background-color: darkgray">
                             <div>
                                 <img :src="logoSena" alt="Imagen" class="img1">
-                                
-                            </div>
-                            <div  class="title-modal">
                                 <h3 class="title-details">Servicio Nacional de Aprendizaje</h3>
-                                <q-card-actions  class="q-gutter-md row  justify-end">
-                                <q-btn class="botonv1" flat dense icon="close" v-close-popup />
-                            </q-card-actions>
                             </div>
-                           
+                            <div class="title-modal bg-primary">
+                                <span class="text-h4">FACTURAR A</span>
+                            </div>
+                            <div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Instructor: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
+                                </div>
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Destino: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        pedidoSeleccionado.idDestino.nombre :
+                                        '' }}</p>
+                                </div>
+                            </div>
+
+
+                            <q-card-actions class="q-gutter-md row  justify-end">
+                                    <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                                </q-card-actions>
+                        </div>
+
+                        <div class="column">
+
                         </div>
 
                         <div style="display: flex; flex-wrap: wrap;" id="container-details">
@@ -203,21 +221,14 @@ function generarSalida(idPedido){
                                     <p class="text-h5 text-weight-bold">Número pedido: </p>
                                     <p class="text-h5">{{ pedidoSeleccionado ? pedidoSeleccionado.numero : '' }}</p>
                                 </div>
-                                <div class="text">
-                                    <p class="text-h5 text-weight-bold">Instructor: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
-                                        pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
-                                </div>
+                               
                                 <div class="text">
                                     <p class="text-h5 text-weight-bold">Código Destino: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idDestino.codigo :
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        pedidoSeleccionado.idDestino.codigo :
                                         '' }}</p>
                                 </div>
-                                <div class="text">
-                                    <p class="text-h5 text-weight-bold">Destino: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idDestino.nombre :
-                                        '' }}</p>
-                                </div>
+                                
                             </div>
                             <div style="flex: 1;">
                                 <div class="text">
@@ -241,8 +252,21 @@ function generarSalida(idPedido){
                         </div>
 
                         <div class="q-pa-sm" style="flex-basis: 100%;">
-                            <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom
-                                class="table-details">
+                            <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name"
+                                hide-bottom class="table-details">
+
+                                <template v-slot:body-cell-descripcion="props">
+                                    <q-td :props="props" class="descripcion">
+                                        <VMenu class="vmenu">
+                                            <span class="descripcion">{{ props.row.idProducto.descripcion }}</span>
+
+                                            <template #popper>
+                                                <div class="descripVmenu">{{ props.row.idProducto.descripcion }}</div>
+                                            </template>
+                                        </VMenu>
+                                    </q-td>
+                                </template>
+
                             </q-table>
                         </div>
                     </q-form>
@@ -276,8 +300,9 @@ function generarSalida(idPedido){
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
-                        <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary">  </q-btn>
-                        <q-btn v-if="!props.row.estado" @click="generarSalida(props.row._id)" icon="file_open" color="secondary">  </q-btn>
+                        <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary"> </q-btn>
+                        <q-btn v-if="!props.row.estado" @click="generarSalida(props.row._id)" icon="file_open"
+                            color="secondary"> </q-btn>
                     </q-td>
                 </template>
             </q-table>
@@ -289,6 +314,8 @@ function generarSalida(idPedido){
 main {
     width: 100%;
 }
+
+
 
 #primeraseccion {
     width: 100%;
@@ -366,11 +393,14 @@ main {
     transition: all 0.2s;
     transform-origin: bottom;
 }
-.title-modal{
+
+.title-modal {
     width: 85%;
     display: flex;
     justify-content: space-between;
+
 }
+
 .editBtn:hover svg {
     transform: rotate(-15deg) translateX(5px);
 }
@@ -431,6 +461,7 @@ main {
     border: 1px solid #ccc;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .table-details thead {
@@ -458,20 +489,37 @@ main {
 }
 
 ::-webkit-scrollbar {
-  width: 10px; 
+    width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+    background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+    background: #888;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+    background: #555;
 }
 
+.descripcion {
+    max-width: 300px;
+    max-height: 5px;
+    word-wrap: break-word;
+    overflow: hidden;
+}
 
+.vmenu {
+    max-height: 50px;
+}
+
+.descripVmenu {
+    padding: 1rem;
+    word-wrap: break-word;
+    height: fit-content;
+    max-height: 300px;
+    max-width: 300px;
+}
 </style>

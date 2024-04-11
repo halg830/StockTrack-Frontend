@@ -181,8 +181,8 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 };
 
-function goConexRedLote(id){
-  router.push(`/conexion-red-lote/red/${id}`);
+function goConexRedLote(id) {
+    router.push(`/conexion-red-lote/red/${id}`);
 }
 </script>
 
@@ -238,25 +238,26 @@ function goConexRedLote(id){
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="botones">
                     <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
-            ? 'Activo'
-            : !props.row.estado
-                ? 'Inactivo'
-                : '‎  ‎   ‎   ‎   ‎ '
-            " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
+                        ? 'Activo'
+                        : !props.row.estado
+                            ? 'Inactivo'
+                            : '‎  ‎   ‎   ‎   ‎ '
+                        " :color="props.row.estado ? 'positive' : 'accent'" loading-indicator-size="small"
                         @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
                 </q-td>
             </template>
-            <template v-slot:body-cell-opciones="props" >
+            <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="botones">
                     <div id="buttons">
-                    <button class="editBtn" @click="opciones.editar(props.row)">
-                        <svg height="1em" viewBox="0 0 512 512">
-                            <path
-                                d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z">
-                            </path>
-                        </svg>
-                    </button>
-                    <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Red-Lote <i class="fa-solid fa-arrow-right"></i></button>
+                        <button class="editBtn" @click="opciones.editar(props.row)">
+                            <svg height="1em" viewBox="0 0 512 512">
+                                <path
+                                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z">
+                                </path>
+                            </svg>
+                        </button>
+                        <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Red-Lote <i
+                                class="fa-solid fa-arrow-right"></i></button>
                     </div>
                 </q-td>
             </template>
@@ -283,7 +284,6 @@ function goConexRedLote(id){
     position: relative;
     overflow: hidden;
     transition: all 0.3s;
-    margin: 0 auto;
 }
 
 .editBtn::before {
@@ -342,42 +342,47 @@ function goConexRedLote(id){
 
 .btn-go,
 .btn-asignar {
-  width: 9em;
-  height: 55px;
-  border-radius: 15px;
-  font-size: 15px;
-  font-family: inherit;
-  border: none;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 6px 6px 12px #c5c5c5,
-    -6px -6px 12px #ffffff;
+    width: 9em;
+    height: 55px;
+    border-radius: 15px;
+    font-size: 15px;
+    font-family: inherit;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 6px 6px 12px #c5c5c5,
+        -6px -6px 12px #ffffff;
 }
 
 .btn-go::before,
 .btn-asignar::before {
-  content: '';
-  width: 0;
-  height: 55px;
-  border-radius: 15px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
-  transition: .5s ease;
-  display: block;
-  z-index: -1;
+    content: '';
+    width: 0;
+    height: 55px;
+    border-radius: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+    transition: .5s ease;
+    display: block;
+    z-index: -1;
 }
 
 .btn-go:hover::before,
 .btn-asignar:hover::before {
-  width: 9em;
+    width: 9em;
 }
 
 
-#buttons{
+#buttons {
     display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
 }
 
 
