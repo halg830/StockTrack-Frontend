@@ -2,9 +2,9 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreDisRedArea } from '../stores/distribucionRedArea.js';
-import { useStoreDestinos } from '../stores/destino.js';
-import { useStoreDisAreaDestino } from '../stores/distribucionAreaDestino.js'
+import { useStoreContrato } from '../stores/contrato.js';
+import { useStoreLotes } from '../stores/lote.js';
+import { useStoreDisContratoLote } from '../stores/distribucionContratoLote.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 import { useRouter, useRoute } from 'vue-router';
@@ -14,19 +14,19 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 
-const idDisRedArea = ref([]);
+const idContrato = ref([]);
 
-const DisRedAreaID = async () => {
-  idDisRedArea.value = route.params.idDisRedArea;
+const getContratoID = async () => {
+  idContrato.value = route.params.idContrato;
 };
 
-onMounted(DisRedAreaID);
+onMounted(getContratoID);
 
 
 // Tiendas
-const storeDisAreaDestino = useStoreDisAreaDestino();
-const storeDestino = useStoreDestinos();
-const storeDisRedArea = useStoreDisRedArea();
+const storeContrato = useStoreContrato();
+const storeLote = useStoreLotes();
+const storeDisContratoLote = useStoreDisContratoLote();
 
 // Variables
 const $q = useQuasar();
@@ -50,8 +50,8 @@ function notificar(tipo, msg) {
 
 // Columnas Tabla
 const columns = [
-    { name: "idAreaTematica", label: "Area Tematica", field: (row) => row.idDisRedArea.idAreaTematica.nombre, sortable: true, align: "left" },
-    { name: "idDestino", label: "Destino" , field: (row) => row.idDestino.nombre, sortable: true, align: "left" },
+    { name: "idLote", label: "Area Tematica", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
+    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idDisDependenciaRed.idRed.nombre, sortable: true, align: "left" },
     { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
@@ -63,10 +63,9 @@ const rows = ref([]);
 // Obtener Informacion de la tabla
 async function getInfo() {
     try {
-        await DisRedAreaID();
+        await getContratoID();
         loadingTable.value = true
-        const response = await storeDisAreaDestino.getDistribucionesById(idDisRedArea.value)
-        console.log(response);
+        const response = await storeDisContratoLote.getDistribucionesById(idDisDependenciaRed.value)
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -88,9 +87,9 @@ getInfo();
 const opciones = {
     agregar: () => {
         data.value = {
-            idDisRedArea:{
-                label: `${optionDisRedArea.value[0].label}` ,
-                value: String(optionDisRedArea.value[0].value)
+            idDisDependenciaRed:{
+                label: `${optionDisDependenciaRed.value[0].label}` ,
+                value: String(optionDisDependenciaRed.value[0].value)
             }
         };
         estado.value = 'agregar';
@@ -100,19 +99,21 @@ const opciones = {
         console.log("info",info);
         data.value = {
             ...info,
-            idDisRedArea: {
-                label: `${info.idDisRedArea.idAreaTematica.nombre} - P. Disponible: ${info.idDisRedArea.presupuestoDisponible}`,
-                value: String(info.idDisRedArea._id)
+            idDisDependenciaRed: {
+                label: `${info.idDisDependenciaRed.idRed.nombre} - P. Disponible: ${info.idDisDependenciaRed.presupuestoDisponible}`,
+                value: String(info.idDisDependenciaRed._id)
             },
-            idDestino:{
-                label: `${info.idDestino.nombre}`,
-                value: String(info.idDestino._id)
+            idLote:{
+                label: `${info.idLote.nombre}`,
+                value: String(info.idLote._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
+
+//Funcionamiento Agregar y Editar
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -120,8 +121,8 @@ const enviarInfo = {
             console.log(data.value);
             let info = {
                 ...data.value, 
-                idDestino: data.value.idDestino.value, 
-                idDisRedArea: data.value.idDisRedArea.value
+                idLote: data.value.idLote.value, 
+                idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
             // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
@@ -129,7 +130,7 @@ const enviarInfo = {
             //     return;
             // }
 
-            const response = await storeDisAreaDestino.agregar(info)
+            const response = await storeDisContratoLote.agregar(info)
             // ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -152,15 +153,14 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value,  idDestino: data.value.idDestino.value, 
-                idDisRedArea: data.value.idDisRedArea.value
+                ...data.value, idLote: data.value.idLote.value, idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
             // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
             //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
             //     return;
             // }
-            const response = await storeDisAreaDestino.editar(data.value._id, info);
+            const response = await storeDisContratoLote.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -177,6 +177,7 @@ const enviarInfo = {
     }
 }
 
+// Validacion de campos
 function validarCampos() {
     const arrData = Object.values(data.value);
     for (const d of arrData) {
@@ -194,11 +195,12 @@ function validarCampos() {
     enviarInfo[estado.value]()
 }
 
+// Activar y Incactivar Funcionamiento
 const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisAreaDestino.activar(id)
+            const response = await storeDisContratoLote.activar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -215,7 +217,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisAreaDestino.inactivar(id)
+            const response = await storeDisContratoLote.inactivar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -231,35 +233,39 @@ const in_activar = {
     }
 }
 
-// async function ajustarPresupuesto(data) {
-//     try {
-//         console.log("Presupuesto", data.presupuestoAsignado);
-//         const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
-//         if (!response) return
-//         if (response.error) {
-//             notificar('negative', response.error)
-//             return
-//         }
-//         notificar('positive', 'Presupuesto Actualizado')
-//     } catch (error) {
-//         console.log(error);
-//     }
+// Ajustar presupuesto de la DisDependenciaRed
+async function ajustarPresupuesto(data) {
+    try {
+        console.log("Presupuesto", data.presupuestoAsignado);
+        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        if (!response) return
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+        notificar('positive', 'Presupuesto Actualizado')
+    } catch (error) {
+        console.log(error);
+    }
 
-// }
+}
  
+// Buscar ID
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionDisRedArea = ref([])
-let disRedArea = ref([])
-async function getOptionDisRedArea(){
+
+// Opciones y distribucion (Dis Dependencia Red)
+let optionDisDependenciaRed = ref([])
+let disDependenciaRed = ref([])
+async function getOptionDisDependenciaRed(){
     try {
-        await DisRedAreaID();
-        const response = await storeDisRedArea.getById(idDisRedArea.value);
-        disRedArea.value = response
-        optionDisRedArea.value = [{
-            label: `${response.idAreaTematica.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+        await getContratoID();
+        const response = await storeDisDependenciaRed.getById(idDisDependenciaRed.value);
+        disDependenciaRed.value = response
+        optionDisDependenciaRed.value = [{
+            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
         }];
@@ -267,49 +273,55 @@ async function getOptionDisRedArea(){
         console.log(error);
     };
 };
-getOptionDisRedArea();
+getOptionDisDependenciaRed();
 
-let optionsDestinos = ref([]);
-async function getOPtionsDestinos() {
+// Obtener Opciones de Lotes
+let optionsLotes = ref([]);
+async function getOptionsLotes() {
   try {
-    const response = await storeDestino.getAll();
+    const response = await storeLote.getAll();
 
-    optionsDestinos.value = response.map((destino) => ({
-      label: destino.nombre, 
-      value: String(destino._id), 
-      disable: destino.estado === 0
+    optionsLotes.value = response.map((lote) => ({
+      label: lote.nombre, 
+      value: String(lote._id), 
+      disable: lote.estado === 0
     }));
   } catch (error) {
     console.error(error);
   }
 }
-getOPtionsDestinos();
+getOptionsLotes();
 
+
+// Filtro de opciones
 const opcionesFiltro = ref({
-    destino: optionsDestinos.value
+    lotes: optionsAreas.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.destino = optionsDestinos.value
+      opcionesFiltro.value.lotes = optionsAreas.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.destino = optionsDestinos.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.lotes = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-// function goToDisDependenciaRed(){
-//     router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
-// }
 
-// function goDestino(){
-//     router.push()
-// }
+// Ir a Distribucion Dependecia Red (Volver)
+function goToDisDependenciaRed(){
+    router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
+}
+
+// Ir a los Destinos (Dar nuevos Presupuestos)
+function goDestino(idDisRedArea){
+    router.push(`/distribucion-area-destino/${idDisRedArea}`)
+}
 
 </script>
 
@@ -320,22 +332,22 @@ function filterFn(val, update) {
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Area Destino</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Contrato Lote</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0"  v-model="data.idDisRedArea" label="Area Tematica" disable
+                            input-debounce="0"  v-model="data.idContrato" label="Contrato" disable
                             lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una Area Tematica']" >
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un Contrato']" >
                         </q-select>
                        
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idDestino" label="Destino" 
-                            lazy-rules :options="opcionesFiltro.destino"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione un Destino']" >
+                            input-debounce="0" @filter="filterFn"  v-model="data.idLote" label="Lote" 
+                            lazy-rules :options="opcionesFiltro.lotes"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione un Lote']" >
                             <template v-slot:no-option>
                                 
                             <q-item>
@@ -350,12 +362,6 @@ function filterFn(val, update) {
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
-                        <!-- <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
-                            :rules="[
-                                v => !!v || 'El campo Vigencia no puede estar vacío',
-                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
-                            ]"
-                        /> -->
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -370,11 +376,11 @@ function filterFn(val, update) {
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Area Destino" style="width: 90%;"
-            no-data-label="No hay Distribucion Area Destino registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Contrato Lote" style="width: 90%;"
+            no-data-label="No hay Distribucion Contrato Lote registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Distribucion Area Destino</h4>
+                    <h4 id="titleTable">Distribucion Contrato Lote</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
@@ -409,6 +415,7 @@ function filterFn(val, update) {
                             </path>
                         </svg>
                     </button>
+                  <button class="btn-go" @click="goDestino(props.row._id)">Destinos <i class="fa-solid fa-forward"></i></button>
                 </q-td>
             </template>
         </q-table>
@@ -575,3 +582,4 @@ function filterFn(val, update) {
   }
 /* #boxBuscar {} */
 </style>
+0
