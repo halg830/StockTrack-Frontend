@@ -22,6 +22,8 @@ import entrada from "../components/entrada.vue";
 import historialSalida from "../components/historialSalida.vue";
 import contrato from "../components/contrato.vue";
 import proceso from "../components/proceso.vue";
+import disRedArea from '../components/distribucionRedArea.vue';
+import disAreaDestino from '../components/distribucionAreaDestino.vue';
 import { useStoreUsuarios } from "../stores/usuarios.js";
 
 const checkAuth = () => {
@@ -176,6 +178,22 @@ const routes = [
         name: "DestinosConID",
         component: distribucionDependenciaRed,
         props: true,
+      },
+      { 
+        path: '/distribucion-red-area/:idDisDependenciaRed', 
+        beforeEnter: auth, 
+        meta: { rol: ['admin'] }, 
+        name: 'Red Area', 
+        component: disRedArea, 
+        props: true, 
+      },
+      { 
+        path: '/distribucion-area-destino/:idDisRedArea', 
+        beforeEnter: auth, 
+        meta: { rol: ['admin'] }, 
+        name: 'Area Destino', 
+        component: disAreaDestino, 
+        props: true, 
       },
       {
         path: "/red-conocimiento",

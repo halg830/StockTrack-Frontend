@@ -6,9 +6,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "disDependenciaRed";
+const modelo = "disAreaDestino";
 
-export const useStoreDisDependenciaRed= defineStore(modelo, () => {
+export const useStoreDisAreaDestino= defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -29,13 +29,13 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const disDependenciaRed = ref([]);
+  const disAreaDestinos = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log("d", response.data);
-      disDependenciaRed.value = response.data;
+      disAreaDestinos.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -80,7 +80,7 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/distribucion/${idDisDependenciaRed}`);
-      disDependenciaRed.value = response.data;
+      disAreaDestinos.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -99,6 +99,7 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
       return error.response.data;
     }
   };
+
   const agregar = async (data) => {
     try {
       insertarToken()
@@ -225,5 +226,5 @@ export const useStoreDisDependenciaRed= defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, getById, getDistribucionesById, ajustarPresupuesto, disDependenciaRed };
+  return { getAll, agregar, editar, activar, inactivar, getById, getDistribucionesById, ajustarPresupuesto, disAreaDestinos };
 });

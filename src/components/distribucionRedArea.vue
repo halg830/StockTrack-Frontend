@@ -2,33 +2,43 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreDisDependencia } from '../stores/distribucionDependencia.js';
+import { useStoreDisRedArea } from '../stores/distribucionRedArea.js';
 import { useStoreAreas } from '../stores/area.js';
 import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
-
 import { useRouter, useRoute } from 'vue-router';
 
+
+//Obtener Id de los Params
 const router = useRouter();
 const route = useRoute();
 
-const idDistribucionDependencia = ref([]);
+const idDisDependenciaRed = ref([]);
 
-const distribucionDependencia = async () => {
-  idDistribucionDependencia.value = route.params.idDistribucionDependencia;
+const disDependenciaRedID = async () => {
+  idDisDependenciaRed.value = route.params.idDisDependenciaRed;
 };
 
-onMounted(distribucionDependencia);
+onMounted(disDependenciaRedID);
 
+
+// Tiendas
+const storeDisDependenciaRed = useStoreDisDependenciaRed();
+const storeArea = useStoreAreas();
+const storeDisRedArea = useStoreDisRedArea();
+
+// Variables
 const $q = useQuasar();
-
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
+const estado = ref('agregar')
+const data = ref({});
 
+//Notificacion
 function notificar(tipo, msg) {
     $q.notify({
         type: tipo,
@@ -37,28 +47,25 @@ function notificar(tipo, msg) {
     });
 }
 
-const estado = ref('agregar')
-const data = ref({});
 
-
+// Columnas Tabla
 const columns = [
-    { name: "idDistribucionDependencia", label: "Dependencia", field: (row) => row.idDisDependencia.idDependencia.nombre, sortable: true, align: "left" },
-    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idRed.nombre, sortable: true, align: "left" },
+    { name: "idAreaTematica", label: "Area Tematica", field: (row) => row.idAreaTematica.nombre, sortable: true, align: "left" },
+    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idDisDependenciaRed.idRed.nombre, sortable: true, align: "left" },
     { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
-    { name: "year", label: "Vigencia", field: (row) => format(new Date(row.year), 'yyyy'), align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
 
 const rows = ref([]);
 
+// Obtener Informacion de la tabla
 async function getInfo() {
     try {
-        await distribucionDependencia();
+        await disDependenciaRedID();
         loadingTable.value = true
-        const response = await storeDisDependenciaRed.getById(idDistribucionDependencia.value)
-        console.log(response);
+        const response = await storeDisRedArea.getDistribucionesById(idDisDependenciaRed.value)
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -75,33 +82,38 @@ async function getInfo() {
     }
 }
 getInfo();
+
+// Opciones Agreagar y Editar 
 const opciones = {
     agregar: () => {
         data.value = {
-            idDisDependencia:{
-                label: `${optionDisDependencia.value[0].label}` ,
-                value: String(optionDisDependencia.value[0].value)
+            idDisDependenciaRed:{
+                label: `${optionDisDependenciaRed.value[0].label}` ,
+                value: String(optionDisDependenciaRed.value[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
     },
     editar: (info) => {
+        console.log("info",info);
         data.value = {
             ...info,
-            idDisDependencia: {
-                label: `${info.idDisDependencia.idDependencia.nombre} - P. Disponible: ${info.idDisDependencia.presupuestoDisponible}`,
-                value: String(info.idDisDependencia._id)
+            idDisDependenciaRed: {
+                label: `${info.idDisDependenciaRed.idRed.nombre} - P. Disponible: ${info.idDisDependenciaRed.presupuestoDisponible}`,
+                value: String(info.idDisDependenciaRed._id)
             },
-            idRed:{
-                label: `${info.idRed.nombre}`,
-                value: String(info.idRed._id)
+            idAreaTematica:{
+                label: `${info.idAreaTematica.nombre}`,
+                value: String(info.idAreaTematica._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
 }
+
+//Funcionamiento Agregar y Editar
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -109,17 +121,17 @@ const enviarInfo = {
             console.log(data.value);
             let info = {
                 ...data.value, 
-                idRed: data.value.idRed.value, 
-                idDisDependencia: data.value.idDisDependencia.value
+                idAreaTematica: data.value.idAreaTematica.value, 
+                idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
-            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-                return;
-            }
+            // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
+            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+            //     return;
+            // }
 
-            const response = await storeDisDependenciaRed.agregar(info)
-            ajustarPresupuesto(info);
+            const response = await storeDisRedArea.agregar(info)
+            // ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -141,14 +153,14 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idFicha: data.value.idFicha.value, idDistribucionDependencia: data.value.idDistribucionDependencia.value
+                ...data.value, idAreaTematica: data.value.idAreaTematica.value, idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
-            if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
-                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-                return;
-            }
-            const response = await storeDisDependenciaRed.editar(data.value._id, info);
+            // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
+            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+            //     return;
+            // }
+            const response = await storeDisRedArea.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -165,6 +177,7 @@ const enviarInfo = {
     }
 }
 
+// Validacion de campos
 function validarCampos() {
     const arrData = Object.values(data.value);
     for (const d of arrData) {
@@ -182,11 +195,12 @@ function validarCampos() {
     enviarInfo[estado.value]()
 }
 
+// Activar y Incactivar Funcionamiento
 const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisLoteFicha.activar(id)
+            const response = await storeDisRedArea.activar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -203,7 +217,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisLoteFicha.inactivar(id)
+            const response = await storeDisRedArea.inactivar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -219,10 +233,11 @@ const in_activar = {
     }
 }
 
+// Ajustar presupuesto de la DisDependenciaRed
 async function ajustarPresupuesto(data) {
     try {
         console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependencia.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -235,20 +250,22 @@ async function ajustarPresupuesto(data) {
 
 }
  
+// Buscar ID
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionDisDependencia = ref([])
-let disDependencia = ref([])
-async function getOptionDisDependencia(){
+
+// Opciones y distribucion (Dis Dependencia Red)
+let optionDisDependenciaRed = ref([])
+let disDependenciaRed = ref([])
+async function getOptionDisDependenciaRed(){
     try {
-        await distribucionDependencia();
-        const response = await storeDisDependencia.getById(idDistribucionDependencia.value);
-        console.log(response);
-        disDependencia.value = response
-        optionDisDependencia.value = [{
-            label: `${response.idDependencia.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+        await disDependenciaRedID();
+        const response = await storeDisDependenciaRed.getById(idDisDependenciaRed.value);
+        disDependenciaRed.value = response
+        optionDisDependenciaRed.value = [{
+            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
         }];
@@ -256,12 +273,13 @@ async function getOptionDisDependencia(){
         console.log(error);
     };
 };
-getOptionDisDependencia();
+getOptionDisDependenciaRed();
 
+// Obtener Opciones de Areas 
 let optionsAreas = ref([]);
-async function getOptionsRedes() {
+async function getOptionsAreas() {
   try {
-    const response = await storeRedConocimiento.getAll();
+    const response = await storeArea.getAll();
 
     optionsAreas.value = response.map((area) => ({
       label: area.nombre, 
@@ -272,28 +290,37 @@ async function getOptionsRedes() {
     console.error(error);
   }
 }
-getOptionsRedes();
+getOptionsAreas();
 
+
+// Filtro de opciones
 const opcionesFiltro = ref({
-    redes: optionsAreas.value
+    areas: optionsAreas.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.redes = optionsAreas.value
+      opcionesFiltro.value.areas = optionsAreas.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.redes = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.areas = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-function goToDisDependencia(){
-    router.push(`/distribucion-dependencia/${disDependencia.value.idDependencia._id}`);
+
+// Ir a Distribucion Dependecia Red (Volver)
+function goToDisDependenciaRed(){
+    router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
+}
+
+// Ir a los Destinos (Dar nuevos Presupuestos)
+function goDestino(idDisRedArea){
+    router.push(`/distribucion-area-destino/${idDisRedArea}`)
 }
 
 </script>
@@ -305,22 +332,22 @@ function goToDisDependencia(){
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Dependencia Red</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Red Area</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0"  v-model="data.idDisDependencia" label="Dependencia" disable
+                            input-debounce="0"  v-model="data.idDisDependenciaRed" label="Red de Conocimiento" disable
                             lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una dependencia']" >
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Red de Comocimineto']" >
                         </q-select>
                        
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idRed" label="Red de conocimineto" 
-                            lazy-rules :options="opcionesFiltro.redes"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una red de conocimiento']" >
+                            input-debounce="0" @filter="filterFn"  v-model="data.idAreaTematica" label="Area Tematica" 
+                            lazy-rules :options="opcionesFiltro.areas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Area Tematica']" >
                             <template v-slot:no-option>
                                 
                             <q-item>
@@ -335,13 +362,6 @@ function goToDisDependencia(){
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
-
-                        <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
-                            :rules="[
-                                v => !!v || 'El campo Vigencia no puede estar vacío',
-                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
-                            ]"
-                        />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -376,7 +396,7 @@ function goToDisDependencia(){
                 </q-input>
             </template>
             <template v-slot:body-cell-estado="props">
-                <q-td :props="props" class="botones">
+                <q-td :props="props" class="estados">
                     <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
                         ? 'Activo'
                         : !props.row.estado
@@ -395,11 +415,12 @@ function goToDisDependencia(){
                             </path>
                         </svg>
                     </button>
+                  <button class="btn-go" @click="goDestino(props.row._id)">Destinos <i class="fa-solid fa-forward"></i></button>
                 </q-td>
             </template>
         </q-table>
         <div style="width: 90%;">
-            <button class="btn-back" @click="goToDisDependencia()">
+            <button class="btn-back" @click="goToDisDependenciaRed()">
                  <i class="fa-solid fa-backward"></i> Volver
              </button> 
          </div>
@@ -409,73 +430,16 @@ function goToDisDependencia(){
 <style scoped>
 #titleTable {
     margin: auto;
-}
-.editBtn {
-  width: 55px;
-  height: 55px;
-  border-radius: 20px;
-  border: none;
-  background-color: #39A900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.123);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-.editBtn::before {
-  content: "";
-  width: 200%;
-  height: 200%;
-  background-color: #39A900;
-  position: absolute;
-  z-index: 1;
-  transform: scale(0);
-  transition: all 0.3s;
-  border-radius: 50%;
-  filter: blur(10px);
-}
-.editBtn:hover::before {
-  transform: scale(1);
-}
-.editBtn:hover {
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
-}
-
-.editBtn svg {
-  height: 17px;
-  fill: white;
-  z-index: 3;
-  transition: all 0.2s;
-  transform-origin: bottom;
-}
-.editBtn:hover svg {
-  transform: rotate(-15deg) translateX(5px);
-}
-.editBtn::after {
-  content: "";
-  width: 25px;
-  height: 1.5px;
-  position: absolute;
-  bottom: 19px;
-  left: -5px;
-  background-color: white;
-  border-radius: 2px;
-  z-index: 2;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s ease-out;
-}
-.editBtn:hover::after {
-  transform: scaleX(1);
-  left: 0px;
-  transform-origin: right;
-}
-
-
-.editBtn {
+  }
+  
+  .botones{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .editBtn {
     width: 55px;
     height: 55px;
     border-radius: 20px;
@@ -489,10 +453,10 @@ function goToDisDependencia(){
     position: relative;
     overflow: hidden;
     transition: all 0.3s;
-    margin: 0 auto;
-}
-
-.editBtn::before {
+    margin: 0 10px;
+  }
+  
+  .editBtn::before {
     content: "";
     width: 200%;
     height: 200%;
@@ -503,29 +467,29 @@ function goToDisDependencia(){
     transition: all 0.3s;
     border-radius: 50%;
     filter: blur(10px);
-}
-
-.editBtn:hover::before {
+  }
+  
+  .editBtn:hover::before {
     transform: scale(1);
-}
-
-.editBtn:hover {
+  }
+  
+  .editBtn:hover {
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.336);
-}
-
-.editBtn svg {
+  }
+  
+  .editBtn svg {
     height: 17px;
     fill: white;
     z-index: 3;
     transition: all 0.2s;
     transform-origin: bottom;
-}
-
-.editBtn:hover svg {
+  }
+  
+  .editBtn:hover svg {
     transform: rotate(-15deg) translateX(5px);
-}
-
-.editBtn::after {
+  }
+  
+  .editBtn::after {
     content: "";
     width: 25px;
     height: 1.5px;
@@ -538,16 +502,50 @@ function goToDisDependencia(){
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.5s ease-out;
-}
-
-.editBtn:hover::after {
+  }
+  
+  .editBtn:hover::after {
     transform: scaleX(1);
     left: 0px;
     transform-origin: right;
-}
+  }
+  
+  .btn-go {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+   width: 9em;
+   height: 55px;
+   border-radius: 15px;   
+   font-size: 15px;
+   font-family: inherit;
+   border: none;
+   position: relative;
+   overflow: hidden;
+   z-index: 1;
+   box-shadow: 6px 6px 12px #c5c5c5,
+               -6px -6px 12px #ffffff;
+  }
+  
+  .btn-go::before {
+   content: '';
+   width: 0;
+   height: 55px;
+   border-radius: 15px;
+   position: absolute;
+   top: 0;
+   left: 0;
+   background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+   transition: .5s ease;
+   display: block;
+   z-index: -1;
+  }
+  
+  .btn-go:hover::before {
+   width: 9em;
+  }
 
-
-.btn-back {
+  .btn-back {
     margin-top: 5px;
     display: flex;
     justify-content: space-evenly;
@@ -584,4 +582,3 @@ function goToDisDependencia(){
   }
 /* #boxBuscar {} */
 </style>
-../stores/disDependencia.js

@@ -2,71 +2,70 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreDisDependencia } from '../stores/distribucionDependencia.js';
-import { useStoreRedConocimiento } from '../stores/redConocimiento.js';
+import { useStoreDisRedArea } from '../stores/distribucionRedArea.js';
+import { useStoreAreas } from '../stores/area.js';
 import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 import { useRouter, useRoute } from 'vue-router';
 
-// Sacar 
+
+//Obtener Id de los Params
 const router = useRouter();
 const route = useRoute();
 
-const idDistribucionDependencia = ref([]);
+const idDisRedArea = ref([]);
 
-const distribucionDependencia = async () => {
-  idDistribucionDependencia.value = route.params.idDistribucionDependencia;
+const DisRedAreaID = async () => {
+  idDisRedArea.value = route.params.idDisRedArea;
 };
 
-onMounted(distribucionDependencia);
+onMounted(DisRedAreaID);
 
-const $q = useQuasar();
 
 // Tiendas
-const storeDisDependencia = useStoreDisDependencia();
-const storeRedConocimiento = useStoreRedConocimiento();
 const storeDisDependenciaRed = useStoreDisDependenciaRed();
-
+const storeArea = useStoreAreas();
+const storeDisRedArea = useStoreDisRedArea();
 
 // Variables
+const $q = useQuasar();
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
-const estado = ref('agregar');
+const estado = ref('agregar')
 const data = ref({});
-const rows = ref([]);
 
-// Notificacion
+//Notificacion
 function notificar(tipo, msg) {
     $q.notify({
         type: tipo,
         message: msg,
         position: "top",
     });
-};
+}
 
-// Columnas
+
+// Columnas Tabla
 const columns = [
-    { name: "idDistribucionDependencia", label: "Dependencia", field: (row) => row.idDisDependencia.idDependencia.nombre, sortable: true, align: "left" },
-    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idRed.nombre, sortable: true, align: "left" },
+    { name: "idAreaTematica", label: "Area Tematica", field: (row) => row.idAreaTematica.nombre, sortable: true, align: "left" },
+    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idDisRedArea.idRed.nombre, sortable: true, align: "left" },
     { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
-    { name: "year", label: "Vigencia", field: (row) => format(new Date(row.year), 'yyyy'), align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
 
+const rows = ref([]);
 
-// Obtener info Tabla
+// Obtener Informacion de la tabla
 async function getInfo() {
     try {
-        await distribucionDependencia();
+        await DisRedAreaID();
         loadingTable.value = true
-        const response = await storeDisDependenciaRed.getDistribucionesById(idDistribucionDependencia.value)
-        console.log(response);
+        const response = await storeDisRedArea.getDistribucionesById(idDisRedArea.value)
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -84,36 +83,35 @@ async function getInfo() {
 }
 getInfo();
 
-// Opciones agregar y editar
+// Opciones Agreagar y Editar 
 const opciones = {
     agregar: () => {
         data.value = {
-            idDisDependencia:{
-                label: `${optionDisDependencia.value[0].label}` ,
-                value: String(optionDisDependencia.value[0].value)
+            idDisRedArea:{
+                label: `${optionDisDependenciaRed.value[0].label}` ,
+                value: String(optionDisDependenciaRed.value[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
     },
     editar: (info) => {
+        console.log("info",info);
         data.value = {
             ...info,
-            idDisDependencia: {
-                label: `${info.idDisDependencia.idDependencia.nombre} - P. Disponible: ${info.idDisDependencia.presupuestoDisponible}`,
-                value: String(info.idDisDependencia._id)
+            idDisRedArea: {
+                label: `${info.idDisRedArea.idRed.nombre} - P. Disponible: ${info.idDisRedArea.presupuestoDisponible}`,
+                value: String(info.idDisRedArea._id)
             },
-            idRed:{
-                label: `${info.idRed.nombre}`,
-                value: String(info.idRed._id)
+            idAreaTematica:{
+                label: `${info.idAreaTematica.nombre}`,
+                value: String(info.idAreaTematica._id)
             }
         };
         estado.value = 'editar';
         modal.value = true;
     }
-};
-
-// Funcionamiento Agregar y Editar
+}
 const enviarInfo = {
     agregar: async () => {
         try {
@@ -121,17 +119,17 @@ const enviarInfo = {
             console.log(data.value);
             let info = {
                 ...data.value, 
-                idRed: data.value.idRed.value, 
-                idDisDependencia: data.value.idDisDependencia.value
+                idAreaTematica: data.value.idAreaTematica.value, 
+                idDisRedArea: data.value.idDisRedArea.value
             };
 
-            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-                return;
-            }
+            // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
+            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+            //     return;
+            // }
 
-            const response = await storeDisDependenciaRed.agregar(info)
-            ajustarPresupuesto(info);
+            const response = await storeDisRedArea.agregar(info)
+            // ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -153,16 +151,14 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, 
-                idRed: data.value.idRed.value, 
-                idDisDependencia: data.value.idDisDependencia.value
+                ...data.value, idAreaTematica: data.value.idAreaTematica.value, idDisRedArea: data.value.idDisRedArea.value
             };
 
             // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
             //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
             //     return;
             // }
-            const response = await storeDisDependenciaRed.editar(data.value._id, info);
+            const response = await storeDisRedArea.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -177,9 +173,8 @@ const enviarInfo = {
             loadingModal.value = false;
         }
     }
-};
+}
 
-// Validaciones
 function validarCampos() {
     const arrData = Object.values(data.value);
     for (const d of arrData) {
@@ -197,12 +192,11 @@ function validarCampos() {
     enviarInfo[estado.value]()
 }
 
-// Funcionamiento Activar y Desactivar
 const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisDependenciaRed.activar(id)
+            const response = await storeDisRedArea.activar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -219,7 +213,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisDependenciaRed.inactivar(id)
+            const response = await storeDisRedArea.inactivar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -235,11 +229,10 @@ const in_activar = {
     }
 }
 
-// Ajustar Presupuesto de la Dependencias
 async function ajustarPresupuesto(data) {
     try {
         console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependencia.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -252,23 +245,19 @@ async function ajustarPresupuesto(data) {
 
 }
  
-// Filtro por Id
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-
-// Opciones de la Dependencia
-let optionDisDependencia = ref([])
-let disDependencia = ref([])
-async function getOptionDisDependencia(){
+let optionDisDependenciaRed = ref([])
+let disDependenciaRed = ref([])
+async function getOptionDisDependenciaRed(){
     try {
-        await distribucionDependencia();
-        const response = await storeDisDependencia.getById(idDistribucionDependencia.value);
-        console.log(response);
-        disDependencia.value = response
-        optionDisDependencia.value = [{
-            label: `${response.idDependencia.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+        await DisRedAreaID();
+        const response = await storeDisDependenciaRed.getById(idDisRedArea.value);
+        disDependenciaRed.value = response
+        optionDisDependenciaRed.value = [{
+            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
         }];
@@ -276,53 +265,48 @@ async function getOptionDisDependencia(){
         console.log(error);
     };
 };
-getOptionDisDependencia();
+getOptionDisDependenciaRed();
 
-// Opciones Redes
-let optionsRedes = ref([]);
-async function getOptionsRedes() {
+let optionsAreas = ref([]);
+async function getOptionsAreas() {
   try {
-    const response = await storeRedConocimiento.getAll();
+    const response = await storeArea.getAll();
 
-    optionsRedes.value = response.map((red) => ({
-      label: red.nombre, 
-      value: String(red._id), 
-      disable: red.estado === 0
+    optionsAreas.value = response.map((area) => ({
+      label: area.nombre, 
+      value: String(area._id), 
+      disable: area.estado === 0
     }));
   } catch (error) {
     console.error(error);
   }
 }
-getOptionsRedes();
+getOptionsAreas();
 
-// Filtro de opciones
 const opcionesFiltro = ref({
-    redes: optionsRedes.value
+    areas: optionsAreas.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.redes = optionsRedes.value
+      opcionesFiltro.value.areas = optionsAreas.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.redes = optionsRedes.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.areas = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-
-// Ir a Distribucion Dependencia
-function goToDisDependencia(){
-    router.push(`/distribucion-dependencia/${disDependencia.value.idDependencia._id}`);
+function goToDisDependenciaRed(){
+    router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
 }
 
-// Ir a Distribucion Red Area
-function goDisRedArea(idDisRedArea){
-    router.push(`/distribucion-red-area/${idDisRedArea}`);
+function goDestino(){
+    router.push()
 }
 
 </script>
@@ -334,22 +318,22 @@ function goDisRedArea(idDisRedArea){
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Dependencia Red</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Red Area</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
                 <q-card-section class="q-gutter-md">
                     <q-form @submit="validarCampos" class="q-gutter-md">
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0"  v-model="data.idDisDependencia" label="Dependencia" disable
+                            input-debounce="0"  v-model="data.idDisRedArea" label="Red de Conocimiento" disable
                             lazy-rules
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una dependencia']" >
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Red de Comocimineto']" >
                         </q-select>
                        
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idRed" label="Red de conocimineto" 
-                            lazy-rules :options="opcionesFiltro.redes"
-                            :rules="[val => val !== null && val !== '' || 'Seleccione una red de conocimiento']" >
+                            input-debounce="0" @filter="filterFn"  v-model="data.idAreaTematica" label="Area Tematica" 
+                            lazy-rules :options="opcionesFiltro.areas"
+                            :rules="[val => val !== null && val !== '' || 'Seleccione una Area Tematica']" >
                             <template v-slot:no-option>
                                 
                             <q-item>
@@ -365,13 +349,6 @@ function goDisRedArea(idDisRedArea){
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
 
-                        <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
-                            :rules="[
-                                v => !!v || 'El campo Vigencia no puede estar vacío',
-                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
-                            ]"
-                        />
-
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
                                 :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
@@ -385,11 +362,11 @@ function goDisRedArea(idDisRedArea){
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Dependencia Red" style="width: 90%;"
-            no-data-label="No hay Distribucion Dependencia Red registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Red Area" style="width: 90%;"
+            no-data-label="No hay Distribucion Red Area registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Distribucion Dependencia Red</h4>
+                    <h4 id="titleTable">Distribucion Red Area</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
@@ -424,12 +401,12 @@ function goDisRedArea(idDisRedArea){
                             </path>
                         </svg>
                     </button>
-                  <button class="btn-go" @click="goDisRedArea(props.row._id)">Area Tematica <i class="fa-solid fa-forward"></i></button>
+                  <button class="btn-go" @click="goDestino(props.row._id)">Destinos <i class="fa-solid fa-forward"></i></button>
                 </q-td>
             </template>
         </q-table>
         <div style="width: 90%;">
-            <button class="btn-back" @click="goToDisDependencia()">
+            <button class="btn-back" @click="goToDisDependenciaRed()">
                  <i class="fa-solid fa-backward"></i> Volver
              </button> 
          </div>
@@ -589,6 +566,5 @@ function goDisRedArea(idDisRedArea){
   .btn-back:hover::before {
    width: 9em;
   }
-
 /* #boxBuscar {} */
 </style>
