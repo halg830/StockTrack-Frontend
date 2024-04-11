@@ -3,8 +3,8 @@
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { useStoreDisRedArea } from '../stores/distribucionRedArea.js';
-import { useStoreAreas } from '../stores/area.js';
-import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
+import { useStoreDestinos } from '../stores/destino.js';
+import { useStoreDisAreaDestino } from '../stores/distribucionAreaDestino.js'
 import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 import { useRouter, useRoute } from 'vue-router';
@@ -24,8 +24,8 @@ onMounted(DisRedAreaID);
 
 
 // Tiendas
-const storeDisDependenciaRed = useStoreDisDependenciaRed();
-const storeArea = useStoreAreas();
+const storeDisAreaDestino = useStoreDisAreaDestino();
+const storeDestino = useStoreDestinos();
 const storeDisRedArea = useStoreDisRedArea();
 
 // Variables
@@ -65,7 +65,8 @@ async function getInfo() {
     try {
         await DisRedAreaID();
         loadingTable.value = true
-        const response = await storeDisRedArea.getDistribucionesById(idDisRedArea.value)
+        const response = await storeDisAreaDestino.getDistribucionesById(idDisRedArea.value)
+        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -88,8 +89,8 @@ const opciones = {
     agregar: () => {
         data.value = {
             idDisRedArea:{
-                label: `${optionDisDependenciaRed.value[0].label}` ,
-                value: String(optionDisDependenciaRed.value[0].value)
+                label: `${optionDisRedArea.value[0].label}` ,
+                value: String(optionDisRedArea.value[0].value)
             }
         };
         estado.value = 'agregar';
@@ -119,7 +120,7 @@ const enviarInfo = {
             console.log(data.value);
             let info = {
                 ...data.value, 
-                idAreaTematica: data.value.idAreaTematica.value, 
+                idDestino: data.value.idDestino.value, 
                 idDisRedArea: data.value.idDisRedArea.value
             };
 
@@ -128,7 +129,7 @@ const enviarInfo = {
             //     return;
             // }
 
-            const response = await storeDisRedArea.agregar(info)
+            const response = await storeDisAreaDestino.agregar(info)
             // ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
@@ -158,7 +159,7 @@ const enviarInfo = {
             //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
             //     return;
             // }
-            const response = await storeDisRedArea.editar(data.value._id, info);
+            const response = await storeDisAreaDestino.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -196,7 +197,7 @@ const in_activar = {
     activar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisRedArea.activar(id)
+            const response = await storeDisAreaDestino.activar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -213,7 +214,7 @@ const in_activar = {
     inactivar: async (id) => {
         loadIn_activar.value = true
         try {
-            const response = await storeDisRedArea.inactivar(id)
+            const response = await storeDisAreaDestino.inactivar(id)
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
@@ -229,35 +230,35 @@ const in_activar = {
     }
 }
 
-async function ajustarPresupuesto(data) {
-    try {
-        console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
-        if (!response) return
-        if (response.error) {
-            notificar('negative', response.error)
-            return
-        }
-        notificar('positive', 'Presupuesto Actualizado')
-    } catch (error) {
-        console.log(error);
-    }
+// async function ajustarPresupuesto(data) {
+//     try {
+//         console.log("Presupuesto", data.presupuestoAsignado);
+//         const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+//         if (!response) return
+//         if (response.error) {
+//             notificar('negative', response.error)
+//             return
+//         }
+//         notificar('positive', 'Presupuesto Actualizado')
+//     } catch (error) {
+//         console.log(error);
+//     }
 
-}
+// }
  
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionDisDependenciaRed = ref([])
-let disDependenciaRed = ref([])
-async function getOptionDisDependenciaRed(){
+let optionDisRedArea = ref([])
+let disRedArea = ref([])
+async function getOptionDisRedArea(){
     try {
         await DisRedAreaID();
-        const response = await storeDisDependenciaRed.getById(idDisRedArea.value);
-        disDependenciaRed.value = response
-        optionDisDependenciaRed.value = [{
-            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
+        const response = await storeDisRedArea.getById(idDisRedArea.value);
+        disRedArea.value = response
+        optionDisRedArea.value = [{
+            label: `${response.idAreaTematica.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
             value: String(response._id), 
             disable: response.estado === 0 
         }];
@@ -265,49 +266,49 @@ async function getOptionDisDependenciaRed(){
         console.log(error);
     };
 };
-getOptionDisDependenciaRed();
+getOptionDisRedArea();
 
-let optionsAreas = ref([]);
-async function getOptionsAreas() {
+let optionsDestinos = ref([]);
+async function getOPtionsDestinos() {
   try {
-    const response = await storeArea.getAll();
+    const response = await storeDestino.getAll();
 
-    optionsAreas.value = response.map((area) => ({
-      label: area.nombre, 
-      value: String(area._id), 
-      disable: area.estado === 0
+    optionsDestinos.value = response.map((destino) => ({
+      label: destino.nombre, 
+      value: String(destino._id), 
+      disable: destino.estado === 0
     }));
   } catch (error) {
     console.error(error);
   }
 }
-getOptionsAreas();
+getOPtionsDestinos();
 
 const opcionesFiltro = ref({
-    areas: optionsAreas.value
+    areas: optionsDestinos.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.areas = optionsAreas.value
+      opcionesFiltro.value.areas = optionsDestinos.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.areas = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.areas = optionsDestinos.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-function goToDisDependenciaRed(){
-    router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
-}
+// function goToDisDependenciaRed(){
+//     router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
+// }
 
-function goDestino(){
-    router.push()
-}
+// function goDestino(){
+//     router.push()
+// }
 
 </script>
 
@@ -318,7 +319,7 @@ function goDestino(){
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
                 <q-toolbar style="        background-color: #39A900;color: white">
-                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Red Area</q-toolbar-title>
+                    <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Distribucion Area Destino</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>
 
@@ -331,7 +332,7 @@ function goDestino(){
                         </q-select>
                        
                         <q-select filled use-input behavior="menu" hide-selected fill-input
-                            input-debounce="0" @filter="filterFn"  v-model="data.idAreaTematica" label="Area Tematica" 
+                            input-debounce="0" @filter="filterFn"  v-model="data.idDestino" label="Area Tematica" 
                             lazy-rules :options="opcionesFiltro.areas"
                             :rules="[val => val !== null && val !== '' || 'Seleccione una Area Tematica']" >
                             <template v-slot:no-option>
@@ -348,6 +349,12 @@ function goDestino(){
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
+                        <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
+                            :rules="[
+                                v => !!v || 'El campo Vigencia no puede estar vacío',
+                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
+                            ]"
+                        />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -362,11 +369,11 @@ function goDestino(){
         <!-- Tabla -->
         <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
             :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Red Area" style="width: 90%;"
-            no-data-label="No hay Distribucion Red Area registrados.">
+            no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Distribucion Area Destino" style="width: 90%;"
+            no-data-label="No hay Distribucion Area Destino registrados.">
             <template v-slot:top-left>
                 <div style=" display: flex; gap: 10px;">
-                    <h4 id="titleTable">Distribucion Red Area</h4>
+                    <h4 id="titleTable">Distribucion Area Destino</h4>
                     <q-btn @click="opciones.agregar" color="primary">
                         <q-icon name="add" color="white" center />
                     </q-btn>
