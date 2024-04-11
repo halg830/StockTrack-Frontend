@@ -282,7 +282,43 @@ export const useStoreUsuarios = defineStore(
         return error.response.data;
       }
     };
-
+    
+    const subirFotoPerfil = async (id, file) => {
+      try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', 'fotosperfil');
+          const response = await axios.post(`https://api.cloudinary.com/v1_1/djnx92ifa/image/upload`, formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+          const fotoPerfil = response.data.secure_url;
+  
+          // Actualizar la foto de perfil del usuario
+          usuario.value.fotoPerfil = fotoPerfil;
+  
+          // Guardar la foto de perfil en el servidor
+          await editar(id, { fotoPerfil });
+  
+          // Notificar al usuario
+          $q.notify({
+              color: 'positive',
+              message: 'Foto de perfil actualizada correctamente',
+              position: 'top'
+          });
+  
+          return fotoPerfil;
+      } catch (error) {
+          console.error('Error al subir la foto de perfil:', error);
+          $q.notify({
+              color: 'negative',
+              message: 'Error al subir la foto de perfil',
+              position: 'top'
+          });
+          return null;
+      }
+  };
     return {
       getAll,
       codigoRecuperar,
@@ -298,6 +334,7 @@ export const useStoreUsuarios = defineStore(
       editar,
       activar,
       inactivar,
+      subirFotoPerfil,
     };
   },
   {
