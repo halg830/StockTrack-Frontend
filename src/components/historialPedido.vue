@@ -121,7 +121,7 @@ async function getInfo() {
             return
         }
 
-        rows.value = response.reverse()
+        rows.value = response
 
     } catch (error) {
         console.log(error);
@@ -277,7 +277,7 @@ function generarSalida(idPedido){
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
                         <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary">  </q-btn>
-                        <q-btn @click="generarSalida(props.row._id)" icon="file_open" color="secondary">  </q-btn>
+                        <q-btn v-if="!props.row.estado" @click="generarSalida(props.row._id)" icon="file_open" color="secondary">  </q-btn>
                     </q-td>
                 </template>
             </q-table>

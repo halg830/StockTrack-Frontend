@@ -1,14 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
-import { useStoreContrato } from '../stores/contrato.js'
+import { useStoreProceso } from '../stores/proceso.js'
 import helpersGenerales from '../helpers/generales.js';
 import { format } from "date-fns";
-import { useRouter } from 'vue-router';
-import { useStoreUsuarios } from '../stores/usuarios.js';
-
-const router = useRouter();
-
 
 // Variables modal
 const modal = ref(false)
@@ -27,16 +22,16 @@ function notificar(tipo, msg) {
 // Variables tabla
 const columns = [
   {
-    name: 'nombre',
-    label: 'Nombre',
+    name: 'codigo',
+    label: 'Código',
     align: 'center',
-    field: 'nombre'
+    field: 'codigo'
   },
   {
     name: 'presupuesto',
     label: 'Presupuesto Inicial',
     align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
+    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoAsignado)
   },
   {
     name: 'presupuestoDisponible',
@@ -63,14 +58,14 @@ const loadTable = ref(false)
 const filter = ref("")
 
 // Get datos tabla
-const useContrato = useStoreContrato()
+const useProceso = useStoreProceso()
 
 async function getInfo() {
   try {
     loadTable.value = true
 
-    const response = await useContrato.getAll()
-    console.log("Hola soy contratos", response);
+    const response = await useProceso.getAll()
+    console.log("Hola soy procesos", response);
 
     if (!response) return;
     if (response.error) {
@@ -100,7 +95,6 @@ const opciones = {
   editar: (info) => {
     data.value = {
       ...info,
-      year: format(new Date(info.year), "yyyy"),
     }
     estado.value = 'editar'
     modal.value = true
@@ -113,7 +107,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useContrato.agregar(data.value)
+      const response = await useProceso.agregar(data.value)
       console.log(response);
       getInfo();
       if (!response) return
@@ -135,7 +129,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useContrato.editar(data.value._id, data.value);
+      const response = await useProceso.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -161,12 +155,12 @@ function validarCampos() {
   for (const d of arrData) {
     console.log(d);
     if (d === null) {
-      errorCamposVacios();
+      notificar('negative', 'Por favor complete los campos');
       return;
     }
     if (typeof d === "string") {
       if (d.trim() === "") {
-        errorCamposVacios();
+        notificar('negative', 'Por favor complete los campos');
         return;
       }
     }
@@ -179,7 +173,7 @@ const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useContrato.activar(id)
+      const response = await useProceso.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -197,7 +191,7 @@ const in_activar = {
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useContrato.inactivar(id)
+      const response = await useProceso.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
@@ -217,88 +211,6 @@ const in_activar = {
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
-
-// const goContratoLote = (idDistribucion) => {
-//   router.push(`/distribucion-contrato-lote/${idDistribucion}`);
-// };
-
-function goLotes(idDistribucion) {
-  router.push(`/lotes/${idDistribucion}`);
-}
-
-const opcionesSelect = ref({})
-const selectLoad = ref({ supervisor: true, proveedor: true })
-const useUsuario = useStoreUsuarios()
-async function obtenerOptions() {
-  try {
-    const response = await useUsuario.getAll();
-    console.log(response);
-
-    if (!response) return;
-
-    if (response.error) {
-      notificar("negative", response.error);
-      return;
-    }
-
-    const usuariosActivos = response.filter(usuario => usuario.estado === true && usuario.rol == 'supervisor');
-
-    opcionesSelect.value.usuarios = usuariosActivos.map((usuario) => {
-      return {
-        label:
-          usuario.nombre,
-        value: usuario._id,
-      };
-    });
-    console.log(opcionesSelect.value);
-
-  } catch (error) {
-    console.log(error);
-  } finally {
-    selectLoad.value.supervisor = false;
-  }
-}
-obtenerOptions();
-
-const opcionesFiltro = ref({
-  redes: opciones
-})
-
-function filterFnSupervisor(val, update) {
-  val = val.trim();
-  if (val === "") {
-    update(() => {
-      opcionesFiltro.value.supervisor = opcionesSelect.value.supervisor;
-    });
-    return;
-  }
-
-  update(() => {
-    const needle = val.toLowerCase();
-    opcionesFiltro.value.supervisor =
-      opcionesSelect.value.supervisor.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      ) || [];
-  });
-}
-
-function filterFnProveedor(val, update) {
-  val = val.trim();
-  if (val === "") {
-    update(() => {
-      opcionesFiltro.value.supervisor = opcionesSelect.value.supervisor;
-    });
-    return;
-  }
-
-  update(() => {
-    const needle = val.toLowerCase();
-    opcionesFiltro.value.supervisor =
-      opcionesSelect.value.supervisor.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      ) || [];
-  });
-}
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -314,37 +226,9 @@ function filterFnProveedor(val, update) {
           <q-form @submit="validarCampos" class="q-gutter-md">
             <q-input outlined v-model.trim="data.codigo" label="Código" type="text"
               :rules="[val => !!val || 'Ingrese un codigo']"></q-input>
-            <q-input outlined v-model.trim="data.nombre" label="Nombre" type="text"
-              :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
             <q-input outlined v-model="data.presupuestoAsignado" label="Presupuesto" mask="##########"
               :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
-
-            <q-select class="input3" outlined v-model:model-value="data.idSupervisor" use-input input-debounce="0"
-              label="Seleccione un supervisor" behavior="menu" @filter="filterFnSupervisor"
-              :options="opcionesFiltro.supervisor" :rules="[(val) => val != null || 'Seleccione una opción']"
-              :loading="selectLoad.supervisor" :disable="selectLoad.supervisor">
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    Sin resultados
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-
-            <q-select class="input3" outlined v-model:model-value="data.idProveedor" use-input input-debounce="0"
-              label="Seleccione un proveedor" behavior="menu" @filter="filterFnProveedor"
-              :options="opcionesFiltro.proveedor" :rules="[(val) => val != null || 'Seleccione una opción']"
-              :loading="selectLoad.proveedor" :disable="selectLoad.proveedor">
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    Sin resultados
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
@@ -356,8 +240,8 @@ function filterFnProveedor(val, update) {
     <!-- TABLA -->
     <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Contratos" style="width: 90%;"
-      no-data-label="No hay programa registrados." class="my-sticky-header-column-table">
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Procesos" style="width: 90%;"
+      no-data-label="No hay procesos registrados." class="my-sticky-header-column-table">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
           <h4 id="titleTable">Proceso</h4>
@@ -394,7 +278,6 @@ function filterFnProveedor(val, update) {
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goLotes(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>

@@ -7,6 +7,9 @@ import { useStorePedidos } from "../stores/pedido.js";
 import { useStoreDetallePedido } from "../stores/detallePedido.js";
 import { useStoreUsuarios } from "../stores/usuarios";
 import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 // Alertas notify
 const $q = useQuasar();
@@ -300,6 +303,7 @@ async function solicitarPedido() {
       await crearDetPedido(detPedido)
     });
     notificar('Positive', 'Pedido generado con éxito')
+    router.push('/historial-pedido')
   } catch (error) {
     console.log(error);
   } finally {
