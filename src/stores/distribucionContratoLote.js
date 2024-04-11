@@ -1,13 +1,14 @@
+
 import axios from "axios";
 import { defineStore } from "pinia";
-import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "contrato";
+const modelo = "disContratoLote";
 
-export const useStoreContrato = defineStore(modelo, () => {
+export const useStoreDisContratoLote= defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +29,13 @@ export const useStoreContrato = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const contratos = ref([]);
+  const disContratoLote = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
-      console.log(response);
-      contratos.value = response.data;
+      console.log("d", response.data);
+      disContratoLote.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -53,12 +54,10 @@ export const useStoreContrato = defineStore(modelo, () => {
       return error.response.data;
     }
   };
-
   const getById = async (id) => {
     try {
-      insertarToken()
+      insertarToken();
       const response = await axios.get(`${modelo}/buscarId/${id}`);
-      console.log(response);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -77,12 +76,11 @@ export const useStoreContrato = defineStore(modelo, () => {
       return error.response.data;
     }
   };
-
-  const getPorContrato = async (id) => {
+  const getDistribucionesById = async (idContrato) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/buscarId/${id}`);
-      console.log(response);
+      const response = await axios.get(`${modelo}/distribucion/${idContrato}`);
+      disContratoLote.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -106,7 +104,7 @@ export const useStoreContrato = defineStore(modelo, () => {
     try {
       insertarToken()
       const response = await axios.post(`${modelo}/agregar`, data);
-      console.log(response.data._id);
+      console.log(response);
 
       return response.data;
     } catch (error) {
@@ -158,7 +156,6 @@ export const useStoreContrato = defineStore(modelo, () => {
       insertarToken()
       console.log("Responde:", id, presupuesto);
       const response = await axios.put(`${modelo}/ajustarPresupuesto/${id}`, presupuesto);
-      console.log(response);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -229,5 +226,5 @@ export const useStoreContrato = defineStore(modelo, () => {
     }
   };
 
-  return { contratos, getAll, getPorContrato, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
+  return { getAll, agregar, editar, activar, inactivar, getById, getDistribucionesById, ajustarPresupuesto, disContratoLote };
 });

@@ -10,8 +10,8 @@ import App from "./App.vue";
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
-axios.defaults.baseURL = 'http://localhost:4500/api/'
-// axios.defaults.baseURL = "https://stocktrack-backend.onrender.com/api/";
+// axios.defaults.baseURL = 'http://localhost:4500/api/'
+axios.defaults.baseURL = "https://stocktrack-backend.onrender.com/api/";
 // axios.defaults.baseURL = "https://api-stocktrack.azurewebsites.net/api/"
 
 

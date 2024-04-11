@@ -1,78 +1,56 @@
 <script setup>
-import { ref } from 'vue';
+import { ref , onMounted} from 'vue'
 import { useQuasar } from 'quasar';
-import { useStoreProceso } from '../stores/proceso.js'
-import helpersGenerales from '../helpers/generales.js';
-import { format } from "date-fns";
+import helpersGenerales from '../helpers/generales';
+import {  useStoreProveedores } from '../stores/proveedor';
 import { useRouter } from 'vue-router';
 
-// Variables modal
-const modal = ref(false)
-const loadingModal = ref(false)
+const router = useRouter();
+const $q = useQuasar();
+const useProveedores = useStoreProveedores();
+const loadingTable = ref(false);
+const loadingModal = ref(false);
+const loadIn_activar = ref(false);
+const filter = ref("");
+const modal = ref(false);
 
-// Alertas notify
-const $q = useQuasar()
+
 function notificar(tipo, msg) {
   $q.notify({
     type: tipo,
     message: msg,
     position: "top",
   });
-}
+};
 
-// Variables tabla
+const estado = ref('agregar');
+const data = ref({});
+
 const columns = [
-  {
-    name: 'codigo',
-    label: 'Código',
-    align: 'center',
-    field: 'codigo'
-  },
-  {
-    name: 'presupuesto',
-    label: 'Presupuesto Inicial',
-    align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoAsignado)
-  },
-  {
-    name: 'presupuestoDisponible',
-    label: 'Presupuesto Diponible',
-    align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoDisponible)
+  { name: "nombre", label: "Nombre", field: "nombre", sortable: true, align: "left" },
+  { name: "apellido", label: "Apellido", field: "apellido", sortable: true, align: "left"},
+  { name: "identificacion", label: "Identificacion", field: "identificacion", sortable: true, align: "left"},
+  { name: "correo", label: "Correo", field: "correo", sortable: true, align: "left"},
+  { name: "telefono", label: "Telefono", field: "telefono", sortable: true, align: "left"},
+  { name: "empresa", label: "Empresa", field: "empresa", sortable: true, align: "left"},
+  { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
+  { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
+];
 
-  },
-  {
-    name: 'estado',
-    label: 'Estado',
-    align: 'center',
-    field: 'estado'
-  },
-  {
-    name: 'opciones',
-    label: 'Opciones',
-    align: 'center',
-    field: 'opciones'
-  },
-]
-const rows = ref([])
-const loadTable = ref(false)
-const filter = ref("")
-
-// Get datos tabla
-const useProceso = useStoreProceso()
+const rows = ref([]);
 
 async function getInfo() {
   try {
-    loadTable.value = true
+    loadingTable.value = true
 
-    const response = await useProceso.getAll()
-    console.log("Hola soy procesos", response);
+    const response = await useProveedores.getAll()
+    console.log(response);
 
     if (!response) return;
     if (response.error) {
       notificar('negative', response.error)
       return
-    }
+    };
 
     rows.value = response.reverse();
 
@@ -80,13 +58,12 @@ async function getInfo() {
     console.log(error);
   }
   finally {
-    loadTable.value = false
-  }
-}
-getInfo()
+    loadingTable.value = false
+  };
+};
 
-// Opciones tabla
-const estado = ref('agregar')
+getInfo();
+
 const opciones = {
   agregar: () => {
     data.value = {}
@@ -94,43 +71,40 @@ const opciones = {
     modal.value = true
   },
   editar: (info) => {
-    data.value = {
-      ...info,
-    }
+    data.value = { ...info }
     estado.value = 'editar'
     modal.value = true
   }
-}
+};
 
-const data = ref({})
 const enviarInfo = {
   agregar: async () => {
     try {
-      loadingModal.value = true
+      loadingModal.value = true;
 
-      const response = await useProceso.agregar(data.value)
+      const response = await useProveedores.agregar(data.value);
       console.log(response);
       getInfo();
       if (!response) return
       if (response.error) {
-        notificar('negative', response.error)
+        notificar('negative', response.error);
         return
-      }
+      };
 
-      rows.value.unshift(response)
-      modal.value = false
-      notificar('positive', 'Guardado exitosamente')
+      modal.value = false;
+      notificar('positive', 'Guardado exitosamente');
+
     } catch (error) {
       console.log(error);
     } finally {
-      loadingModal.value = false
-    }
+      loadingModal.value = false;
+    };
   },
   editar: async () => {
-    loadingModal.value = true
+    loadingModal.value = true;
     try {
       console.log(data.value);
-      const response = await useProceso.editar(data.value._id, data.value);
+      const response = await useProveedores.editar(data.value._id, data.value);
       console.log(response);
       getInfo();
       if (!response) return
@@ -139,7 +113,7 @@ const enviarInfo = {
         return
       }
       rows.value.splice(buscarIndexLocal(response._id), 1, response);
-      modal.value = false
+      modal.value = false;
       notificar('positive', 'Editado exitosamente')
     } catch (error) {
       console.log(error);
@@ -156,109 +130,115 @@ function validarCampos() {
   for (const d of arrData) {
     console.log(d);
     if (d === null) {
-      notificar('negative', 'Por favor complete los campos');
+      errorCamposVacios();
       return;
     }
     if (typeof d === "string") {
       if (d.trim() === "") {
-        notificar('negative', 'Por favor complete los campos');
+        errorCamposVacios();
         return;
-      }
-    }
-  }
+      };
+    };
+  };
   enviarInfo[estado.value]()
-}
+};
 
-const loadIn_activar = ref(false)
 const in_activar = {
   activar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useProceso.activar(id)
+      const response = await useProveedores.activar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
         return
-      }
+      };
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
     } catch (error) {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    }
+    };
   },
   inactivar: async (id) => {
     loadIn_activar.value = true
     try {
-      const response = await useProceso.inactivar(id)
+      const response = await useProveedores.inactivar(id)
       console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
         return
-      }
+      };
       rows.value.splice(buscarIndexLocal(response._id), 1, response)
 
     } catch (error) {
       console.log(error);
     } finally {
       loadIn_activar.value = false
-    }
+    };
   }
-}
+};
 
 function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
-}
+};
 
-const router = useRouter()
-
-function goContratos(id){
-  router.push('/contrato/' + id)
-}
 </script>
+
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
-    <!-- MODAL -->
+    <!-- Modal -->
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
-        <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Programa</q-toolbar-title>
+        <q-toolbar style="background-color: #39A900;color: white">
+          <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Destino</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
-            <q-input outlined v-model.trim="data.codigo" label="Código" type="text"
-              :rules="[val => !!val || 'Ingrese un codigo']"></q-input>
+            <q-input filled v-model.trim="data.nombre" label="Nombre Proveedor" 
+              :rules="[val => !!val || 'Digite el nombre']" />
+              <q-input filled v-model.trim="data.apellido" label="Apellido Proveedor" 
+              :rules="[val => !!val || 'Digite el apellido']" />
+              <q-input filled v-model.trim="data.identificacion" label="Identificacion Proveedor" 
+              :rules="[val => !!val || 'Digite la identificacion']" />
+              <q-input filled v-model.trim="data.correo" label="Corre Proveedor " 
+              :rules="[val => !!val || 'Digite el correo ']" />
+              <q-input filled v-model.trim="data.telefono" label="Telefono Proveedor" 
+              :rules="[val => !!val || 'Digite el telefono']" />
+              <q-input filled v-model.trim="data.empresa" label="Empresa Proveedor" 
+              :rules="[val => !!val || 'Digite la empresa']" />
 
-            <q-input outlined v-model="data.presupuestoAsignado" label="Presupuesto" mask="##########"
-              :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
 
             <div style=" display: flex; width: 96%; justify-content: flex-end;">
               <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
             </div>
+
           </q-form>
         </q-card-section>
       </q-card>
     </q-dialog>
-    <!-- TABLA -->
-    <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadTable" loading-label="Cargando..."
+
+    <!-- Tabla -->
+    <q-table :rows="rows" :columns="columns" row-key="name" :loading="loadingTable" loading-label="Cargando..."
       :filter="filter" rows-per-page-label="Visualización de filas" page="2" :rows-per-page-options="[10, 20, 40, 0]"
-      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Procesos" style="width: 90%;"
-      no-data-label="No hay procesos registrados." class="my-sticky-header-column-table">
+      no-results-label="No hay resultados para la búsqueda." wrap-cells="false" label="Lotes" style="width: 90%;"
+      no-data-label="No hay proveeodres registrados.">
       <template v-slot:top-left>
         <div style=" display: flex; gap: 10px;">
-          <h4 id="titleTable">Proceso</h4>
+          <h4 id="titleTable">Proveedor</h4>
           <q-btn @click="opciones.agregar" color="primary">
             <q-icon name="add" color="white" center />
           </q-btn>
         </div>
+
       </template>
       <template v-slot:top-right>
-        <q-input borderless dense debounce="300" color="primary" v-model="filter" class="buscar"
+        <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
           placeholder="Buscar cualquier campo" id="boxBuscar">
           <template v-slot:append>
             <q-icon name="search" />
@@ -266,7 +246,7 @@ function goContratos(id){
         </q-input>
       </template>
       <template v-slot:body-cell-estado="props">
-        <q-td :props="props" class="estados">
+        <q-td :props="props" class="boton">
           <q-btn class="botonv1" text-size="1px" padding="10px" :loading="props.row.estado === 'load'" :label="props.row.estado
             ? 'Activo'
             : !props.row.estado
@@ -285,25 +265,24 @@ function goContratos(id){
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goContratos(props.row._id)">Contratos <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
   </main>
 </template>
+
 <style scoped>
 #titleTable {
   margin: auto;
 }
 
-.botones {
+.botones{
   display: flex;
   height: 100%;
   width: 100%;
   align-items: center;
   justify-content: center;
 }
-
 .editBtn {
   width: 55px;
   height: 55px;
@@ -375,35 +354,37 @@ function goContratos(id){
   transform-origin: right;
 }
 
-.btn-go {
-  width: 9em;
-  height: 55px;
-  border-radius: 15px;
-  font-size: 15px;
-  font-family: inherit;
-  border: none;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 6px 6px 12px #c5c5c5,
-    -6px -6px 12px #ffffff;
+.btn-go , .btn-asignar{
+ width: 9em;
+ height: 55px;
+ border-radius: 15px;   
+ font-size: 15px;
+ font-family: inherit;
+ border: none;
+ position: relative;
+ overflow: hidden;
+ z-index: 1;
+ box-shadow: 6px 6px 12px #c5c5c5,
+             -6px -6px 12px #ffffff;
 }
 
-.btn-go::before {
-  content: '';
-  width: 0;
-  height: 55px;
-  border-radius: 15px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
-  transition: .5s ease;
-  display: block;
-  z-index: -1;
+.btn-go::before, .btn-asignar::before {
+ content: '';
+ width: 0;
+ height: 55px;
+ border-radius: 15px;
+ position: absolute;
+ top: 0;
+ left: 0;
+ background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+ transition: .5s ease;
+ display: block;
+ z-index: -1;
 }
 
-.btn-go:hover::before {
-  width: 9em;
+.btn-go:hover::before, .btn-asignar:hover::before {
+ width: 9em;
 }
+
+/* #boxBuscar {} */
 </style>
