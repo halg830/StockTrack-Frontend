@@ -279,6 +279,8 @@ function filterFn(val, update) {
         opcionesFiltro.value.lotes = optionsLote.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
     })
 }
+
+const tooltip = ref(true)
 </script>
 
 <template>
@@ -352,6 +354,11 @@ function filterFn(val, update) {
                     </q-btn>
                 </div>
             </template>
+            <template v-slot:body-cell-descripcion="props">
+                <span @click="props.row.tooltip = !props.row.tooltip">{{ props.row.descripcion }}
+                    <q-tooltip v-model="props.row.tooltip" >{{ props.row.descripcion }}</q-tooltip>
+                </span>
+            </template>
             <template v-slot:top-right>
                 <q-input outlined dense debounce="300" color="primary" v-model="filter" class="buscar"
                     placeholder="Buscar cualquier campo" id="boxBuscar">
@@ -385,6 +392,37 @@ function filterFn(val, update) {
 </template>
 
 <style scoped>
+[data-tooltip] {
+  position: relative;
+  cursor: pointer;
+}
+
+[data-tooltip]:after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px;
+  background: #333;
+  color: #fff;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 10;
+}
+
+[data-tooltip]:hover:after {
+  opacity: 1;
+}
+
+.selectable-tooltip-text {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
 @media (max-width: 600px) and (max-height: 785px) {
     .flex {
         display: none;

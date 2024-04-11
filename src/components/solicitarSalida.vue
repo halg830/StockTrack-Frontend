@@ -5,6 +5,7 @@ import { useStoreUsuarios } from "../stores/usuarios";
 import { useQuasar } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 import { useStorePedidos } from "../stores/pedido.js";
+import moment from 'moment-timezone'
 
 //Route
 const route = useRoute()
@@ -47,14 +48,7 @@ async function obtenerNumSalida() {
 obtenerNumSalida();
 
 function fechaActual() {
-  const fecha = new Date();
-  const formatoFecha = `${fecha.getDate().toString().padStart(2, "0")} / ${(
-    fecha.getMonth() + 1
-  )
-    .toString()
-    .padStart(2, "0")} / ${fecha.getFullYear()}`;
-
-  return formatoFecha;
+  return moment().format('DD/MM/YYYY');
 }
 
 
@@ -97,6 +91,10 @@ function aggProductos(producto) {
 }
 
 function quitarProducto(index) {
+  if(productosAgg.value.length===1){
+    notificar("negative", "La salida no se puede quedar sin productos")
+    return
+  }
   productosAgg.value.splice(index, 1);
   notificar("negative", "Producto eliminado", "bottom");
 }
@@ -160,6 +158,46 @@ async function solicitarSalida() {
     selectLoad.value.salida = false
   }
 }
+
+//Validaciones
+function validarCampos() {
+  console.log(dataSalida.value);
+  const arrData = Object.values(dataSalida.value);
+  console.log(arrData);
+  for (const d of arrData) {
+    console.log(d);
+    if (d === null) {
+      notificar('negative', "Por favor complete todos los campos");
+      return;
+    }
+    if (typeof d === "string") {
+      if (d.trim() === "") {
+        notificar('negative', "Por favor complete todos los campos");
+        return;
+      }
+    }
+  }
+
+  if(!dataSalida.value.fechaEntrega) {
+    return
+  }
+  solicitarSalida()
+}
+
+function convertirFormato(fecha) {
+  const fechaOriginal = moment(fecha, 'DD/MM/YYYY');
+  const nuevaFecha = fechaOriginal.format('YYYY/MM/DD');
+  return nuevaFecha;
+}
+
+function fechaActualMasDosAnios() {
+  return moment().add(2, 'years').format('YYYY/MM/DD');
+}
+
+function optionsFn(date){
+  console.log(convertirFormato(date), convertirFormato(fechaActual()), convertirFormato(date) >= convertirFormato(fechaActual()));
+  return date >= convertirFormato(fechaActual())
+}
 </script>
 <template class="container">
   <div class="card">
@@ -191,11 +229,11 @@ async function solicitarSalida() {
               </div>
 
               <div style="margin-top: 20px;">
-                <q-input outlined v-model="dataSalida.fechaEntrega" mask="date" :rules="['date']" label="Fecha de entrega">
+                <q-input mask="date" outlined  v-model="dataSalida.fechaEntrega" :rules="[val=>!!val || 'Ingrese una fecha']" label="Fecha de entrega" >
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                        <q-date v-model="dataSalida.fechaEntrega">
+                        <q-date  today-btn v-model="dataSalida.fechaEntrega" :options="optionsFn">
                           <div class="row items-center justify-end">
                             <q-btn v-close-popup label="Close" color="primary" flat />
                           </div>
@@ -263,7 +301,7 @@ async function solicitarSalida() {
 
               <div style="display: flex; flex-direction: row-reverse; margin: 25px;">
                 <q-btn class="solicitar-salida" style="margin-top: 100px; margin: 0 auto;" type="submit"
-                  :loading="loadBtnSolicitar" @click="solicitarSalida">Solicitar salida</q-btn>
+                  :loading="loadBtnSolicitar" @click="validarCampos">Solicitar salida</q-btn>
               </div>
             </article>
           </section>

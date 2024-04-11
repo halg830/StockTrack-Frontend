@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 import { useStoreUsuarios } from '../stores/usuarios.js';
 import {useStoreProveedores} from '../stores/proveedor.js';
+import { useStoreProceso } from '../stores/proceso.js';
 
 const router = useRouter();
 
@@ -27,6 +28,12 @@ function notificar(tipo, msg) {
 
 // Variables tabla
 const columns = [
+{
+    name: 'codigo',
+    label: 'Código',
+    align: 'center',
+    field: 'codigo'
+  },
   {
     name: 'nombre',
     label: 'Nombre',
@@ -37,7 +44,7 @@ const columns = [
     name: 'presupuesto',
     label: 'Presupuesto Inicial',
     align: 'center',
-    field: (row) => helpersGenerales.formatearMoneda(row.presupuesto)
+    field: (row) => helpersGenerales.formatearMoneda(row.presupuestoAsignado)
   },
   {
     name: 'presupuestoDisponible',
@@ -99,9 +106,9 @@ const opciones = {
     modal.value = true
   },
   editar: (info) => {
+    console.log(info);
     data.value = {
-      ...info,
-      year: format(new Date(info.year), "yyyy"),
+      ...info, idSupervisor: {label: info.idSupervisor.nombre, value: info.idSupervisor._id}, idProveedor: {label: info.idProveedor.nombre, value: info.idProveedor._id}, idProceso: {label: info.idProceso.codigo, value: info.idProceso._id}
     }
     estado.value = 'editar'
     modal.value = true
@@ -114,9 +121,9 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useContrato.agregar(data.value)
+      const info = {...data.value, idSupervisor: data.value.idSupervisor.value, idProveedor: data.value.idProveedor.value, idProceso: data.value.idProceso.value}
+      const response = await useContrato.agregar(info)
       console.log(response);
-      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -125,6 +132,7 @@ const enviarInfo = {
 
       rows.value.unshift(response)
       modal.value = false
+      getInfo();
       notificar('positive', 'Guardado exitosamente')
     } catch (error) {
       console.log(error);
@@ -136,9 +144,10 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useContrato.editar(data.value._id, data.value);
+      const info = {...data.value, idSupervisor: data.value.idSupervisor.value, idProveedor: data.value.idProveedor.value, idProceso: data.value.idProceso.value}
+
+      const response = await useContrato.editar(data.value._id, info);
       console.log(response);
-      getInfo();
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -146,6 +155,7 @@ const enviarInfo = {
       }
       rows.value.splice(buscarIndexLocal(response._id), 1, response);
       modal.value = false
+      getInfo();
       notificar('positive', 'Editado exitosamente')
     } catch (error) {
       console.log(error);
@@ -295,6 +305,39 @@ async function obtenerOptionsProveedor() {
 }
 obtenerOptionsProveedor();
 
+const useProceso = useStoreProceso()
+async function obtenerOptionsProceso() {
+  try {
+    const response = await useProceso.getAll();
+    console.log(response);
+
+    if (!response) return;
+
+    if (response.error) {
+      notificar("negative", response.error);
+      return;
+    }
+
+    const procesosActivos = response.filter(proceso => proceso.estado === true);
+
+    opcionesSelect.value.proceso = procesosActivos.map((proceso) => {
+      return {
+        label:
+          proceso.codigo,
+        value: proceso._id,
+      };
+    });
+
+    console.log(opcionesSelect.value);
+
+  } catch (error) {
+    console.log(error);
+  } finally {
+    selectLoad.value.proceso = false;
+  }
+}
+obtenerOptionsProceso();
+
 const opcionesFiltro = ref({
   
 })
@@ -334,6 +377,24 @@ function filterFnProveedor(val, update) {
       ) || [];
   });
 }
+
+function filterFnProceso(val, update) {
+  val = val.trim();
+  if (val === "") {
+    update(() => {
+      opcionesFiltro.value.proceso = opcionesSelect.value.proceso;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    opcionesFiltro.value.proceso =
+      opcionesSelect.value.proceso.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      ) || [];
+  });
+}
 </script>
 <template>
   <main style=" width: 100%; display: flex; justify-content: center;">
@@ -352,7 +413,7 @@ function filterFnProveedor(val, update) {
             <q-input outlined v-model.trim="data.nombre" label="Nombre" type="text"
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
-            <q-input outlined v-model="data.presupuestoAsignado" label="Presupuesto" mask="##########"
+            <q-input v-if="estado!='editar'" outlined v-model="data.presupuestoAsignado" label="Presupuesto" mask="##########"
               :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
 
             <q-select class="input3" outlined v-model:model-value="data.idSupervisor" use-input input-debounce="0"
@@ -372,6 +433,19 @@ function filterFnProveedor(val, update) {
               label="Seleccione un proveedor" behavior="menu" @filter="filterFnProveedor"
               :options="opcionesFiltro.proveedor" :rules="[(val) => val != null || 'Seleccione una opción']"
               :loading="selectLoad.proveedor" :disable="selectLoad.proveedor">
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    Sin resultados
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+
+            <q-select v-if="estado!='editar'" class="input3" outlined v-model:model-value="data.idProceso" use-input input-debounce="0"
+              label="Seleccione un proceso" behavior="menu" @filter="filterFnProceso"
+              :options="opcionesFiltro.proceso" :rules="[(val) => val != null || 'Seleccione una opción']"
+              :loading="selectLoad.proceso" :disable="selectLoad.proceso">
               <template v-slot:no-option>
                 <q-item>
                   <q-item-section class="text-grey">
@@ -429,7 +503,8 @@ function filterFnProveedor(val, update) {
               </path>
             </svg>
           </button>
-          <button class="btn-go" @click="goLotes(props.row._id)">Lotes <i class="fa-solid fa-arrow-right"></i></button>
+          <!--<button class="btn-go" @click="goLotes(props.row._id)">Conexion Lote-Red <i class="fa-solid fa-arrow-right"></i></button>
+-->
         </q-td>
       </template>
     </q-table>
