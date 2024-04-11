@@ -24,6 +24,7 @@ import contrato from "../components/contrato.vue";
 import proceso from "../components/proceso.vue";
 import disRedArea from '../components/distribucionRedArea.vue';
 import disAreaDestino from '../components/distribucionAreaDestino.vue';
+import proveedor from '../components/proveedor.vue'
 import { useStoreUsuarios } from "../stores/usuarios.js";
 
 const checkAuth = () => {
@@ -219,6 +220,13 @@ const routes = [
         beforeEnter: auth,
         meta: { rol: ["admin", "instructor", "bodega"] },
         component: editarPerfil,
+      },
+      {
+        path: "/proveedor",
+        beforeEnter: auth,
+        meta: { rol: ["admin", "instructor", "bodega"] },
+        component: proveedor,
+
       },
     ],
   },
