@@ -84,7 +84,7 @@ async function getContratos() {
   try {
     loadTable.value = true
 
-    const response = await useContrato.getPorContrato(id.value)
+    const response = await useContrato.getPorProceso(id.value)
     console.log("Hola soy contratos", response);
 
     if (!response) return;

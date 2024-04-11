@@ -78,10 +78,11 @@ export const useStoreContrato = defineStore(modelo, () => {
     }
   };
 
-  const getPorContrato = async (id) => {
+  const getPorProceso = async (id) => {
     try {
       insertarToken()
-      const response = await axios.get(`${modelo}/buscarId/${id}`);
+      console.log(id);
+      const response = await axios.get(`${modelo}/por-proceso/${id}`);
       console.log(response);
       return response.data;
     } catch (error) {
@@ -229,5 +230,5 @@ export const useStoreContrato = defineStore(modelo, () => {
     }
   };
 
-  return { contratos, getAll, getPorContrato, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
+  return { contratos, getAll, getPorProceso, agregar, editar, activar, inactivar, ajustarPresupuesto, getById };
 });
