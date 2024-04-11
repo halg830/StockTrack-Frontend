@@ -6,9 +6,9 @@ import { useStoreLotes } from '../stores/lote.js';
 import { useStoreRedConocimiento } from '../stores/redConocimiento.js'
 import helpersGenerales from '../helpers/generales';
 import { format } from "date-fns";
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-const data = ref({idLote:{}})
+const data = ref({ idLote: {} })
 const tipoConex = ref('')
 const selectLoad = ref({
   lote: true,
@@ -33,108 +33,170 @@ function notificar(tipo, msg) {
 }
 
 // Variables tabla
-const columns = [
-  {
-    name: 'codigo',
-    label: 'Codigo',
-    align: 'center',
-    field: 'codigo'
-  },
-  {
-    name: 'nombre',
-    label: 'Red',
-    align: 'center',
-    field: (row) => row.idRed.nombre
-  },
-
-  {
-    name: 'estado',
-    label: 'Estado',
-    align: 'center',
-    field: 'estado'
-  },
-  {
-    name: 'opciones',
-    label: 'Opciones',
-    align: 'center',
-    field: 'opciones'
-  },
-]
-const rows = ref([])
-const loadTable = ref(false)
-const filter = ref("")
-
-const route = useRoute()
+const columns = ref([{}]);
+const rows = ref([]);
+const loadTable = ref(false);
+const filter = ref("");
+const router = useRouter();
+const route = useRoute();
 
 // Get datos tablas
 const useConexRedLote = useStoreConexRedLote()
 async function getInfo() {
- 
+
 }
 getInfo()
 
 
 const conexion = ref('')
 const obtener = {
-  lote: async()=>{
+  lote: async () => {
     try {
-    loadTable.value = true
+      loadTable.value = true
 
-    const response = await useConexRedLote.getPorLote(route.params.id)
-    tipoConex.value = 'Conexión Lote-Red'
-    console.log("hola soy data conexiones", response);
-    if (!response) return;
-    if (response.error) {
-      notificar('negative', response.error)
-      return
+      const response = await useConexRedLote.getPorLote(route.params.id)
+      tipoConex.value = 'Conexión Lote-Red'
+      console.log("hola soy data conexiones", response);
+      if (!response) return;
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+
+      opciones.value = {
+        agregar: () => {
+          data.value = { idLote: data.value.idLote }
+          estado.value = 'agregar'
+          cambio.value = 0
+          modal.value = true
+        },
+        editar: (info) => {
+          data.value = { ...info, idLote: { label: info.idLote.nombre, value: info.idLote._id }, idRed: { label: info.idRed.nombre, value: info.idRed._id } }
+          estado.value = 'editar'
+          cambio.value = 0
+          modal.value = true
+          console.log(data)
+        },
+      }
+
+      columns.value = [
+        {
+          name: 'codigo',
+          label: 'Codigo',
+          align: 'center',
+          field: 'codigo'
+        },
+        {
+          name: 'nombre',
+          label: 'Red',
+          align: 'center',
+          field: (row) => row.idRed.nombre
+        },
+
+        {
+          name: 'estado',
+          label: 'Estado',
+          align: 'center',
+          field: 'estado'
+        },
+        {
+          name: 'opciones',
+          label: 'Opciones',
+          align: 'center',
+          field: 'opciones'
+        },
+      ]
+
+      const conexion = response.find(conexion => conexion.idLote._id === route.params.id)
+      console.log(conexion);
+      data.value.idLote = { label: conexion.idLote.nombre, value: conexion.idLote._id }
+      console.log("hola soy id lote", data.value.idLote)
+
+      rows.value = response.reverse();
+
+    } catch (error) {
+      console.log(error);
     }
-
-    const conexion = response.find(conexion=>conexion.idLote._id===route.params.id)
-    console.log(conexion);
-    data.value.idLote = {label: conexion.idLote.nombre, value: conexion.idLote._id}
-    console.log("hola soy id lote", data.value.idLote)
-
-    rows.value = response.reverse();
-
-  } catch (error) {
-    console.log(error);
-  }
-  finally {
-    loadTable.value = false
-  }
+    finally {
+      loadTable.value = false
+    }
   },
-  red: async()=>{
+  red: async () => {
     try {
-    loadTable.value = true
+      loadTable.value = true
 
-    const response = await useConexRedLote.getPorRed(route.params.id)
-    tipoConex.value = 'Conexión Red-Lote'
-    console.log("hola soy data conexiones2", response);
-    if (!response) return;
-    if (response.error) {
-      notificar('negative', response.error)
-      return
+      const response = await useConexRedLote.getPorRed(route.params.id)
+      tipoConex.value = 'Conexión Red-Lote'
+      console.log("hola soy data conexiones2", response);
+      if (!response) return;
+      if (response.error) {
+        notificar('negative', response.error)
+        return
+      }
+
+      opciones.value = {
+        agregar: () => {
+          data.value = { idRed: data.value.idRed }
+          estado.value = 'agregar'
+          cambio.value = 0
+          modal.value = true
+        },
+        editar: (info) => {
+          data.value = { ...info, idLote: { label: info.idLote.nombre, value: info.idLote._id }, idRed: { label: info.idRed.nombre, value: info.idRed._id } }
+          estado.value = 'editar'
+          cambio.value = 0
+          modal.value = true
+          console.log(data)
+        },
+      }
+
+      columns.value = [
+        {
+          name: 'codigo',
+          label: 'Codigo',
+          align: 'center',
+          field: 'codigo'
+        },
+        {
+          name: 'nombre',
+          label: 'Lote',
+          align: 'center',
+          field: (row) => row.idLote.nombre
+        },
+
+        {
+          name: 'estado',
+          label: 'Estado',
+          align: 'center',
+          field: 'estado'
+        },
+        {
+          name: 'opciones',
+          label: 'Opciones',
+          align: 'center',
+          field: 'opciones'
+        },
+      ]
+
+      const conexion = response.find(conexion => conexion.idRed._id === route.params.id)
+      console.log(conexion);
+      data.value.idRed = { label: conexion.idRed.nombre, value: conexion.idRed._id }
+      console.log("hola soy id lote", data.value.idRed)
+      rows.value = response.reverse();
+
+    } catch (error) {
+      console.log(error);
     }
-
-    const conexion = response.find(conexion=>conexion.idRed._id===route.params.id)
-    console.log(conexion);
-    data.value.idRed = {label: conexion.idRed.nombre, value: conexion.idRed._id}
-    console.log("hola soy id lote", data.value.idRed)
-    rows.value = response.reverse();
-
-  } catch (error) {
-    console.log(error);
-  }
-  finally {
-    loadTable.value = false
-  }
+    finally {
+      loadTable.value = false
+    }
   }
 }
 
 const conex = ref('')
 const id = ref('')
 
-onMounted(()=>{
+onMounted(() => {
   const conexion = route.params.conexion
   conex.value = conexion
   id.value = route.params.id
@@ -158,11 +220,11 @@ async function obtenerOptions() {
     }
 
     console.log(conex.value);
-    if(conex.value==='lote'){
-      const lote = responseLotes.find(l=>l._id===id.value)
+    if (conex.value === 'lote') {
+      const lote = responseLotes.find(l => l._id === id.value)
       console.log(lote);
-      data.value.idLote = {label: lote.nombre, value: lote._id}
-      opcionesSelect.value.lotes = [{label: lote.nombre, value: lote._id}]
+      data.value.idLote = { label: lote.nombre, value: lote._id }
+      opcionesSelect.value.lotes = [{ label: lote.nombre, value: lote._id }]
       return
     }
 
@@ -202,9 +264,9 @@ async function obtenerOptionsRed() {
     opcionesSelect.value.redes = redesActivas.map((red) => {
       return {
         label:
-        red.nombre,
+          red.nombre,
         value: red._id,
-        disable: red.estado === 0 ,
+        disable: red.estado === 0,
       };
     });
 
@@ -218,21 +280,8 @@ obtenerOptionsRed();
 
 // Opciones tabla
 const estado = ref('agregar')
-const opciones = {
-  agregar: () => {
-    data.value = {idLote: data.value.idLote, idRed: data.value.idRed}
-    estado.value = 'agregar'
-    cambio.value = 0
-    modal.value = true
-  },
-  editar: (info) => {
-    data.value = { ...info, idLote:{label: info.idLote.nombre, value: info.idLote._id} , idRed:{label: info.idRed.nombre, value: info.idRed._id}   }
-    estado.value = 'editar'
-    cambio.value = 0
-    modal.value = true
-    console.log(data)
-  },
-}
+const opciones = ref({});
+
 let cambio = ref(0)
 
 const enviarInfo = {
@@ -240,7 +289,7 @@ const enviarInfo = {
     try {
       loadingModal.value = true
 
-      const response = await useConexRedLote.agregar({...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value})
+      const response = await useConexRedLote.agregar({ ...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value })
       console.log(response);
       getInfo();
       if (!response) return
@@ -262,7 +311,7 @@ const enviarInfo = {
     loadingModal.value = true
     try {
       console.log(data.value);
-      const response = await useConexRedLote.editar(data.value._id, {...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value});
+      const response = await useConexRedLote.editar(data.value._id, { ...data.value, idLote: data.value.idLote.value, idRed: data.value.idRed.value });
       console.log(response);
       getInfo();
       if (!response) return
@@ -368,7 +417,7 @@ const in_activar = {
     loadIn_activar.value = true
     try {
       const response = await useConexRedLote.inactivar(id)
-      console.log("hola soy inactivo",response);
+      console.log("hola soy inactivo", response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -388,22 +437,34 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
+function goToBack() {
+  let routeName = '/'; 
+  if (conex.value === 'lote') {
+    routeName = '/lotes'; 
+  } else if (conex.value === 'red') {
+    routeName = '/red-conocimiento'; 
+  }
+  router.push(routeName);
+}
+
+
 
 </script>
 <template>
-  <main style=" width: 100%; display: flex; justify-content: center;">
+  <main style="  width: 100%; display: flex; justify-content: center; flex-direction: column; align-items: center; ">
     <!-- MODAL -->
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} {{ tipoConex }}</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} {{ tipoConex
+            }}</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-gutter-md">
           <q-form @submit="validarCampos" class="q-gutter-md">
             <q-input filled v-model.trim="data.codigo" label="Codigo" type="text"
-              :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
+              :rules="[val => !!val || 'Ingrese un código']"></q-input>
 
             <q-select class="input3" outlined v-model:model-value="data.idLote" use-input input-debounce="0"
               label="Seleccione un lote" behavior="menu" @filter="filterFn" :options="opcionesFiltro.lotes"
@@ -419,9 +480,9 @@ function buscarIndexLocal(id) {
             </q-select>
 
             <q-select class="input3" outlined v-model:model-value="data.idRed" use-input input-debounce="0"
-              label="Seleccione una red de conocimiento" behavior="menu" @filter="filterFnRedes" :options="opcionesFiltro.redes"
-              :rules="[(val) => val != null || 'Seleccione una red']" :loading="selectLoad.red"
-              :disable="selectLoad.lote || conex==='red'">
+              label="Seleccione una red de conocimiento" behavior="menu" @filter="filterFnRedes"
+              :options="opcionesFiltro.redes" :rules="[(val) => val != null || 'Seleccione una red']"
+              :loading="selectLoad.red" :disable="selectLoad.lote || conex === 'red'">
               <template v-slot:no-option>
                 <q-item>
                   <q-item-section class="text-grey">
@@ -482,6 +543,11 @@ function buscarIndexLocal(id) {
         </q-td>
       </template>
     </q-table>
+    <div style="width: 90%;">
+      <button class="btn-back" @click="goToBack">
+        <i class="fa-solid fa-backward"></i> Volver
+      </button>
+    </div>
   </main>
 </template>
 <style scoped>
@@ -600,6 +666,42 @@ function buscarIndexLocal(id) {
 
 .btn-go:hover::before,
 .btn-asignar:hover::before {
+  width: 9em;
+}
+
+.btn-back {
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 9em;
+  height: 55px;
+  border-radius: 15px;
+  font-size: 15px;
+  font-family: inherit;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 6px 6px 12px #c5c5c5,
+    -6px -6px 12px #ffffff;
+}
+
+.btn-back::before {
+  content: '';
+  width: 0;
+  height: 55px;
+  border-radius: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-image: linear-gradient(to left, red 100%, red 0%);
+  transition: .5s ease;
+  display: block;
+  z-index: -1;
+}
+
+.btn-back:hover::before {
   width: 9em;
 }
 </style>

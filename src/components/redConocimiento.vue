@@ -3,12 +3,16 @@ import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar';
 import helpersGenerales from '../helpers/generales';
 import { useStoreRedConocimiento } from '../stores/redConocimiento.js';
+import { useRouter } from 'vue-router';
+
+
 const useLotes = useStoreRedConocimiento();
 const loadingTable = ref(false);
 const loadingModal = ref(false);
 const loadIn_activar = ref(false);
 const filter = ref("");
 const modal = ref(false);
+const router = useRouter();
 const $q = useQuasar();
 
 function notificar(tipo, msg) {
@@ -177,6 +181,9 @@ function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 };
 
+function goConexRedLote(id){
+  router.push(`/conexion-red-lote/red/${id}`);
+}
 </script>
 
 
@@ -239,8 +246,9 @@ function buscarIndexLocal(id) {
                         @click="props.row.estado ? in_activar.inactivar(props.row._id) : in_activar.activar(props.row._id); props.row.estado = 'load'" />
                 </q-td>
             </template>
-            <template v-slot:body-cell-opciones="props">
+            <template v-slot:body-cell-opciones="props" >
                 <q-td :props="props" class="botones">
+                    <div id="buttons">
                     <button class="editBtn" @click="opciones.editar(props.row)">
                         <svg height="1em" viewBox="0 0 512 512">
                             <path
@@ -248,6 +256,8 @@ function buscarIndexLocal(id) {
                             </path>
                         </svg>
                     </button>
+                    <button class="btn-go" @click="goConexRedLote(props.row._id)">Conexion Red-Lote <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
                 </q-td>
             </template>
         </q-table>
@@ -329,6 +339,48 @@ function buscarIndexLocal(id) {
     left: 0px;
     transform-origin: right;
 }
+
+.btn-go,
+.btn-asignar {
+  width: 9em;
+  height: 55px;
+  border-radius: 15px;
+  font-size: 15px;
+  font-family: inherit;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 6px 6px 12px #c5c5c5,
+    -6px -6px 12px #ffffff;
+}
+
+.btn-go::before,
+.btn-asignar::before {
+  content: '';
+  width: 0;
+  height: 55px;
+  border-radius: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+  transition: .5s ease;
+  display: block;
+  z-index: -1;
+}
+
+.btn-go:hover::before,
+.btn-asignar:hover::before {
+  width: 9em;
+}
+
+
+#buttons{
+    display: flex;
+}
+
+
 
 /* #boxBuscar {} */
 </style>
