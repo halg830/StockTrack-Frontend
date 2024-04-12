@@ -76,7 +76,7 @@ const rows = ref([]);
 const filter = ref('')
 
 //Data modal
-const data = ref({});
+const data = ref({identificacion: '', telefono: ''});
 const confirmPassword = ref("");
 const estado = ref("agregar");
 const modal = ref(false);
@@ -111,7 +111,7 @@ getInfo();
 // Opciones tabla
 const opciones = {
   agregar: () => {
-    data.value = {};
+    data.value = {identificacion: '', telefono: ''};
     confirmPassword.value = "";
     estado.value = "agregar";
     modal.value = true;
@@ -193,6 +193,10 @@ function validarCampos() {
         return;
       }
     }
+  }
+
+  if(data.value.identificacion.length<7 || data.value.telefono.length!=10){
+    return
   }
 
   if (confirmPassword.value.trim() === "" && estado.value === 'agregar') {
@@ -285,6 +289,7 @@ function buscarIndexLocal(id) {
               <q-input filled v-model="data.identificacion" label="Identificación" bottom-slots
                 input-class="input" :rules="[
                   (val) => !!val || 'Ingrese una identificación',
+                  val=> val.length>=7 || 'Identificación no válida'
                 ]" :oninput="limitarLongitud('identificacion', 10)" mask="##########">
               </q-input>
             </div>
@@ -301,7 +306,7 @@ function buscarIndexLocal(id) {
 
             <div style="max-width: 500px">
               <q-input filled v-model="data.telefono" mask="##########" label="Telefono" bottom-slots
-                :rules="[(val) => !!val || 'Ingrese un teléfono']" :oninput="limitarLongitud('telefono', 10)">
+                :rules="[(val) => !!val || 'Ingrese un teléfono', val=> val.length===10 || 'Identificación no válida']" :oninput="limitarLongitud('telefono', 10)">
               </q-input>
             </div>
             <div style="max-width: 500px">
