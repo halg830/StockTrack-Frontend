@@ -10,7 +10,7 @@ import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
+const mostrarTabla = ref(false);
 // Alertas notify
 const $q = useQuasar();
 function notificar(tipo, msg, posicion = "top") {
@@ -78,6 +78,8 @@ const selectLoad = ref({
 });
 
 const opcionesSelect = ref({});
+
+
 
 const useDestino = useStoreDestinos();
 async function obtenerOptions() {
@@ -257,10 +259,12 @@ const detPedidos = ref([]);
 function aggProductos(producto) {
   producto.icon = 'check'
   console.log(producto);
+  mostrarTabla.value = true;
   const agregado = buscarIndexLocal(producto._id)
   if (agregado >= 0) {
     delete producto.icon
     productosAgg.value.splice(agregado, 1)
+    if (productosAgg.value.length === 0) mostrarTabla.value = false;
     notificar("negative", "Producto eliminado de la lista");
 
     return
@@ -273,6 +277,7 @@ function aggProductos(producto) {
 
 function quitarProducto(index) {
   productosAgg.value.splice(index, 1);
+  if (productosAgg.value.length === 0) mostrarTabla.value = false;
   notificar("negative", "Producto eliminado", "bottom");
 }
 
@@ -328,6 +333,31 @@ async function crearDetPedido(detPedido) {
     console.log(error);
   }
 }
+
+//Validaciones
+function validarCampos() {
+  const arrData = Object.values(data.value);
+  console.log(arrData);
+  for (const d of arrData) {
+    console.log(d);
+    if (d === null) {
+      notificar('negative', "Por favor complete todos los campos");
+      return;
+    }
+    if (typeof d === "string") {
+      if (d.trim() === "") {
+        notificar('negative', "Por favor complete todos los campos");
+        return;
+      }
+    }
+  }
+
+  if(detPedidos.value.length<=0) {
+    notificar('negative', 'Ingrese al menos un producto')
+    return
+  }
+  solicitarPedido()
+}
 </script>
 <template>
   <main class="container">
@@ -335,7 +365,7 @@ async function crearDetPedido(detPedido) {
       <div class="header">
         <div class="top">
           <div class="title">
-            <h3 class="title2">Solicitar pedido aqui </h3>
+            <h3 class="title2">Solicitar pedido</h3>
           </div>
         </div>
       </div>
@@ -345,18 +375,18 @@ async function crearDetPedido(detPedido) {
             <section>
               <article>
                 <div style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; ">
-                  <span class="spanns">Fecha: {{ fechaActual() }}</span>
-                  <span class="spanns">N° pedido: {{ numPedido }}</span>
+                  <span class="spanns text-h4">Fecha: {{ fechaActual() }}</span>
+                  <span class="spanns text-h4">N° pedido: {{ numPedido }}</span>
                 </div>
                 <div>
                   <div class="inputs"
                     style="display: grid; grid-template-columns: repeat(2,1fr); justify-items: center; margin-top: 65px;">
-                    <div class="input-cont">
+                    <div class="input-cont text-h4">
                       <span>Instructor: </span>
                       <q-select class="input3" outlined v-model:model-value="data.idInstructorEncargado" label="Nombre"
                         type="text" disable lazy-rules></q-select>
                     </div>
-                    <div class="input-cont">
+                    <div class="input-cont text-h4">
                       <span>Destino: </span>
                       <q-select class="input3" outlined v-model:model-value="data.idDestino" use-input
                         input-debounce="0" label="Codigo Destino" behavior="menu" @filter="filterFn"
@@ -375,16 +405,18 @@ async function crearDetPedido(detPedido) {
                 </div>
               </article>
               <article>
-                <div id="contTopLotes">
-                  <q-btn style="margin: 0 auto; margin-top: 50px;" @click="verTodosProductos">Ver todos los
-                    productos</q-btn>
-                </div>
+
                 <div class="q-pa-md">
+
                   <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable
                     animated control-color="black" navigation padding arrows height="200px"
                     class="transparent shadow-2 rounded-borders" draggable="false">
-                    <q-carousel-slide :name="index + 1" class="column no-wrap  "
-                      v-for="(loteGrupo, index) in opcionesSelect.lotes" :key="index">
+
+
+                    <q-carousel-slide :name="index + 1" class="column no-wrap"
+                      style="display: flex; align-items: center;" v-for="(loteGrupo, index) in opcionesSelect.lotes"
+                      :key="index">
+                      <h4 style="margin: 0;">Lotes</h4>
                       <div style="background-color: transparent; "
                         class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
                         <button class="btnLote" v-for="lote in loteGrupo" :key="lote._id"
@@ -398,8 +430,13 @@ async function crearDetPedido(detPedido) {
                       </div>
                     </q-carousel-slide>
                   </q-carousel>
+                  <div id="contTopLotes" style="display: flex; justify-content: flex-end;">
+                    <q-btn style="margin: 0; margin-top: 30px;" @click="verTodosProductos">Ver todos los
+                      productos</q-btn>
+                  </div>
                 </div>
-                <div class="overfow">
+                <div v-if="mostrarTabla" class="overfow" style="display: grid; justify-items:center;">
+                  <span class="text-h4" style="margin-bottom: 30px;">Lista de Productos</span>
                   <table class="tabla">
                     <thead>
                       <td>N°</td>
@@ -417,10 +454,10 @@ async function crearDetPedido(detPedido) {
                       <td>{{ producto.nombre }}</td>
                       <td>{{ producto.unidadMedida }}</td>
                       <td>
-                        <input outlined v-model="detPedidos[index].cantidad" type="number" />
+                        <q-input outlined v-model="detPedidos[index].cantidad" :rules="[val=>!!val || 'Ingrese una cantidad', val=>val.length>0 || 'Cantidad no válida']" type="number" />
                       </td>
                       <td>
-                        <q-btn @click="quitarProducto(index)">
+                        <q-btn @click="quitarProducto(index)" class="eliminar">
                           <q-icon name="close" />
                         </q-btn>
                       </td>
@@ -430,7 +467,7 @@ async function crearDetPedido(detPedido) {
 
                 <div style="display: flex; flex-direction: row-reverse; margin: 25px;">
                   <q-btn class="solicitar-pedido" style="margin-top: 100px; margin: 0 auto;" type="submit"
-                    :loading="loadBtnSolicitar" @click="solicitarPedido">Solicitar pedido</q-btn>
+                    :loading="loadBtnSolicitar" @click="validarCampos">Solicitar pedido</q-btn>
                 </div>
               </article>
             </section>
@@ -483,11 +520,18 @@ async function crearDetPedido(detPedido) {
   margin: 1rem;
 }
 
+.input-cont {
+  display: flex;
+  align-items: baseline;
+  gap: 13px;
+}
+
 .card {
   border: 1px solid black;
   margin: 2rem;
-  border-radius: 1rem;
-  max-width: 2000px;
+  border-radius: 2rem;
+  width: 70%;
+  max-width: 100vw;
 }
 
 .header {
@@ -497,11 +541,39 @@ async function crearDetPedido(detPedido) {
 }
 
 .btnLote {
-  border-radius: 100%;
+  border-radius: 30%;
   background-color: white;
   margin-left: 20px;
   width: 40%;
   height: 80%;
+}
 
+.eliminar:hover {
+  background-color: red;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla th,
+.tabla td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabla th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.tabla tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.tabla tr:hover {
+  background-color: #ddd;
 }
 </style>

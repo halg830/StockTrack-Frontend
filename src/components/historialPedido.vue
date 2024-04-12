@@ -3,9 +3,13 @@ import { ref } from 'vue'
 import { useQuasar } from 'quasar';
 import { useStorePedidos } from '../stores/pedido.js';
 import { useStoreDetallePedido } from '../stores/detallePedido.js'
+import { useStoreUsuarios } from '../stores/usuarios';
 import { format } from "date-fns";
 import { useRouter } from 'vue-router';
 import logoSena from '../assets/logoSena.png'
+
+const useUsuario = useStoreUsuarios()
+const rol = useUsuario.usuario.rol
 
 const rows = ref([]);
 const rowsdetails = ref([]);
@@ -121,7 +125,13 @@ async function getInfo() {
             return
         }
 
-        rows.value = response
+        const pedidos = []
+        for(let i = response.length-1; i>=0; i--){
+            if(response[i].estado===true) pedidos.push(response[i])
+            else pedidos.unshift(response[i])
+        }
+
+        rows.value = pedidos
 
     } catch (error) {
         console.log(error);
@@ -183,32 +193,17 @@ function generarSalida(idPedido) {
             <q-card class="modal">
                 <q-card-section class="q-gutter-md">
                     <q-form class="q-gutter-md">
-                        <div class="column" style="width: 50%; background-color: darkgray">
+                        <div class="row justify-center items-center" style="width: 100%;">
                             <div>
                                 <img :src="logoSena" alt="Imagen" class="img1">
+
+                            </div>
+                            <div  class="title-modal">
                                 <h3 class="title-details">Servicio Nacional de Aprendizaje</h3>
+                                <q-card-actions  class="q-gutter-md row  justify-end">
+                                <q-btn class="botonv1" flat dense icon="close" v-close-popup />
+                            </q-card-actions>
                             </div>
-                            <div class="title-modal bg-primary">
-                                <span class="text-h4">FACTURAR A</span>
-                            </div>
-                            <div>
-                                <div class="text">
-                                    <p class="text-h5 text-weight-bold">Instructor: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
-                                        pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
-                                </div>
-                                <div class="text">
-                                    <p class="text-h5 text-weight-bold">Destino: </p>
-                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
-                                        pedidoSeleccionado.idDestino.nombre :
-                                        '' }}</p>
-                                </div>
-                            </div>
-
-
-                            <q-card-actions class="q-gutter-md row  justify-end">
-                                    <q-btn class="botonv1" flat dense icon="close" v-close-popup />
-                                </q-card-actions>
                         </div>
 
                         <div class="column">
@@ -221,11 +216,23 @@ function generarSalida(idPedido) {
                                     <p class="text-h5 text-weight-bold">Número pedido: </p>
                                     <p class="text-h5">{{ pedidoSeleccionado ? pedidoSeleccionado.numero : '' }}</p>
                                 </div>
+
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Instructor: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ?
+                                        pedidoSeleccionado.idInstructorEncargado.nombre : '' }}</p>
+                                </div>
                                
                                 <div class="text">
                                     <p class="text-h5 text-weight-bold">Código Destino: </p>
                                     <p class="text-h5" id="text">{{ pedidoSeleccionado ?
                                         pedidoSeleccionado.idDestino.codigo :
+                                        '' }}</p>
+                                </div>
+
+                                <div class="text">
+                                    <p class="text-h5 text-weight-bold">Destino: </p>
+                                    <p class="text-h5" id="text">{{ pedidoSeleccionado ? pedidoSeleccionado.idDestino.nombre :
                                         '' }}</p>
                                 </div>
                                 
@@ -301,7 +308,7 @@ function generarSalida(idPedido) {
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
                         <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary"> </q-btn>
-                        <q-btn v-if="!props.row.estado" @click="generarSalida(props.row._id)" icon="file_open"
+                        <q-btn v-if="!props.row.estado && rol==='admin'" @click="generarSalida(props.row._id)" icon="file_open"
                             color="secondary"> </q-btn>
                     </q-td>
                 </template>
@@ -427,9 +434,9 @@ main {
 }
 
 .modal {
-    max-width: 95%;
+    max-width: 75%;
     width: 100%;
-    max-height: 95%;
+    max-height: 105%;
     height: auto;
 }
 

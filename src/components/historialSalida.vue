@@ -324,6 +324,17 @@ const entregar = {
                         <div class="q-pa-sm" style="flex-basis: 100%;">
                             <q-table flat bordered :rows="rowsdetails" :columns="columnsdetails" row-key="name" hide-bottom
                                 class="table-details">
+                                <template v-slot:body-cell-descripcion="props">
+                                    <q-td :props="props" class="descripcion">
+                                        <VMenu class="vmenu">
+                                            <span class="descripcion">{{ props.row.idProducto.descripcion }}</span>
+
+                                            <template #popper>
+                                                <div class="descripVmenu">{{ props.row.idProducto.descripcion }}</div>
+                                            </template>
+                                        </VMenu>
+                                    </q-td>
+                                </template>
                             </q-table>
                         </div>
                     </q-form>
@@ -573,5 +584,23 @@ main {
   background: #555; 
 }
 
+.descripcion {
+    max-width: 300px;
+    max-height: 5px;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.vmenu {
+    max-height: 50px;
+}
+
+.descripVmenu {
+    padding: 1rem;
+    word-wrap: break-word;
+    height: fit-content;
+    max-height: 300px;
+    max-width: 300px;
+}
 
 </style>
