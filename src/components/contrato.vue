@@ -394,7 +394,7 @@ function filterFnProveedor(val, update) {
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
         <q-toolbar style="background-color:#39A900;">
-          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Programa</q-toolbar-title>
+          <q-toolbar-title style="color: white;">{{ helpersGenerales.primeraMayus(estado) }} Contrato</q-toolbar-title>
           <q-btn class="botonv1" flat dense icon="close" v-close-popup />
         </q-toolbar>
 

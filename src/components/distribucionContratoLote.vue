@@ -362,10 +362,9 @@ function goToContrato(){
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
 
-                        <div style=" display: flex; width: 96%; justify-content: flex-end;">
-                            <q-btn :loading="loadingModal" padding="10px" type="submit"
-                                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
-                        </div>
+                            <div style=" display: flex; width: 96%; justify-content: flex-end;">
+                                <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
+                              </div>
 
                     </q-form>
                 </q-card-section>

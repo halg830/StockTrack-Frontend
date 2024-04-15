@@ -52,8 +52,8 @@ function notificar(tipo, msg) {
 const columns = [
     { name: "idAreaTematica", label: "Area Tematica", field: (row) => row.idAreaTematica.nombre, sortable: true, align: "left" },
     { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idDisDependenciaRed.idRed.nombre, sortable: true, align: "left" },
-    { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
-    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
+    { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: (row) => helpersGenerales.formatearMoneda(row.presupuestoAsignado), sortable: true, align: "left" },
+    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: (row) => helpersGenerales.formatearMoneda(row.presupuestoDisponible), sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -364,10 +364,9 @@ function goDestino(idDisRedArea){
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
 
-                        <div style=" display: flex; width: 96%; justify-content: flex-end;">
-                            <q-btn :loading="loadingModal" padding="10px" type="submit"
-                                :color="estado == 'editar' ? 'warning' : 'primary'" :label="estado" />
-                        </div>
+                            <div style=" display: flex; width: 96%; justify-content: flex-end;">
+                                <q-btn :loading="loadingModal" padding="10px" type="submit" color="primary" :label="estado" />
+                              </div>
 
                     </q-form>
                 </q-card-section>
