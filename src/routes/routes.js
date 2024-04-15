@@ -13,7 +13,7 @@ import Lote from "../components/lote.vue";
 import Dependencia from "../components/dependencia.vue";
 import Area from "../components/area.vue";
 import historialPedido from "../components/historialPedido.vue";
-import distribucionDependencia from "../components/distribucionDependencia.vue";
+import distribucionLoteDependencia from "../components/distribucionLoteDependencia.vue";
 import distribucionDependenciaRed from "../components/distribucionDependenciaRed.vue";
 import editarPerfil from "../components/editarPerfil.vue";
 import redConocimiento from "../components/redConocimiento.vue";
@@ -75,9 +75,9 @@ const routes = [
       { path: "/areas", beforeEnter: auth, meta: { rol: ["admin"] }, component: Area,},
       { path: "/historial-pedido", beforeEnter: auth, meta: { rol: ["admin", "instructor", "bodega"] }, component: historialPedido,},
       { path: "/historial-salida", beforeEnter: auth, meta: { rol: ["admin"] }, component: historialSalida,},
-      { path: "/distribucion-dependencia/:idDependencia", beforeEnter: auth, meta: { rol: ["admin"] }, name: "Dependencia con ID", component: distribucionDependencia, props: true,},
-      { path: "/distribucion-dependencia-red", beforeEnter: auth, meta: { rol: ["admin"] }, component: distribucionDependenciaRed,},
-      { path: "/distribucion-dependencia-red/:idDistribucionDependencia", beforeEnter: auth, meta: { rol: ["admin"] }, name: "DestinosConID", component: distribucionDependenciaRed, props: true,},
+      { path: "/distribucion-dependencia/:idDependencia", beforeEnter: auth, meta: { rol: ["admin"] }, name: "Lote Dependencia", component: distribucionLoteDependencia, props: true,},
+      // { path: "/distribucion-dependencia-red", beforeEnter: auth, meta: { rol: ["admin"] }, component: distribucionDependenciaRed,},
+      { path: "/distribucion-dependencia-red/:idDistribucionDependencia", beforeEnter: auth, meta: { rol: ["admin"] }, name: "Dependencia Red", component: distribucionDependenciaRed, props: true,},
       { path: '/distribucion-red-area/:idDisDependenciaRed', beforeEnter: auth, meta: { rol: ['admin'] }, name: 'Red Area', component: disRedArea, props: true,},
       { path: '/distribucion-area-destino/:idDisRedArea', beforeEnter: auth, meta: { rol: ['admin'] }, name: 'Area Destino', component: disAreaDestino, props: true,},
       { path: '/distribucion-contrato-lote/:idContrato', beforeEnter: auth, meta: { rol: ['admin'] }, name: 'Contrato Lote', component: disContratoLote, props: true,},

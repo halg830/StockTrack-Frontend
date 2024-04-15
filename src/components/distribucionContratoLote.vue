@@ -5,7 +5,6 @@ import { ref, onMounted } from 'vue';
 import { useStoreContrato } from '../stores/contrato.js';
 import { useStoreLotes } from '../stores/lote.js';
 import { useStoreDisContratoLote } from '../stores/distribucionContratoLote.js'
-import { format } from "date-fns";
 import helpersGenerales from '../helpers/generales';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -50,10 +49,10 @@ function notificar(tipo, msg) {
 
 // Columnas Tabla
 const columns = [
-    { name: "idLote", label: "Area Tematica", field: (row) => row.idLote.nombre, sortable: true, align: "left" },
-    { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idDisDependenciaRed.idRed.nombre, sortable: true, align: "left" },
-    { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
-    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
+    { name: "idContrato", label: "Codigo Nombre Contrato", field: (row) => `${row.idContrato.codigo} - ${row.idContrato.nombre}`, sortable: true, align: "left" },
+    { name: "idLote", label: "Nombre Lote" , field: (row) => row.idLote.nombre, sortable: true, align: "left" },
+    { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: (row)=>helpersGenerales.formatearMoneda(row.presupuestoAsignado), sortable: true, align: "left" },
+    { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: (row)=>helpersGenerales.formatearMoneda(row.presupuestoDisponible) , sortable: true, align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -65,7 +64,7 @@ async function getInfo() {
     try {
         await getContratoID();
         loadingTable.value = true
-        const response = await storeDisContratoLote.getDistribucionesById(idDisDependenciaRed.value)
+        const response = await storeDisContratoLote.getDistribucionesById(idContrato.value);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -86,22 +85,26 @@ getInfo();
 // Opciones Agreagar y Editar 
 const opciones = {
     agregar: () => {
+        if (!opcionesSelect.value.contrato || !opcionesSelect.value.contrato.length ) {
+        notificar('negative', 'No hay Contratos disponibles para agregar una distribución.');
+        } else {
         data.value = {
-            idDisDependenciaRed:{
-                label: `${optionDisDependenciaRed.value[0].label}` ,
-                value: String(optionDisDependenciaRed.value[0].value)
+            idContrato: {
+            label: opcionesSelect.value.contrato[0].label,
+            value: String(opcionesSelect.value.contrato[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
+        }
     },
     editar: (info) => {
         console.log("info",info);
         data.value = {
             ...info,
-            idDisDependenciaRed: {
-                label: `${info.idDisDependenciaRed.idRed.nombre} - P. Disponible: ${info.idDisDependenciaRed.presupuestoDisponible}`,
-                value: String(info.idDisDependenciaRed._id)
+            idContrato: {
+                label: `${info.idContrato.nombre} - P. Disponible: ${info.idContrato.presupuestoDisponible}`,
+                value: String(info.idContrato._id)
             },
             idLote:{
                 label: `${info.idLote.nombre}`,
@@ -122,22 +125,23 @@ const enviarInfo = {
             let info = {
                 ...data.value, 
                 idLote: data.value.idLote.value, 
-                idDisDependenciaRed: data.value.idDisDependenciaRed.value
+                idContrato: data.value.idContrato.value
             };
 
-            // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(contrato.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Contrato');
+                return;
+            }
 
             const response = await storeDisContratoLote.agregar(info)
-            // ajustarPresupuesto(info);
+            await getOptionContrato();
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
             getInfo();
+            ajustarPresupuesto(info);
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -153,13 +157,12 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value, idLote: data.value.idLote.value, idDisDependenciaRed: data.value.idDisDependenciaRed.value
+                ...data.value, idLote: data.value.idLote.value, idContrato: data.value.idContrato.value
             };
-
-            // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(contrato.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Contrato');
+                return;
+            }
             const response = await storeDisContratoLote.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -237,7 +240,7 @@ const in_activar = {
 async function ajustarPresupuesto(data) {
     try {
         console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        const response = await storeContrato.ajustarPresupuesto(data.idContrato, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -257,23 +260,23 @@ function buscarIndexLocal(id) {
 
 
 // Opciones y distribucion (Dis Dependencia Red)
-let optionDisDependenciaRed = ref([])
-let disDependenciaRed = ref([])
-async function getOptionDisDependenciaRed(){
+
+const opcionesSelect = ref({})
+let contrato = ref([])
+async function getOptionContrato(){
     try {
         await getContratoID();
-        const response = await storeDisDependenciaRed.getById(idDisDependenciaRed.value);
-        disDependenciaRed.value = response
-        optionDisDependenciaRed.value = [{
-            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
-            value: String(response._id), 
-            disable: response.estado === 0 
-        }];
+        const response = await storeContrato.getById(idContrato.value);
+        contrato.value = response
+        opcionesSelect.value.contrato = response.estado === true
+        ? [{ label: `${response.codigo } - P. Disponible: ${helpersGenerales.formatearMoneda(response.presupuestoDisponible)}`, value: response._id }]
+        : [];
+
     } catch (error) {
         console.log(error);
     };
 };
-getOptionDisDependenciaRed();
+getOptionContrato();
 
 // Obtener Opciones de Lotes
 let optionsLotes = ref([]);
@@ -295,33 +298,29 @@ getOptionsLotes();
 
 // Filtro de opciones
 const opcionesFiltro = ref({
-    lotes: optionsAreas.value
+    lotes: optionsLotes.value
 })
 
 function filterFn(val, update) {
   val=val.trim()
   if (val === '') {
     update(() => {
-      opcionesFiltro.value.lotes = optionsAreas.value
+      opcionesFiltro.value.lotes = optionsLotes.value
     })
     return
   }
 
   update(() => {
     const needle = val.toLowerCase()
-    opcionesFiltro.value.lotes = optionsAreas.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
+    opcionesFiltro.value.lotes = optionsLotes.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
 
-// Ir a Distribucion Dependecia Red (Volver)
-function goToDisDependenciaRed(){
-    router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
+// Ir a Contrato (Volver)
+function goToContrato(){
+    router.push(`/contrato/${contrato.value.idProceso}`);
 }
 
-// Ir a los Destinos (Dar nuevos Presupuestos)
-function goDestino(idDisRedArea){
-    router.push(`/distribucion-area-destino/${idDisRedArea}`)
-}
 
 </script>
 
@@ -415,12 +414,11 @@ function goDestino(idDisRedArea){
                             </path>
                         </svg>
                     </button>
-                  <button class="btn-go" @click="goDestino(props.row._id)">Destinos <i class="fa-solid fa-forward"></i></button>
                 </q-td>
             </template>
         </q-table>
         <div style="width: 90%;">
-            <button class="btn-back" @click="goToDisDependenciaRed()">
+            <button class="btn-back" @click="goToContrato()">
                  <i class="fa-solid fa-backward"></i> Volver
              </button> 
          </div>
@@ -582,4 +580,3 @@ function goDestino(idDisRedArea){
   }
 /* #boxBuscar {} */
 </style>
-0

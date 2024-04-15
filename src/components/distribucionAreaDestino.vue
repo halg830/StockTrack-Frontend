@@ -66,7 +66,6 @@ async function getInfo() {
         await DisRedAreaID();
         loadingTable.value = true
         const response = await storeDisAreaDestino.getDistribucionesById(idDisRedArea.value)
-        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -87,17 +86,20 @@ getInfo();
 // Opciones Agreagar y Editar 
 const opciones = {
     agregar: () => {
+        if (!opcionesSelect.value.disRedArea || !opcionesSelect.value.disRedArea.length ) {
+            notificar('negative', 'No hay Dependencias Red disponibles para agregar una distribución.');
+        } else {
         data.value = {
-            idDisRedArea:{
-                label: `${optionDisRedArea.value[0].label}` ,
-                value: String(optionDisRedArea.value[0].value)
+            idDisRedArea: {
+                label: opcionesSelect.value.disRedArea[0].label,
+                value: String(opcionesSelect.value.disRedArea[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
+        }
     },
     editar: (info) => {
-        console.log("info",info);
         data.value = {
             ...info,
             idDisRedArea: {
@@ -124,20 +126,20 @@ const enviarInfo = {
                 idDisRedArea: data.value.idDisRedArea.value
             };
 
-            // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(disRedArea.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Area');
+                return;
+            }
 
             const response = await storeDisAreaDestino.agregar(info)
-            // ajustarPresupuesto(info);
+            
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
             getInfo();
-
+            ajustarPresupuesto(info);
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
 
@@ -152,14 +154,15 @@ const enviarInfo = {
         loadingModal.value = true
         try {
             let info = {
-                ...data.value,  idDestino: data.value.idDestino.value, 
+                ...data.value,  
+                idDestino: data.value.idDestino.value, 
                 idDisRedArea: data.value.idDisRedArea.value
             };
 
-            // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuesto) > parseFloat(disRedArea.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Area');
+                return;
+            }
             const response = await storeDisAreaDestino.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -231,38 +234,35 @@ const in_activar = {
     }
 }
 
-// async function ajustarPresupuesto(data) {
-//     try {
-//         console.log("Presupuesto", data.presupuestoAsignado);
-//         const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
-//         if (!response) return
-//         if (response.error) {
-//             notificar('negative', response.error)
-//             return
-//         }
-//         notificar('positive', 'Presupuesto Actualizado')
-//     } catch (error) {
-//         console.log(error);
-//     }
+async function ajustarPresupuesto(data) {
+    try {
+        const response = await storeDisRedArea.ajustarPresupuesto(data.idDisRedArea, {presupuestoAsignado:data.presupuestoAsignado})
+        if (!response) return
+        if (response.error) {
+            notificar('negative', response.error)
+            return
+        }
+        notificar('positive', 'Presupuesto Actualizado')
+    } catch (error) {
+        console.log(error);
+    }
 
-// }
+}
  
 function buscarIndexLocal(id) {
     return rows.value.findIndex((r) => r._id === id);
 }
 
-let optionDisRedArea = ref([])
+const opcionesSelect = ref({})
 let disRedArea = ref([])
 async function getOptionDisRedArea(){
     try {
         await DisRedAreaID();
         const response = await storeDisRedArea.getById(idDisRedArea.value);
         disRedArea.value = response
-        optionDisRedArea.value = [{
-            label: `${response.idAreaTematica.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
-            value: String(response._id), 
-            disable: response.estado === 0 
-        }];
+        opcionesSelect.value.disRedArea = response.estado === true 
+        ? [{label: `${response.idAreaTematica.nombre} - P. Disponible: ${response.presupuestoDisponible}`, value:response._id,}]
+        :[]
     } catch (error) {
         console.log(error);
     };
@@ -303,13 +303,10 @@ function filterFn(val, update) {
     opcionesFiltro.value.destino = optionsDestinos.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1) || []
   })
 }
-// function goToDisDependenciaRed(){
-//     router.push(`/distribucion-dependencia-red/${disDependenciaRed.value.idDisDependencia._id}`);
-// }
+function goToDisDependenciaRed(){
+    router.push(`/distribucion-red-area/${disRedArea.value.idDisDependenciaRed._id}`)
+}
 
-// function goDestino(){
-//     router.push()
-// }
 
 </script>
 

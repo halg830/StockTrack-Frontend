@@ -86,17 +86,20 @@ getInfo();
 // Opciones Agreagar y Editar 
 const opciones = {
     agregar: () => {
+        if (!opcionesSelect.value.disDependenciaRed || !opcionesSelect.value.disDependenciaRed.length ) {
+            notificar('negative', 'No hay Dependencias Red disponibles para agregar una distribución.');
+        } else {
         data.value = {
-            idDisDependenciaRed:{
-                label: `${optionDisDependenciaRed.value[0].label}` ,
-                value: String(optionDisDependenciaRed.value[0].value)
+            idDisDependenciaRed: {
+                label: opcionesSelect.value.disDependenciaRed[0].label,
+                value: String(opcionesSelect.value.disDependenciaRed[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
+        }
     },
     editar: (info) => {
-        console.log("info",info);
         data.value = {
             ...info,
             idDisDependenciaRed: {
@@ -125,19 +128,20 @@ const enviarInfo = {
                 idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
-            // if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependenciaRed.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible de la Red.');
+                return;
+            }
 
             const response = await storeDisRedArea.agregar(info)
-            // ajustarPresupuesto(info);
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
             getInfo();
+            ajustarPresupuesto(info);
+
 
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
@@ -156,10 +160,10 @@ const enviarInfo = {
                 ...data.value, idAreaTematica: data.value.idAreaTematica.value, idDisDependenciaRed: data.value.idDisDependenciaRed.value
             };
 
-            // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependenciaRed.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible de la Red.');
+                return;
+            }
             const response = await storeDisRedArea.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -236,8 +240,7 @@ const in_activar = {
 // Ajustar presupuesto de la DisDependenciaRed
 async function ajustarPresupuesto(data) {
     try {
-        console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        const response = await storeDisDependenciaRed.ajustarPresupuesto(data.idDisDependenciaRed, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -257,18 +260,16 @@ function buscarIndexLocal(id) {
 
 
 // Opciones y distribucion (Dis Dependencia Red)
-let optionDisDependenciaRed = ref([])
+const opcionesSelect = ref({})
 let disDependenciaRed = ref([])
 async function getOptionDisDependenciaRed(){
     try {
         await disDependenciaRedID();
-        const response = await storeDisDependenciaRed.getById(idDisDependenciaRed.value);
+        let response = await storeDisDependenciaRed.getById(idDisDependenciaRed.value);
         disDependenciaRed.value = response
-        optionDisDependenciaRed.value = [{
-            label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
-            value: String(response._id), 
-            disable: response.estado === 0 
-        }];
+        opcionesSelect.value.disDependenciaRed = response.estado === true
+        ?[{label: `${response.idRed.nombre} - P. Disponible: ${response.presupuestoDisponible}`, value: response._id,}]
+        :[];
     } catch (error) {
         console.log(error);
     };

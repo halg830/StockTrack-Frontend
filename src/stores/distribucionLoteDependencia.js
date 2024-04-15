@@ -5,9 +5,9 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useStoreUsuarios } from "./usuarios";
 
-const modelo = "disDependencia";
+const modelo = "disLoteDependencia";
 
-export const useStoreDisDependencia = defineStore(modelo, () => {
+export const useStoreDisLoteDependencia = defineStore(modelo, () => {
   function insertarToken(){
     const useUsuario = useStoreUsuarios()
 
@@ -28,13 +28,13 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     notificar("negative", "Por favor vuela a iniciar sesión");
     router.push("/");
   }
-  const distribucionesDependencia = ref([]);
+  const disLoteDependencia = ref([]);
   const getAll = async () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
-      distribucionesDependencia.value = response.data;
+      disLoteDependencia.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -79,7 +79,7 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     try {
       insertarToken()
       const response = await axios.get(`${modelo}/distribucion/${idDependencia}`);
-      distribucionesDependencia.value = response.data;
+      disLoteDependencia.value = response.data;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -224,5 +224,5 @@ export const useStoreDisDependencia = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById, getDistribucionesById, distribucionesDependencia };
+  return { getAll, agregar, editar, activar, inactivar, ajustarPresupuesto, getById, getDistribucionesById, disLoteDependencia };
 });

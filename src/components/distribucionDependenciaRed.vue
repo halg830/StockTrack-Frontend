@@ -2,7 +2,7 @@
 
 import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { useStoreDisDependencia } from '../stores/distribucionDependencia.js';
+import { useStoreDisLoteDependencia } from '../stores/distribucionLoteDependencia.js';
 import { useStoreRedConocimiento } from '../stores/redConocimiento.js';
 import { useStoreDisDependenciaRed } from '../stores/distribucionDependenciaRed.js'
 import { format } from "date-fns";
@@ -24,7 +24,7 @@ onMounted(distribucionDependencia);
 const $q = useQuasar();
 
 // Tiendas
-const storeDisDependencia = useStoreDisDependencia();
+const storeDisLoteDependencia = useStoreDisLoteDependencia();
 const storeRedConocimiento = useStoreRedConocimiento();
 const storeDisDependenciaRed = useStoreDisDependenciaRed();
 
@@ -54,7 +54,6 @@ const columns = [
     { name: "idRed", label: "Red de Conocimiento" , field: (row) => row.idRed.nombre, sortable: true, align: "left" },
     { name: "presupuestoAsignado", label: "Presupuesto Asignado", field: "presupuestoAsignado", sortable: true, align: "left" },
     { name: "presupuestoDisponible", label: "Presupuesto Disponible", field: "presupuestoDisponible", sortable: true, align: "left" },
-    { name: "year", label: "Vigencia", field: (row) => format(new Date(row.year), 'yyyy'), align: "left" },
     { name: "estado", label: "Estado", field: "estado", sortable: true, align: "center" },
     { name: "opciones", label: "Opciones", field: (row) => null, sortable: false, align: "center" },
 ];
@@ -66,7 +65,6 @@ async function getInfo() {
         await distribucionDependencia();
         loadingTable.value = true
         const response = await storeDisDependenciaRed.getDistribucionesById(idDistribucionDependencia.value)
-        console.log(response);
         if (!response) return;
         if (response.error) {
             notificar('negative', response.error)
@@ -87,14 +85,18 @@ getInfo();
 // Opciones agregar y editar
 const opciones = {
     agregar: () => {
+        if (!opcionesSelect.value.disDependencia || !opcionesSelect.value.disDependencia.length ) {
+            notificar('negative', 'No hay dependencias disponibles para agregar una distribución.');
+        } else {
         data.value = {
-            idDisDependencia:{
-                label: `${optionDisDependencia.value[0].label}` ,
-                value: String(optionDisDependencia.value[0].value)
+            idDisDependencia: {
+                label: opcionesSelect.value.disDependencia[0].label,
+                value: String(opcionesSelect.value.disDependencia[0].value)
             }
         };
         estado.value = 'agregar';
         modal.value = true;
+        }
     },
     editar: (info) => {
         data.value = {
@@ -118,27 +120,25 @@ const enviarInfo = {
     agregar: async () => {
         try {
             loadingModal.value = true
-            console.log(data.value);
             let info = {
                 ...data.value, 
                 idRed: data.value.idRed.value, 
                 idDisDependencia: data.value.idDisDependencia.value
             };
-
             if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
-                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible de la Dependencia');
                 return;
             }
 
             const response = await storeDisDependenciaRed.agregar(info)
-            ajustarPresupuesto(info);
+            
             if (!response) return
             if (response.error) {
                 notificar('negative', response.error)
                 return
             }
             getInfo();
-
+            ajustarPresupuesto(info);
             modal.value = false
             notificar('positive', 'Guardado exitosamente')
 
@@ -157,11 +157,11 @@ const enviarInfo = {
                 idRed: data.value.idRed.value, 
                 idDisDependencia: data.value.idDisDependencia.value
             };
-
-            // if (parseFloat(info.presupuesto) > parseFloat(disItemLote.value.presupuestoDisponible)) {
-            //     notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible del Lote');
-            //     return;
-            // }
+            
+            if (parseFloat(info.presupuestoAsignado) > parseFloat(disDependencia.value.presupuestoDisponible)) {
+                notificar('negative', 'El presupuesto ingresado es mayor que el presupuesto disponible de la Dependencia');
+                return;
+            }
             const response = await storeDisDependenciaRed.editar(data.value._id, info);
             if (!response) return
             if (response.error) {
@@ -238,8 +238,7 @@ const in_activar = {
 // Ajustar Presupuesto de la Dependencias
 async function ajustarPresupuesto(data) {
     try {
-        console.log("Presupuesto", data.presupuestoAsignado);
-        const response = await storeDisDependencia.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
+        const response = await storeDisLoteDependencia.ajustarPresupuesto(data.idDisDependencia, {presupuestoAsignado:data.presupuestoAsignado})
         if (!response) return
         if (response.error) {
             notificar('negative', response.error)
@@ -259,19 +258,21 @@ function buscarIndexLocal(id) {
 
 
 // Opciones de la Dependencia
-let optionDisDependencia = ref([])
-let disDependencia = ref([])
+
+const opcionesSelect = ref({})
+
+let disDependencia = ref()
 async function getOptionDisDependencia(){
     try {
         await distribucionDependencia();
-        const response = await storeDisDependencia.getById(idDistribucionDependencia.value);
+        let response = await storeDisLoteDependencia.getById(idDistribucionDependencia.value);
         console.log(response);
         disDependencia.value = response
-        optionDisDependencia.value = [{
-            label: `${response.idDependencia.nombre} - P. Disponible: ${response.presupuestoDisponible}`, 
-            value: String(response._id), 
-            disable: response.estado === 0 
-        }];
+        opcionesSelect.value.disDependencia = response.estado === true
+        ? [{label: `${response.idDependencia.nombre} - P. Disponible: ${response.presupuestoDisponible}`, value: response._id }]
+        : [];
+
+        console.log(opcionesSelect.value.disDependencia);
     } catch (error) {
         console.log(error);
     };
@@ -364,13 +365,6 @@ function goDisRedArea(idDisRedArea){
                                     val => val && val.length > 0 && val > 0 || 'Digite el presupuesto (Solo números)',
                                     val => /^\d+$/.test(val) || 'Ingrese solo números'   
                             ]" />
-
-                        <q-input filled v-model="data.year" type="text" label="Vigencia" lazy-rules
-                            :rules="[
-                                v => !!v || 'El campo Vigencia no puede estar vacío',
-                                v => /^\d{4}$/.test(v) || 'El campo Vigencia debe tener 4 dígitos numéricos'
-                            ]"
-                        />
 
                         <div style=" display: flex; width: 96%; justify-content: flex-end;">
                             <q-btn :loading="loadingModal" padding="10px" type="submit"
@@ -591,4 +585,4 @@ function goDisRedArea(idDisRedArea){
   }
 
 /* #boxBuscar {} */
-</style>
+</style>../stores/distribucionLoteDependencia.js

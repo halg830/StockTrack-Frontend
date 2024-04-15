@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useStoreContrato } from '../stores/contrato.js'
 import helpersGenerales from '../helpers/generales';
@@ -72,20 +72,23 @@ const filter = ref("")
 // Get datos tabla
 const useContrato = useStoreContrato()
 
-const id = ref('')
-const route = useRoute()
 
-onMounted(() => {
-  id.value = route.params.id
-  getContratos()
-})
+const id = ref([]);
+const route = useRoute();
+
+const procesoID = async () => {
+  id.value = route.params.id;
+};
+
+onMounted(procesoID);
+
 
 async function getContratos() {
   try {
+    await procesoID()
     loadTable.value = true
 
     const response = await useContrato.getPorProceso(id.value)
-    console.log("Hola soy contratos", response);
 
     if (!response) return;
     if (response.error) {
@@ -102,17 +105,26 @@ async function getContratos() {
     loadTable.value = false
   }
 }
+getContratos();
 
 // Opciones tabla
 const estado = ref('agregar')
 const opciones = {
   agregar: () => {
-    data.value = {}
-    estado.value = 'agregar'
-    modal.value = true
+    if (!opcionesSelect.value.proceso || !opcionesSelect.value.proceso.length ) {
+      notificar('negative', 'No hay procesos disponibles para agregar un contrato.');
+    } else {
+      data.value = {
+        idProceso: {
+          label: opcionesSelect.value.proceso[0].label,
+          value: String(opcionesSelect.value.proceso[0].value)
+        }
+      };
+      estado.value = 'agregar';
+      modal.value = true;
+    }
   },
   editar: (info) => {
-    console.log(info);
     data.value = {
       ...info, idSupervisor: {label: info.idSupervisor.nombre, value: info.idSupervisor._id}, idProveedor: {label: info.idProveedor.nombre, value: info.idProveedor._id}, idProceso: {label: info.idProceso.codigo, value: info.idProceso._id}
     }
@@ -129,7 +141,6 @@ const enviarInfo = {
 
       const info = {...data.value, idSupervisor: data.value.idSupervisor.value, idProveedor: data.value.idProveedor.value, idProceso: data.value.idProceso.value}
       const response = await useContrato.agregar(info)
-      console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -138,7 +149,7 @@ const enviarInfo = {
 
       rows.value.unshift(response)
       modal.value = false
-      getInfo();
+      getContratos();
       notificar('positive', 'Guardado exitosamente')
     } catch (error) {
       console.log(error);
@@ -153,7 +164,6 @@ const enviarInfo = {
       const info = {...data.value, idSupervisor: data.value.idSupervisor.value, idProveedor: data.value.idProveedor.value, idProceso: data.value.idProceso.value}
 
       const response = await useContrato.editar(data.value._id, info);
-      console.log(response);
       if (!response) return
       if (response.error) {
         notificar('negative', response.error)
@@ -161,7 +171,7 @@ const enviarInfo = {
       }
       rows.value.splice(buscarIndexLocal(response._id), 1, response);
       modal.value = false
-      getInfo();
+      getContratos();
       notificar('positive', 'Editado exitosamente')
     } catch (error) {
       console.log(error);
@@ -235,12 +245,12 @@ function buscarIndexLocal(id) {
   return rows.value.findIndex((r) => r._id === id);
 }
 
-// const goContratoLote = (idDistribucion) => {
-//   router.push(`/distribucion-contrato-lote/${idDistribucion}`);
-// };
+function goToProceso() {
+  router.push(`/proceso`);
+}
 
-function goLotes(idDistribucion) {
-  router.push(`/lotes/${idDistribucion}`);
+function goDisContratoLote(idContrato) {
+  router.push(`/distribucion-contrato-lote/${idContrato}`);
 }
 
 const opcionesSelect = ref({})
@@ -249,8 +259,7 @@ const useUsuario = useStoreUsuarios()
 async function obtenerOptions() {
   try {
     const response = await useUsuario.getAll();
-    console.log(response);
-
+    
     if (!response) return;
 
     if (response.error) {
@@ -267,9 +276,6 @@ async function obtenerOptions() {
         value: usuario._id,
       };
     });
-
-    console.log(opcionesSelect.value);
-
   } catch (error) {
     console.log(error);
   } finally {
@@ -282,7 +288,6 @@ const useProveedor = useStoreProveedores()
 async function obtenerOptionsProveedor() {
   try {
     const response = await useProveedor.getAll();
-    console.log(response);
 
     if (!response) return;
 
@@ -301,7 +306,6 @@ async function obtenerOptionsProveedor() {
       };
     });
 
-    console.log(opcionesSelect.value);
 
   } catch (error) {
     console.log(error);
@@ -314,34 +318,30 @@ obtenerOptionsProveedor();
 const useProceso = useStoreProceso()
 async function obtenerOptionsProceso() {
   try {
-    const response = await useProceso.getAll();
-    console.log(response);
+    await procesoID();
 
-    if (!response) return;
+    const response = await useProceso.getById(id.value);
+
+    if (!response) {
+      return; 
+    }
 
     if (response.error) {
       notificar("negative", response.error);
-      return;
+      return; 
     }
 
-    const procesosActivos = response.filter(proceso => proceso.estado === true);
-
-    opcionesSelect.value.proceso = procesosActivos.map((proceso) => {
-      return {
-        label:
-          proceso.codigo,
-        value: proceso._id,
-      };
-    });
-
-    console.log(opcionesSelect.value);
+    opcionesSelect.value.proceso = response.estado === true
+      ? [{ label: `${response.codigo } - P. Disponible: ${helpersGenerales.formatearMoneda(response.presupuestoDisponible)}`, value: response._id }]
+      : [];
 
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching process options:", error);
   } finally {
     selectLoad.value.proceso = false;
   }
 }
+
 obtenerOptionsProceso();
 
 const opcionesFiltro = ref({
@@ -384,26 +384,12 @@ function filterFnProveedor(val, update) {
   });
 }
 
-function filterFnProceso(val, update) {
-  val = val.trim();
-  if (val === "") {
-    update(() => {
-      opcionesFiltro.value.proceso = opcionesSelect.value.proceso;
-    });
-    return;
-  }
 
-  update(() => {
-    const needle = val.toLowerCase();
-    opcionesFiltro.value.proceso =
-      opcionesSelect.value.proceso.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      ) || [];
-  });
-}
+
+
 </script>
 <template>
-  <main style=" width: 100%; display: flex; justify-content: center;">
+  <main style=" width: 100%; display: flex; justify-content: center; flex-direction: column; align-items: center;">
     <!-- MODAL -->
     <q-dialog v-model="modal">
       <q-card class="modal" style="width: 450px;">
@@ -420,7 +406,8 @@ function filterFnProceso(val, update) {
               :rules="[val => !!val || 'Ingrese un nombre']"></q-input>
 
             <q-input v-if="estado!='editar'" outlined v-model="data.presupuestoAsignado" label="Presupuesto" mask="##########"
-              :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"></q-input>
+              :rules="[val => !!val || 'Ingrese el presupuesto (solo números)']"
+              ></q-input>
 
             <q-select class="input3" outlined v-model:model-value="data.idSupervisor" use-input input-debounce="0"
               label="Seleccione un supervisor" behavior="menu" @filter="filterFnSupervisor"
@@ -449,9 +436,9 @@ function filterFnProceso(val, update) {
             </q-select>
 
             <q-select v-if="estado!='editar'" class="input3" outlined v-model:model-value="data.idProceso" use-input input-debounce="0"
-              label="Seleccione un proceso" behavior="menu" @filter="filterFnProceso"
+              label="Seleccione un proceso" behavior="menu" disable
               :options="opcionesFiltro.proceso" :rules="[(val) => val != null || 'Seleccione una opción']"
-              :loading="selectLoad.proceso" :disable="selectLoad.proceso">
+              :loading="selectLoad.proceso">
               <template v-slot:no-option>
                 <q-item>
                   <q-item-section class="text-grey">
@@ -509,11 +496,15 @@ function filterFnProceso(val, update) {
               </path>
             </svg>
           </button>
-          <!--<button class="btn-go" @click="goLotes(props.row._id)">Conexion Lote-Red <i class="fa-solid fa-arrow-right"></i></button>
--->
+          <button class="btn-go" @click="goDisContratoLote(props.row._id)">Distribur <i class="fa-solid fa-arrow-right"></i></button>
         </q-td>
       </template>
     </q-table>
+    <div style="width: 90%;">
+      <button class="btn-back" @click="goToProceso()">
+        <i class="fa-solid fa-backward"></i> Volver
+      </button> 
+   </div>
   </main>
 </template>
 <style scoped>
@@ -521,14 +512,13 @@ function filterFnProceso(val, update) {
   margin: auto;
 }
 
-.botones {
+.botones{
   display: flex;
   height: 100%;
   width: 100%;
   align-items: center;
   justify-content: center;
 }
-
 .editBtn {
   width: 55px;
   height: 55px;
@@ -601,34 +591,74 @@ function filterFnProceso(val, update) {
 }
 
 .btn-go {
-  width: 9em;
-  height: 55px;
-  border-radius: 15px;
-  font-size: 15px;
-  font-family: inherit;
-  border: none;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 6px 6px 12px #c5c5c5,
-    -6px -6px 12px #ffffff;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+ width: 9em;
+ height: 55px;
+ border-radius: 15px;   
+ font-size: 15px;
+ font-family: inherit;
+ border: none;
+ position: relative;
+ overflow: hidden;
+ z-index: 1;
+ box-shadow: 6px 6px 12px #c5c5c5,
+             -6px -6px 12px #ffffff;
 }
 
 .btn-go::before {
-  content: '';
-  width: 0;
-  height: 55px;
-  border-radius: 15px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
-  transition: .5s ease;
-  display: block;
-  z-index: -1;
+ content: '';
+ width: 0;
+ height: 55px;
+ border-radius: 15px;
+ position: absolute;
+ top: 0;
+ left: 0;
+ background-image: linear-gradient(to right, #39A900 0%, #39A900 100%);
+ transition: .5s ease;
+ display: block;
+ z-index: -1;
 }
 
 .btn-go:hover::before {
-  width: 9em;
+ width: 9em;
 }
+
+.btn-back {
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+ width: 9em;
+ height: 55px;
+ border-radius: 15px;   
+ font-size: 15px;
+ font-family: inherit;
+ border: none;
+ position: relative;
+ overflow: hidden;
+ z-index: 1;
+ box-shadow: 6px 6px 12px #c5c5c5,
+             -6px -6px 12px #ffffff;
+}
+
+.btn-back::before {
+ content: '';
+ width: 0;
+ height: 55px;
+ border-radius: 15px;
+ position: absolute;
+ top: 0;
+ right: 0;
+ background-image: linear-gradient(to left, red 100%, red 0%);
+ transition: .5s ease;
+ display: block;
+ z-index: -1;
+}
+
+.btn-back:hover::before {
+ width: 9em;
+}
+/* #boxBuscar {} */
 </style>
