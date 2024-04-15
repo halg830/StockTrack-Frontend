@@ -307,7 +307,7 @@ function generarSalida(idPedido) {
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props" class="botones">
-                        <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary"> </q-btn>
+                        <q-btn @click="verDetallesPedido(props.row._id)" icon="description" color="secondary" style="margin-right: 1rem;"> </q-btn>
                         <q-btn v-if="!props.row.estado && rol==='admin'" @click="generarSalida(props.row._id)" icon="file_open"
                             color="secondary"> </q-btn>
                     </q-td>

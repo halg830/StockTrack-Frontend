@@ -217,7 +217,7 @@ const opcionesFiltro = ref({
         <!-- Modal -->
         <q-dialog v-model="modal">
             <q-card class="modal" style="width: 450px;">
-                <q-toolbar style="background-color: #39A900;color: white">
+                <q-toolbar class="bg-primary" style="color: white">
                     <q-toolbar-title>{{ helpersGenerales.primeraMayus(estado) }} Destino</q-toolbar-title>
                     <q-btn class="botonv1" flat dense icon="close" v-close-popup />
                 </q-toolbar>

@@ -87,7 +87,7 @@ function cambiarContraseña() {
             <q-input v-model="userData.correo" label="Correo" style="width: 300px;" />
             <q-input v-model="userData.telefono" label="Teléfono" style="width: 300px;" />
             <input type="file" @change="cambiarFotoPerfil" accept="image/*" style="margin-top: 20px;">
-            <q-btn @click="guardarCambios" style="margin-top: 20px;">
+            <q-btn @click="guardarCambios" class="bg-primary" style="margin-top: 20px; color: white">
                 <q-spinner-hourglass v-if="isLoading" /> Guardar cambios
             </q-btn>
             <q-btn @click="cambiarContraseña" style="margin-top: 20px;">Cambiar Contraseña</q-btn>

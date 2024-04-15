@@ -406,8 +406,9 @@ function validarCampos() {
               </article>
               <article>
 
-                <div class="q-pa-md">
-
+                <div class="q-pa-md lotes">
+                  
+                  <h5 style="margin: 10px;">Buscar producto por lote</h5>
                   <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable
                     animated control-color="black" navigation padding arrows height="200px"
                     class="transparent shadow-2 rounded-borders" draggable="false">
@@ -416,22 +417,17 @@ function validarCampos() {
                     <q-carousel-slide :name="index + 1" class="column no-wrap"
                       style="display: flex; align-items: center;" v-for="(loteGrupo, index) in opcionesSelect.lotes"
                       :key="index">
-                      <h4 style="margin: 0;">Lotes</h4>
                       <div style="background-color: transparent; "
                         class="row fit justify-start items-center q-gutter-xs q-col-gutter no-wrap">
                         <button class="btnLote" v-for="lote in loteGrupo" :key="lote._id"
                           @click="mostrarLotes(lote._id, lote.nombre)">
                           {{ lote.nombre }}
                         </button>
-                        <!-- <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/mountains.jpg" />
-                    <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/parallax1.jpg" />
-                    <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/material.png" />
-                    <q-img class="rounded-borders col-3 full-height" src="https://cdn.quasar.dev/img/donuts.png" /> -->
                       </div>
                     </q-carousel-slide>
                   </q-carousel>
                   <div id="contTopLotes" style="display: flex; justify-content: flex-end;">
-                    <q-btn style="margin: 0; margin-top: 30px;" @click="verTodosProductos">Ver todos los
+                    <q-btn class="bg-primary" style="margin: 0; margin-top: 30px; color: white;" @click="verTodosProductos">Ver todos los
                       productos</q-btn>
                   </div>
                 </div>
@@ -466,7 +462,7 @@ function validarCampos() {
                 </div>
 
                 <div style="display: flex; flex-direction: row-reverse; margin: 25px;">
-                  <q-btn class="solicitar-pedido" style="margin-top: 100px; margin: 0 auto;" type="submit"
+                  <q-btn class="solicitar-pedido bg-primary" style="margin-top: 100px; margin: 0 auto; color: white;" type="submit"
                     :loading="loadBtnSolicitar" @click="validarCampos">Solicitar pedido</q-btn>
                 </div>
               </article>
@@ -540,12 +536,17 @@ function validarCampos() {
   padding-top: 1rem;
 }
 
+.lotes{
+  display: flex;
+  flex-direction: column;
+}
+
 .btnLote {
-  border-radius: 30%;
+  border-radius: 2%;
   background-color: white;
-  margin-left: 20px;
-  width: 40%;
-  height: 80%;
+  margin: 10px;
+  width: 100%;
+  height: 100px;
 }
 
 .eliminar:hover {
