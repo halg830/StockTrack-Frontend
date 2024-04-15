@@ -105,7 +105,7 @@ const opciones = {
                 value: String(dependencia.value._id)   
             },
             idDisContratoLote:{
-                label: `${info.idDisContratoLote.idContrato.nombre} - ${info.idDisContratoLote.idLote.nombre} - P. Disponible: ${info.idDisContratoLote.presupuestoDisponible}`,
+                label: `${info.idDisContratoLote.idContrato.nombre} - ${info.idDisContratoLote.idLote.nombre} - P. Disponible: ${helpersGenerales.formatearMoneda(info.idDisContratoLote.presupuestoDisponible)}`,
                 value: String(info.idDisContratoLote._id)
             }
         };
@@ -292,7 +292,7 @@ async function getOptionsContratoLote(){
     disContratoLote.value = response;
     opcionesSelect.value.disContratoLote =  response
       ? response.map(item => ({
-          label: `${item.idContrato.nombre} - ${item.idLote.nombre} - P. Disponible: ${item.presupuestoDisponible}`,
+          label: `${item.idContrato.nombre} - ${item.idLote.nombre} - P. Disponible: ${helpersGenerales.formatearMoneda(item.presupuestoDisponible)}`,
           value: item._id
         }))
       : [];
